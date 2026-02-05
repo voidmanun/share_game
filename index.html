@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vampire Survivors Clone</title>
+</head>
+
+<body>
+  <div id="app">
+    <canvas id="game-canvas"></canvas>
+    <div id="ui-layer">
+      <div id="shop" class="hidden">
+        <h2>Shop</h2>
+        <div class="shop-item">
+          <span>Upgrade Damage (10 Gold)</span>
+          <button id="buy-damage">Buy</button>
+        </div>
+        <div class="shop-item">
+          <span>Upgrade Speed (10 Gold)</span>
+          <button id="buy-speed">Buy</button>
+        </div>
+        <button id="close-shop">Close (P)</button>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+
+</html>
