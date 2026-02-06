@@ -12,6 +12,12 @@ export class Boss extends Enemy {
     }
 
     public render(ctx: CanvasRenderingContext2D): void {
+        ctx.save();
+
+        // Glow Effect
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = '#FF0000';
+
         ctx.fillStyle = this.color;
 
         // Draw Triangle
@@ -22,5 +28,13 @@ export class Boss extends Enemy {
         ctx.lineTo(this.x - size, this.y + size);
         ctx.closePath();
         ctx.fill();
+
+        // Core
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
     }
 }

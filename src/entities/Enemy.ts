@@ -2,13 +2,13 @@ import { Entity } from './Entity';
 import { Player } from './Player';
 
 export class Enemy extends Entity {
-    private player: Player;
+    protected player: Player;
     protected speed: number = 100; // pixels per second
     public hp: number = 3;
     public damage: number = 1;
 
     constructor(x: number, y: number, player: Player) {
-        super(x, y, 15, '#808080'); // Gray
+        super(x, y, 15, '#39FF14'); // Neon Green
         this.player = player;
         // Removed sprite loading
     }
@@ -33,9 +33,21 @@ export class Enemy extends Entity {
     }
 
     public render(ctx: CanvasRenderingContext2D): void {
-        // Draw Square
+        // Draw Alien (Rounded Head with eyes)
         ctx.fillStyle = this.color;
-        const size = this.radius * 2;
-        ctx.fillRect(this.x - this.radius, this.y - this.radius, size, size);
+
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Eyes
+        ctx.fillStyle = 'black';
+        const eyeOffset = this.radius * 0.4;
+        const eyeSize = this.radius * 0.25;
+
+        ctx.beginPath();
+        ctx.arc(this.x - eyeOffset, this.y - eyeOffset * 0.5, eyeSize, 0, Math.PI * 2); // Left Eye
+        ctx.arc(this.x + eyeOffset, this.y - eyeOffset * 0.5, eyeSize, 0, Math.PI * 2); // Right Eye
+        ctx.fill();
     }
 }

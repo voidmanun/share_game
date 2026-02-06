@@ -56,11 +56,48 @@ export class Player extends Entity {
     // Draw Weapons Over Player? Under usually.
     this.weapons.forEach(w => w.render(ctx));
 
-    // Force geometric render
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    // Spaceship Render
+    ctx.save();
+    ctx.translate(this.x, this.y);
+
+    // Rotate towards mouse (Input needs to provide mouse pos relative to screen center or world pos)
+    // The Input system currently gives axis. Game.ts handles camera.
+    // For now, let's assume facing movement direction or just Up/Right? 
+    // Usually top-down shooters face mouse.
+    // Let's check Input.ts to see if we have mouse info.
+    // Actually, Input.ts usually just has keys. 
+    // Let's assume standard "face movement" for now if no mouse info, OR just face UP as default and rotate if moving.
+
+    // Better: Simple Triangle pointing UP
+    const { x, y } = this.input.getAxis();
+    let angle = -Math.PI / 2; // Default Up
+    if (x !== 0 || y !== 0) {
+      angle = Math.atan2(y, x);
+    }
+
+    ctx.rotate(angle);
+
     ctx.fillStyle = this.color;
-    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(15, 0); // Tip
+    ctx.lineTo(-10, 10); // Back Right
+    ctx.lineTo(-5, 0); // Engine Checkpoint
+    ctx.lineTo(-10, -10); // Back Left
     ctx.closePath();
+    ctx.fill();
+
+    // Engine Flame
+    if (x !== 0 || y !== 0) {
+      ctx.fillStyle = 'orange';
+      ctx.beginPath();
+      ctx.moveTo(-5, 0);
+      ctx.lineTo(-15, 5);
+      ctx.lineTo(-25, 0); // Flame tip
+      ctx.lineTo(-15, -5);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    ctx.restore();
   }
 }

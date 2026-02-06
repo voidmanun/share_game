@@ -2,6 +2,7 @@ import { Player } from './entities/Player';
 import { Input } from './systems/Input';
 import { Enemy } from './entities/Enemy';
 import { Boss } from './entities/Boss';
+import { Scout } from './entities/Scout';
 import { Projectile } from './weapons/Projectile';
 import { MagicWand } from './weapons/MagicWand';
 import { Laser } from './weapons/Laser';
@@ -35,7 +36,9 @@ export class Game {
 
     private shop: Shop;
     private isPaused: boolean = false;
-    private background: HTMLImageElement;
+    // private background: HTMLImageElement; // Removed image background
+
+    private stars: { x: number; y: number; size: number; alpha: number }[] = [];
 
     constructor(canvasId: string) {
         const canvas = document.getElementById(canvasId);
@@ -49,8 +52,20 @@ export class Game {
         }
         this.ctx = ctx;
 
-        this.background = new Image();
-        this.background.src = '/assets/background.png';
+        this.ctx = ctx;
+
+        // Generate Stars
+        for (let i = 0; i < 2000; i++) {
+            this.stars.push({
+                x: Math.random() * this.WORLD_WIDTH,
+                y: Math.random() * this.WORLD_HEIGHT,
+                size: Math.random() * 2,
+                alpha: Math.random()
+            });
+        }
+
+        // this.background = new Image();
+        // this.background.src = '/assets/background.png';
 
         this.soundManager = new SoundManager();
         this.input = new Input();
@@ -257,7 +272,12 @@ export class Game {
         const x = this.player.x + Math.cos(angle) * radius;
         const y = this.player.y + Math.sin(angle) * radius;
 
-        this.enemies.push(new Enemy(x, y, this.player));
+        // 30% Chance for Scout
+        if (Math.random() < 0.3) {
+            this.enemies.push(new Scout(x, y, this.player));
+        } else {
+            this.enemies.push(new Enemy(x, y, this.player));
+        }
     }
 
     private spawnBoss(): void {
@@ -328,40 +348,34 @@ export class Game {
     }
 
     private drawGrid(camX: number, camY: number): void {
-        // Draw Tiled Background
-        if (!this.background.complete) {
-            // Fallback to grid if background not loaded
-            const gridSize = 100;
-            const startX = Math.floor(camX / gridSize) * gridSize;
-            const startY = Math.floor(camY / gridSize) * gridSize;
-            const endX = camX + this.canvas.width;
-            const endY = camY + this.canvas.height;
+        // Draw Stars
+        this.ctx.fillStyle = '#000000'; // Space Black
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height); // Clear with black (already done in render but strictly ensures no trail)
 
-            this.ctx.strokeStyle = '#333';
-            this.ctx.lineWidth = 1;
-            this.ctx.beginPath();
+        this.ctx.save();
+        // Stars are in world space, so we translate them by camera
+        // Note: drawGrid is called AFTER translate(-camX, -camY) in render()
+        // So we just draw them at their world coordinates.
+        // Optimization: Only draw visible stars
 
-            for (let x = startX; x <= endX; x += gridSize) {
-                this.ctx.moveTo(x, startY);
-                this.ctx.lineTo(x, endY);
+        const viewX = camX;
+        const viewY = camY;
+        const viewW = this.canvas.width;
+        const viewH = this.canvas.height;
+
+        this.ctx.fillStyle = 'white';
+        for (const star of this.stars) {
+            // Simple culling
+            if (star.x >= viewX && star.x <= viewX + viewW &&
+                star.y >= viewY && star.y <= viewY + viewH) {
+
+                this.ctx.globalAlpha = star.alpha;
+                this.ctx.beginPath();
+                this.ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                this.ctx.fill();
             }
-
-            for (let y = startY; y <= endY; y += gridSize) {
-                this.ctx.moveTo(startX, y);
-                this.ctx.lineTo(endX, y);
-            }
-
-            this.ctx.stroke();
-            return;
         }
-
-        const pattern = this.ctx.createPattern(this.background, 'repeat');
-        if (pattern) {
-            this.ctx.fillStyle = pattern;
-            this.ctx.fillRect(camX, camY, this.canvas.width, this.canvas.height);
-        }
-
-        // Draw World Border
+        this.ctx.restore();     // Draw World Border
         this.ctx.save();
         this.ctx.strokeStyle = 'red';
         this.ctx.lineWidth = 5;
