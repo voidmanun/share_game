@@ -1,27 +1,41 @@
 import { Player } from './entities/Player';
 import { Input } from './systems/Input';
 import { Enemy } from './entities/Enemy';
+import { Boss } from './entities/Boss';
 import { Projectile } from './weapons/Projectile';
 import { MagicWand } from './weapons/MagicWand';
+import { Laser } from './weapons/Laser';
 import { Pickup } from './entities/Pickup';
+import { Particle } from './entities/Particle';
 import { Shop } from './ui/Shop';
+import { SoundManager } from './systems/SoundManager';
 
 export class Game {
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
     private lastTime: number = 0;
 
+    public readonly WORLD_WIDTH = 4000;
+    public readonly WORLD_HEIGHT = 4000;
+
     private input: Input;
+    public soundManager: SoundManager; // Public for weapons
     public player: Player; // Public for Shop access
+
     private enemies: Enemy[] = [];
+    public getEnemies(): Enemy[] { return this.enemies; }
     private projectiles: Projectile[] = [];
     private pickups: Pickup[] = [];
+    private particles: Particle[] = [];
     private spawnTimer: number = 0;
     private spawnInterval: number = 1;
+    private bossSpawnTimer: number = 0;
+    private damageFlashTimer: number = 0;
     public gold: number = 0;
 
     private shop: Shop;
     private isPaused: boolean = false;
+    private background: HTMLImageElement;
 
     constructor(canvasId: string) {
         const canvas = document.getElementById(canvasId);
@@ -35,11 +49,17 @@ export class Game {
         }
         this.ctx = ctx;
 
+        this.background = new Image();
+        this.background.src = '/assets/background.png';
+
+        this.soundManager = new SoundManager();
         this.input = new Input();
-        this.player = new Player(window.innerWidth / 2, window.innerHeight / 2, this.input);
+        // Start player in center of the world
+        this.player = new Player(this.WORLD_WIDTH / 2, this.WORLD_HEIGHT / 2, this.input, this.WORLD_WIDTH, this.WORLD_HEIGHT);
 
         // Give player a weapon
         this.player.addWeapon(new MagicWand(this, this.player, 0.5, 1));
+        this.player.addWeapon(new Laser(this, this.player));
 
         this.shop = new Shop(this);
 
@@ -80,6 +100,10 @@ export class Game {
     }
 
     private update(deltaTime: number): void {
+        if (this.damageFlashTimer > 0) {
+            this.damageFlashTimer -= deltaTime;
+        }
+
         this.player.update(deltaTime);
 
         // Spawn enemies
@@ -87,6 +111,13 @@ export class Game {
         if (this.spawnTimer >= this.spawnInterval) {
             this.spawnTimer = 0;
             this.spawnEnemy();
+        }
+
+        // Spawn boss
+        this.bossSpawnTimer += deltaTime;
+        if (this.bossSpawnTimer >= 15) {
+            this.bossSpawnTimer = 0;
+            this.spawnBoss();
         }
 
         // Update enemies
@@ -105,6 +136,10 @@ export class Game {
         this.enemies = this.enemies.filter(e => !e.isDead);
         this.projectiles = this.projectiles.filter(p => !p.isDead);
         this.pickups = this.pickups.filter(p => !p.isDead);
+
+        // Update particles
+        this.particles.forEach(p => p.update(deltaTime));
+        this.particles = this.particles.filter(p => !p.isDead);
     }
 
     private checkCollisions(): void {
@@ -119,6 +154,8 @@ export class Game {
                     projectile.isDead = true;
                     if (enemy.isDead) { // Check if dead after damage
                         this.pickups.push(new Pickup(enemy.x, enemy.y, 10));
+                        this.createExplosion(enemy.x, enemy.y, enemy.color);
+                        this.soundManager.playExplosionSound();
                     }
                     break;
                 }
@@ -132,7 +169,10 @@ export class Game {
             const dist = Math.sqrt(dx * dx + dy * dy);
 
             if (dist < this.player.radius + enemy.radius) {
-                this.player.takeDamage(1);
+                this.player.takeDamage(enemy.damage);
+                this.soundManager.playPlayerHitSound();
+                this.damageFlashTimer = 0.2; // Flash for 0.2s
+
                 // Push enemy back to avoid instant death
                 const angle = Math.atan2(dy, dx);
                 enemy.x -= Math.cos(angle) * 50;
@@ -147,8 +187,22 @@ export class Game {
 
     private gameOver(): void {
         this.pause();
-        alert(`Game Over! Gold: ${this.gold}`);
-        window.location.reload();
+        const gameOverEl = document.getElementById('game-over');
+        const scoreEl = document.getElementById('final-score');
+        const restartBtn = document.getElementById('restart-btn');
+
+        if (gameOverEl && scoreEl && restartBtn) {
+            scoreEl.textContent = this.gold.toString();
+            gameOverEl.classList.remove('hidden');
+
+            restartBtn.onclick = () => {
+                window.location.reload();
+            };
+        } else {
+            // Fallback
+            alert(`Game Over! Gold: ${this.gold}`);
+            window.location.reload();
+        }
     }
 
     private checkCollections(): void {
@@ -160,6 +214,7 @@ export class Game {
             // Collection radius slightly larger than player
             if (dist < this.player.radius + pickup.radius + 10) {
                 this.gold += pickup.value;
+                this.soundManager.playPickupSound();
                 pickup.isDead = true;
             }
         }
@@ -167,6 +222,10 @@ export class Game {
 
     public addProjectile(projectile: Projectile): void {
         this.projectiles.push(projectile);
+    }
+
+    public addPickup(pickup: Pickup): void {
+        this.pickups.push(pickup);
     }
 
     public getNearestEnemy(x: number, y: number): Enemy | null {
@@ -185,6 +244,12 @@ export class Game {
         return nearest;
     }
 
+    public createExplosion(x: number, y: number, color: string): void {
+        for (let i = 0; i < 15; i++) {
+            this.particles.push(new Particle(x, y, color));
+        }
+    }
+
     private spawnEnemy(): void {
         // Spawn distance: outside of screen
         const angle = Math.random() * Math.PI * 2;
@@ -193,6 +258,16 @@ export class Game {
         const y = this.player.y + Math.sin(angle) * radius;
 
         this.enemies.push(new Enemy(x, y, this.player));
+    }
+
+    private spawnBoss(): void {
+        const angle = Math.random() * Math.PI * 2;
+        const radius = Math.max(this.canvas.width, this.canvas.height) / 2 + 50;
+        const x = this.player.x + Math.cos(angle) * radius;
+        const y = this.player.y + Math.sin(angle) * radius;
+
+        console.log("Spawning Boss!");
+        this.enemies.push(new Boss(x, y, this.player));
     }
 
     private render(): void {
@@ -219,41 +294,78 @@ export class Game {
         // Render projectiles
         this.projectiles.forEach(p => p.render(this.ctx));
 
+        // Render particles
+        this.particles.forEach(p => p.render(this.ctx));
+
         // Render game objects
         this.player.render(this.ctx);
 
         this.ctx.restore();
 
-        // Debug info
+        // Damage Flash
+        if (this.damageFlashTimer > 0) {
+            this.ctx.fillStyle = `rgba(255, 0, 0, ${this.damageFlashTimer * 2})`; // Fade out
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+
+        // Debug info (Top Right)
+        const debugX = this.canvas.width - 10;
+        this.ctx.textAlign = 'right';
         this.ctx.fillStyle = 'white';
         this.ctx.font = '16px monospace';
-        this.ctx.fillText(`FPS: ${Math.round(1 / ((performance.now() - this.lastTime * 1000) / 1000) || 60)}`, 10, 20);
-        this.ctx.fillText(`Pos: ${Math.round(this.player.x)}, ${Math.round(this.player.y)}`, 10, 40);
-        this.ctx.fillText(`Enemies: ${this.enemies.length}`, 10, 60);
-        this.ctx.fillText(`Gold: ${this.gold}`, 10, 80);
+        this.ctx.fillText(`FPS: ${Math.round(1 / ((performance.now() - this.lastTime * 1000) / 1000) || 60)}`, debugX, 20);
+        this.ctx.fillText(`Pos: ${Math.round(this.player.x)}, ${Math.round(this.player.y)}`, debugX, 40);
+        this.ctx.fillText(`Enemies: ${this.enemies.length}`, debugX, 60);
+        // this.ctx.fillText(`Gold: ${this.gold}`, debugX, 80); // Redundant, shown in HUD
+        this.ctx.textAlign = 'left'; // Reset alignment
+
+        // Update HUD HTML
+        const goldEl = document.getElementById('gold');
+        if (goldEl) goldEl.innerText = this.gold.toString();
+
+        const hpEl = document.getElementById('hp');
+        if (hpEl) hpEl.innerText = Math.max(0, this.player.hp).toString();
     }
 
     private drawGrid(camX: number, camY: number): void {
-        const gridSize = 100;
-        const startX = Math.floor(camX / gridSize) * gridSize;
-        const startY = Math.floor(camY / gridSize) * gridSize;
-        const endX = camX + this.canvas.width;
-        const endY = camY + this.canvas.height;
+        // Draw Tiled Background
+        if (!this.background.complete) {
+            // Fallback to grid if background not loaded
+            const gridSize = 100;
+            const startX = Math.floor(camX / gridSize) * gridSize;
+            const startY = Math.floor(camY / gridSize) * gridSize;
+            const endX = camX + this.canvas.width;
+            const endY = camY + this.canvas.height;
 
-        this.ctx.strokeStyle = '#333';
-        this.ctx.lineWidth = 1;
-        this.ctx.beginPath();
+            this.ctx.strokeStyle = '#333';
+            this.ctx.lineWidth = 1;
+            this.ctx.beginPath();
 
-        for (let x = startX; x <= endX; x += gridSize) {
-            this.ctx.moveTo(x, startY);
-            this.ctx.lineTo(x, endY);
+            for (let x = startX; x <= endX; x += gridSize) {
+                this.ctx.moveTo(x, startY);
+                this.ctx.lineTo(x, endY);
+            }
+
+            for (let y = startY; y <= endY; y += gridSize) {
+                this.ctx.moveTo(startX, y);
+                this.ctx.lineTo(endX, y);
+            }
+
+            this.ctx.stroke();
+            return;
         }
 
-        for (let y = startY; y <= endY; y += gridSize) {
-            this.ctx.moveTo(startX, y);
-            this.ctx.lineTo(endX, y);
+        const pattern = this.ctx.createPattern(this.background, 'repeat');
+        if (pattern) {
+            this.ctx.fillStyle = pattern;
+            this.ctx.fillRect(camX, camY, this.canvas.width, this.canvas.height);
         }
 
-        this.ctx.stroke();
+        // Draw World Border
+        this.ctx.save();
+        this.ctx.strokeStyle = 'red';
+        this.ctx.lineWidth = 5;
+        this.ctx.strokeRect(0, 0, this.WORLD_WIDTH, this.WORLD_HEIGHT);
+        this.ctx.restore();
     }
 }

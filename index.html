@@ -12,17 +12,25 @@
   <div id="app">
     <canvas id="game-canvas"></canvas>
     <div id="ui-layer">
-      <div id="shop" class="hidden">
-        <h2>Shop</h2>
-        <div class="shop-item">
-          <span>Upgrade Damage (10 Gold)</span>
-          <button id="buy-damage">Buy</button>
+      <div id="ui">
+        <div id="hud">
+          <div id="gold-display">Gold: <span id="gold">0</span></div>
+          <div id="hp-display">HP: <span id="hp">20</span></div>
+          <div id="instructions">WASD to Move | P to Shop</div>
         </div>
-        <div class="shop-item">
-          <span>Upgrade Speed (10 Gold)</span>
-          <button id="buy-speed">Buy</button>
+        <div id="shop" class="hidden">
+          <h2>Shop</h2>
+          <div class="shop-item">
+            <button id="buy-damage">Upgrade Damage (10g)</button>
+            <button id="buy-speed">Upgrade Speed (10g)</button>
+          </div>
+          <button id="close-shop">Close (P)</button>
         </div>
-        <button id="close-shop">Close (P)</button>
+        <div id="game-over" class="hidden">
+          <h2>Game Over</h2>
+          <p>Score: <span id="final-score">0</span> Gold</p>
+          <button id="restart-btn">Restart Game</button>
+        </div>
       </div>
     </div>
   </div>

@@ -23,5 +23,7 @@ export abstract class Weapon {
         }
     }
 
+    public render(ctx: CanvasRenderingContext2D): void { }
+
     protected abstract fire(): void;
 }

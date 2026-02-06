@@ -15,5 +15,6 @@ export class MagicWand extends Weapon {
         const vy = (dy / distance) * speed;
 
         this.game.addProjectile(new Projectile(this.owner.x, this.owner.y, vx, vy, this.damage));
+        this.game.soundManager.playShootSound();
     }
 }
