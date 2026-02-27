@@ -25,16 +25,30 @@ export class Projectile extends Entity {
     }
 
     public render(ctx: CanvasRenderingContext2D): void {
-        ctx.beginPath();
-        // Draw Ellipse (stretch in direction of movement)
         const angle = Math.atan2(this.velocityY, this.velocityX);
         ctx.save();
         ctx.translate(this.x, this.y);
         ctx.rotate(angle);
+
+        ctx.beginPath();
         ctx.ellipse(0, 0, 10, 5, 0, 0, Math.PI * 2); // RadiusX 10, RadiusY 5
         ctx.fillStyle = this.color;
         ctx.fill();
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // simple speed lines
+        ctx.beginPath();
+        ctx.moveTo(-12, 0);
+        ctx.lineTo(-18, 0);
+        ctx.moveTo(-10, -4);
+        ctx.lineTo(-15, -4);
+        ctx.moveTo(-10, 4);
+        ctx.lineTo(-15, 4);
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
         ctx.restore();
-        ctx.closePath();
     }
 }

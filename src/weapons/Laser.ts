@@ -4,6 +4,7 @@ import { Player } from '../entities/Player';
 import { Pickup } from '../entities/Pickup';
 
 export class Laser extends Weapon {
+    public name = 'Laser';
     private isFiring: boolean = false;
     private durationTimer: number = 0;
     private readonly duration: number = 1.0;
@@ -115,18 +116,31 @@ export class Laser extends Weapon {
         const endY = this.owner.y + Math.sin(this.angle) * this.length;
 
         ctx.save();
+
         ctx.beginPath();
         ctx.moveTo(this.owner.x, this.owner.y);
         ctx.lineTo(endX, endY);
-        ctx.strokeStyle = '#FFFFFF'; // White
-        ctx.lineWidth = this.width; // Match collision width
+
+        // Thick black outline
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = this.width + 6;
         ctx.lineCap = 'round';
         ctx.stroke();
 
-        // Glow effect
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = 'white';
-        ctx.lineWidth = this.width / 4; // Inner core
+        // Main colored beam
+        ctx.beginPath();
+        ctx.moveTo(this.owner.x, this.owner.y);
+        ctx.lineTo(endX, endY);
+        ctx.strokeStyle = '#FF00FF'; // Cartoon magenta laser
+        ctx.lineWidth = this.width;
+        ctx.stroke();
+
+        // White hot core
+        ctx.beginPath();
+        ctx.moveTo(this.owner.x, this.owner.y);
+        ctx.lineTo(endX, endY);
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.lineWidth = this.width / 3;
         ctx.stroke();
 
         ctx.restore();

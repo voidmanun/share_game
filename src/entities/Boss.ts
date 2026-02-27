@@ -13,27 +13,48 @@ export class Boss extends Enemy {
 
     public render(ctx: CanvasRenderingContext2D): void {
         ctx.save();
+        ctx.translate(this.x, this.y);
 
         // Glow Effect
         ctx.shadowBlur = 20;
         ctx.shadowColor = '#FF0000';
 
         ctx.fillStyle = this.color;
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 4;
 
         // Draw Triangle
         const size = this.radius * 1.5;
         ctx.beginPath();
-        ctx.moveTo(this.x, this.y - size);
-        ctx.lineTo(this.x + size, this.y + size);
-        ctx.lineTo(this.x - size, this.y + size);
+        ctx.moveTo(0, -size);
+        ctx.lineTo(size, size);
+        ctx.lineTo(-size, size);
         ctx.closePath();
         ctx.fill();
+        ctx.stroke();
 
-        // Core
+        ctx.shadowBlur = 0; // Turn off for details
+
+        // Core / Eye
         ctx.fillStyle = '#FFFFFF';
         ctx.beginPath();
-        ctx.arc(this.x, this.y, 5, 0, Math.PI * 2);
+        ctx.arc(0, 0, 8, 0, Math.PI * 2);
         ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#000';
+        ctx.beginPath();
+        ctx.arc(0, 0, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Big angry eyebrows
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.moveTo(-15, -15);
+        ctx.lineTo(-5, -5);
+        ctx.moveTo(15, -15);
+        ctx.lineTo(5, -5);
+        ctx.stroke();
 
         ctx.restore();
     }

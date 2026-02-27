@@ -65,11 +65,27 @@ export class Scout extends Enemy {
         ctx.rotate(angle);
 
         ctx.fillStyle = this.color;
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 3;
+
         ctx.beginPath();
         ctx.moveTo(10, 0);
         ctx.lineTo(-5, 5);
         ctx.lineTo(-5, -5);
         ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Eye
+        ctx.fillStyle = 'white';
+        ctx.beginPath();
+        ctx.arc(3, 0, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = 'black';
+        ctx.beginPath();
+        ctx.arc(4, 0, 1.5, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.restore();

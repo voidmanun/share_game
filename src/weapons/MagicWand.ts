@@ -2,6 +2,12 @@ import { Weapon } from './Weapon';
 import { Projectile } from './Projectile';
 
 export class MagicWand extends Weapon {
+    public name = 'Magic Wand';
+
+    constructor(game: import('../Game').Game, owner: import('../entities/Player').Player) {
+        super(game, owner, 0.5, 2);
+    }
+
     protected fire(): void {
         const target = this.game.getNearestEnemy(this.owner.x, this.owner.y);
         if (!target) return;

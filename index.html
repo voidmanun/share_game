@@ -18,11 +18,19 @@
           <div id="hp-display">HP: <span id="hp">20</span></div>
           <div id="instructions">WASD to Move | P to Shop</div>
         </div>
+
+        <div id="stats-panel">
+          <h3>Arsenal</h3>
+          <div id="weapon-stats"></div>
+          <h3>Enemies</h3>
+          <div id="enemy-stats"></div>
+        </div>
         <div id="shop" class="hidden">
           <h2>Shop</h2>
-          <div class="shop-item">
-            <button id="buy-damage">Upgrade Damage (10g)</button>
-            <button id="buy-speed">Upgrade Speed (10g)</button>
+          <div class="shop-items">
+            <button id="buy-damage">Upgrade Damage (<span id="cost-damage">20</span>g)</button>
+            <button id="buy-speed">Upgrade Speed (<span id="cost-speed">15</span>g)</button>
+            <button id="buy-hp">Upgrade Max HP (<span id="cost-hp">15</span>g)</button>
           </div>
           <button id="close-shop">Close (P)</button>
         </div>

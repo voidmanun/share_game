@@ -29,11 +29,26 @@ export class Particle extends Entity {
     public render(ctx: CanvasRenderingContext2D): void {
         ctx.save();
         ctx.globalAlpha = this.life / this.initialLife;
-        ctx.fillStyle = this.color;
+        ctx.translate(this.x, this.y);
 
-        // Draw small square
-        const size = this.radius * 2;
-        ctx.fillRect(this.x - this.radius, this.y - this.radius, size, size);
+        ctx.fillStyle = this.color;
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+
+        // A simple star or diamond shape for a cartoon "POW" spark effect
+        ctx.beginPath();
+        ctx.moveTo(0, -this.radius * 2);
+        ctx.lineTo(this.radius, -this.radius);
+        ctx.lineTo(this.radius * 2, 0);
+        ctx.lineTo(this.radius, this.radius);
+        ctx.lineTo(0, this.radius * 2);
+        ctx.lineTo(-this.radius, this.radius);
+        ctx.lineTo(-this.radius * 2, 0);
+        ctx.lineTo(-this.radius, -this.radius);
+        ctx.closePath();
+
+        ctx.fill();
+        ctx.stroke();
 
         ctx.restore();
     }

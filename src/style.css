@@ -1,11 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Fredoka One', 'Comic Sans MS', cursive, system-ui, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: #fff;
+  background-color: #8ced73;
+  /* Cartoon grass green default background */
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -25,6 +28,7 @@ body {
 #app {
   width: 100vw;
   height: 100vh;
+  position: relative;
 }
 
 canvas {
@@ -42,33 +46,180 @@ canvas {
   pointer-events: none;
 }
 
+/* CARTOON UI STYLING */
+
+#stats-panel {
+  position: absolute;
+  left: 20px;
+  top: 60px;
+  background: #ffcc00;
+  /* Bright yellow panel */
+  padding: 15px;
+  border-radius: 16px;
+  /* Very rounded */
+  border: 4px solid #000;
+  /* Thick black border */
+  box-shadow: 6px 6px 0px #000;
+  /* Hard drop shadow */
+  color: #000;
+  font-family: 'Fredoka One', cursive, monospace;
+  font-size: 16px;
+  width: 250px;
+  pointer-events: auto;
+  /* Let it catch hover, but maybe not block clicks? if needed */
+}
+
+#stats-panel h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #ff3366;
+  /* Vibrant pinkish-red headers */
+  border-bottom: 4px solid #000;
+  padding-bottom: 5px;
+  font-size: 20px;
+  text-shadow: 2px 2px 0px #fff;
+  /* Text shadow for extra pop */
+}
+
+#stats-panel h3:not(:first-child) {
+  margin-top: 15px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.stat-label {
+  color: #333;
+}
+
+.stat-value {
+  font-weight: bold;
+  color: #000;
+}
+
 #shop {
   pointer-events: auto;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.9);
-  padding: 20px;
-  border: 2px solid gold;
-  border-radius: 10px;
+  background: #00ccff;
+  /* Bright cartoon blue */
+  padding: 25px;
+  border: 6px solid #000;
+  /* Super thick border */
+  border-radius: 20px;
+  box-shadow: 10px 10px 0px rgba(0, 0, 0, 1);
   color: white;
-  min-width: 300px;
+  min-width: 350px;
+}
+
+#shop h2 {
+  color: #fff;
+  text-shadow: 3px 3px 0px #000;
+  text-align: center;
+  font-size: 32px;
+  margin-top: 0;
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
-.shop-item {
+.shop-items {
   display: flex;
-  justify-content: space-between;
-  margin: 10px 0;
+  flex-direction: column;
+  gap: 15px;
+  margin: 15px 0;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  border: 3px solid #000;
+}
+
+/* Shop item rows (assuming they are generated divs inside .shop-items) */
+.shop-items>div {
+  background: #ff9900;
   padding: 10px;
-  background: #333;
+  border-radius: 8px;
+  border: 3px solid #000;
+  color: #000;
+  box-shadow: 3px 3px 0px #000;
 }
 
 button {
   cursor: pointer;
-  padding: 5px 10px;
+  padding: 10px 16px;
+  border: 3px solid #000;
+  /* Cartoon border */
+  border-radius: 12px;
+  background-color: #ff3366;
+  /* Magenta-red button */
+  color: white;
+  font-family: 'Fredoka One', cursive, sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  text-transform: uppercase;
+  text-shadow: 2px 2px 0px #000;
+  box-shadow: 4px 4px 0px #000;
+  transition: transform 0.1s, box-shadow 0.1s, background-color 0.2s;
+}
+
+button:hover:not(:disabled) {
+  background-color: #ff5588;
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0px #000;
+}
+
+button:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 2px 2px 0px #000;
+}
+
+button:disabled {
+  background-color: #999;
+  color: #ddd;
+  text-shadow: none;
+  cursor: not-allowed;
+  box-shadow: 4px 4px 0px #555;
+  border-color: #555;
+}
+
+#close-shop {
+  background-color: #ffcc00;
+  /* Yellow close button */
+  color: #000;
+  text-shadow: 1px 1px 0px #fff;
+  width: 100%;
+  margin-top: 10px;
+  font-size: 18px;
+}
+
+#close-shop:hover {
+  background-color: #ffe680;
+}
+
+/* Customizing the Game Over Screen (if any exists in index.html matching this) */
+#game-over {
+  background: rgba(0, 0, 0, 0.8) !important;
+  /* Dim background */
+}
+
+#game-over>div {
+  background: #ff5555 !important;
+  border: 6px solid #000 !important;
+  border-radius: 20px !important;
+  box-shadow: 10px 10px 0px #000 !important;
+  color: white;
+  padding: 30px !important;
+  text-align: center;
+}
+
+#game-over h1 {
+  font-size: 48px;
+  text-shadow: 4px 4px 0px #000;
+  margin-top: 0;
 }

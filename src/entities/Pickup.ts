@@ -10,13 +10,23 @@ export class Pickup extends Entity {
     }
 
     public render(ctx: CanvasRenderingContext2D): void {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
         ctx.fillStyle = this.color;
         ctx.fill();
-        ctx.strokeStyle = '#DAA520'; // GoldenRod outline
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#000'; // Cartoon thick outline
+        ctx.lineWidth = 3;
         ctx.stroke();
-        ctx.closePath();
+
+        // Cartoon shine (small white arc)
+        ctx.fillStyle = 'white';
+        ctx.beginPath();
+        ctx.arc(-2, -2, 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
     }
 }
