@@ -80,11 +80,11 @@ export class Input {
 
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        let normalizedDistance = distance; // keeping it just in case although it's unused
+        // let normalizedDistance = distance; // keeping it just in case although it's unused
         if (distance > this.maxRadius) {
             dx = (dx / distance) * this.maxRadius;
             dy = (dy / distance) * this.maxRadius;
-            normalizedDistance = this.maxRadius;
+            // normalizedDistance = this.maxRadius;
         }
 
         if (this.joystickKnob) {

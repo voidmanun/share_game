@@ -126,4 +126,35 @@ export class SoundManager {
         oscillator.start();
         oscillator.stop(this.audioCtx.currentTime + 0.1);
     }
+
+    public playStartSound(): void {
+        if (this.audioCtx.state === 'suspended') {
+            this.audioCtx.resume();
+        }
+
+        const oscillator = this.audioCtx.createOscillator();
+        const gainNode = this.audioCtx.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(this.audioCtx.destination);
+
+        // Fun starting sound: arpeggio up
+        oscillator.type = 'sine';
+        
+        const now = this.audioCtx.currentTime;
+        oscillator.frequency.setValueAtTime(220, now);
+        oscillator.frequency.setValueAtTime(330, now + 0.1);
+        oscillator.frequency.setValueAtTime(440, now + 0.2);
+        oscillator.frequency.setValueAtTime(554, now + 0.3);
+        oscillator.frequency.setValueAtTime(659, now + 0.4);
+
+        // Volume
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(0.3, now + 0.1);
+        gainNode.gain.setValueAtTime(0.3, now + 0.4);
+        gainNode.gain.linearRampToValueAtTime(0, now + 0.8);
+
+        oscillator.start(now);
+        oscillator.stop(now + 0.8);
+    }
 }

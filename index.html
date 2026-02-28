@@ -10,12 +10,27 @@
 
 <body>
   <div id="app">
+    <div id="loading-screen">
+      <h1>Loading Game...</h1>
+      <div class="loading-bar-container">
+        <div id="loading-bar"></div>
+      </div>
+      <button id="start-btn" class="hidden">Start Game</button>
+    </div>
     <canvas id="game-canvas"></canvas>
     <div id="ui-layer">
       <div id="ui">
         <div id="hud">
-          <div id="gold-display">Gold: <span id="gold">0</span></div>
-          <div id="hp-display">HP: <span id="hp">20</span></div>
+          <div class="hud-item gold-container">
+            <span class="gold-icon">🪙</span>
+            <span id="gold">0</span>
+          </div>
+          <div class="hud-item hp-container">
+            <div class="hp-bar-bg">
+              <div id="hp-bar-fill" class="hp-bar-fill"></div>
+            </div>
+            <span id="hp">20 / 20</span>
+          </div>
           <div id="instructions">
             <span class="desktop-only">WASD to Move | P to Shop</span>
             <button id="mobile-shop-btn" class="mobile-only">Shop</button>

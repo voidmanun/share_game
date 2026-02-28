@@ -262,9 +262,16 @@ export class Game {
 
     private updateHUD(): void {
         const hpEl = document.getElementById('hp');
+        const hpBarFill = document.getElementById('hp-bar-fill');
         const goldEl = document.getElementById('gold');
-        if (hpEl) hpEl.textContent = `${this.player.hp} / ${this.player.maxHp}`;
+        
+        if (hpEl) hpEl.textContent = `${Math.max(0, Math.floor(this.player.hp))} / ${this.player.maxHp}`;
         if (goldEl) goldEl.textContent = this.gold.toString();
+        
+        if (hpBarFill) {
+            const hpPercent = Math.max(0, (this.player.hp / this.player.maxHp) * 100);
+            hpBarFill.style.width = `${hpPercent}%`;
+        }
     }
 
     private checkCollisions(): void {
@@ -375,6 +382,10 @@ export class Game {
             restartBtn.onclick = () => {
                 window.location.reload();
             };
+            restartBtn.ontouchstart = (e) => {
+                e.preventDefault();
+                window.location.reload();
+            };
         } else {
             // Fallback
             alert(`Game Over! Gold: ${this.gold}`);
@@ -384,12 +395,32 @@ export class Game {
 
     private checkCollections(): void {
         for (const pickup of this.pickups) {
+            let collected = false;
+            
+            // Check player collision
             const dx = this.player.x - pickup.x;
             const dy = this.player.y - pickup.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
 
             // Collection radius slightly larger than player
             if (dist < this.player.radius + pickup.radius + 10) {
+                collected = true;
+            } else {
+                // Check GreedyDog collision
+                for (const pet of this.pets) {
+                    if (pet instanceof GreedyDog) {
+                        const pdx = pet.x - pickup.x;
+                        const pdy = pet.y - pickup.y;
+                        const pdist = Math.sqrt(pdx * pdx + pdy * pdy);
+                        if (pdist < pet.radius + pickup.radius + 10) {
+                            collected = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (collected) {
                 if (pickup instanceof WeaponPickup) {
                     this.handleWeaponPickup(pickup);
                     this.soundManager.playPickupSound(); // using same sound for now
@@ -629,13 +660,6 @@ export class Game {
         this.ctx.fillText(`Enemies: ${this.enemies.length}`, debugX, 105);
         // this.ctx.fillText(`Gold: ${this.gold}`, debugX, 100); // Redundant, shown in HUD
         this.ctx.textAlign = 'left'; // Reset alignment
-
-        // Update HUD HTML
-        const goldEl = document.getElementById('gold');
-        if (goldEl) goldEl.innerText = this.gold.toString();
-
-        const hpEl = document.getElementById('hp');
-        if (hpEl) hpEl.innerText = Math.max(0, this.player.hp).toString();
     }
 
     private drawGrid(camX: number, camY: number): void {

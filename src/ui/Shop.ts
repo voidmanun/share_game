@@ -42,9 +42,14 @@ export class Shop {
         });
 
         // Mobile shop button
-        document.getElementById('mobile-shop-btn')?.addEventListener('click', () => {
+        const mobileShopBtn = document.getElementById('mobile-shop-btn');
+        mobileShopBtn?.addEventListener('click', () => {
             this.toggle();
         });
+        mobileShopBtn?.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            this.toggle();
+        }, { passive: false });
     }
 
     public toggle(): void {
