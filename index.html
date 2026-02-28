@@ -16,7 +16,13 @@
         <div id="hud">
           <div id="gold-display">Gold: <span id="gold">0</span></div>
           <div id="hp-display">HP: <span id="hp">20</span></div>
-          <div id="instructions">WASD to Move | P to Shop</div>
+          <div id="instructions">
+            <span class="desktop-only">WASD to Move | P to Shop</span>
+            <button id="mobile-shop-btn" class="mobile-only">Shop</button>
+          </div>
+        </div>
+        <div id="joystick-zone" class="mobile-only">
+          <div id="joystick-knob"></div>
         </div>
 
         <div id="stats-panel">

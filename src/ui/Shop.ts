@@ -40,6 +40,11 @@ export class Shop {
                 this.toggle();
             }
         });
+
+        // Mobile shop button
+        document.getElementById('mobile-shop-btn')?.addEventListener('click', () => {
+            this.toggle();
+        });
     }
 
     public toggle(): void {

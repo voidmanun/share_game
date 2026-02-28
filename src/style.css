@@ -49,6 +49,7 @@ canvas {
 /* CARTOON UI STYLING */
 
 #stats-panel {
+  display: none;
   position: absolute;
   left: 20px;
   top: 60px;
@@ -222,4 +223,92 @@ button:disabled {
   font-size: 48px;
   text-shadow: 4px 4px 0px #000;
   margin-top: 0;
+}
+
+.desktop-only {
+  display: inline;
+}
+
+.mobile-only {
+  display: none;
+}
+
+.mobile-only.hidden {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none;
+  }
+
+  .mobile-only {
+    display: inline-block;
+  }
+
+  #joystick-zone {
+    display: block;
+    position: absolute;
+    bottom: 30px;
+    left: 30px;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    border: 3px solid #000;
+    pointer-events: auto;
+    z-index: 1000;
+    touch-action: none;
+    /* Prevent scroll on touch */
+  }
+
+  #joystick-zone.hidden {
+    display: none !important;
+  }
+
+  #joystick-knob {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 50px;
+    height: 50px;
+    margin-left: -25px;
+    margin-top: -25px;
+    border-radius: 50%;
+    background: #ff3366;
+    border: 3px solid #000;
+    pointer-events: none;
+    transition: transform 0.05s linear;
+  }
+
+  /* Make HUD adjust */
+  #hud {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 14px;
+  }
+
+  #instructions button {
+    padding: 6px 10px;
+    font-size: 14px;
+    margin-left: 5px;
+  }
+
+  /* Make Shop suitable for mobile */
+  #shop {
+    width: 90%;
+    min-width: unset;
+    padding: 15px;
+    border-radius: 12px;
+  }
+
+  #shop h2 {
+    font-size: 24px;
+  }
+
+  .shop-items button {
+    font-size: 14px;
+    padding: 8px;
+  }
 }
