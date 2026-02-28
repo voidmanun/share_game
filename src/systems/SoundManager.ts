@@ -1,5 +1,6 @@
 export class SoundManager {
     private audioCtx: AudioContext;
+    public isMuted: boolean = false;
 
     constructor() {
         // Initialize AudioContext
@@ -7,7 +8,12 @@ export class SoundManager {
         this.audioCtx = new AudioContext();
     }
 
+    public toggleMute(): void {
+        this.isMuted = !this.isMuted;
+    }
+
     public playShootSound(): void {
+        if (this.isMuted) return;
         if (this.audioCtx.state === 'suspended') {
             this.audioCtx.resume();
         }
@@ -32,6 +38,7 @@ export class SoundManager {
     }
 
     public playLaserSound(): void {
+        if (this.isMuted) return;
         if (this.audioCtx.state === 'suspended') {
             this.audioCtx.resume();
         }
@@ -56,6 +63,7 @@ export class SoundManager {
     }
 
     public playPlayerHitSound(): void {
+        if (this.isMuted) return;
         if (this.audioCtx.state === 'suspended') {
             this.audioCtx.resume();
         }
@@ -80,6 +88,7 @@ export class SoundManager {
     }
 
     public playExplosionSound(): void {
+        if (this.isMuted) return;
         if (this.audioCtx.state === 'suspended') {
             this.audioCtx.resume();
         }
@@ -104,6 +113,7 @@ export class SoundManager {
     }
 
     public playPickupSound(): void {
+        if (this.isMuted) return;
         if (this.audioCtx.state === 'suspended') {
             this.audioCtx.resume();
         }
@@ -128,6 +138,7 @@ export class SoundManager {
     }
 
     public playStartSound(): void {
+        if (this.isMuted) return;
         if (this.audioCtx.state === 'suspended') {
             this.audioCtx.resume();
         }

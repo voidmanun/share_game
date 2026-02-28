@@ -6,6 +6,31 @@
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vampire Survivors Clone</title>
+  <style>
+    /* Prevent FOUC (Flash of Unstyled Content) */
+    body {
+      margin: 0;
+      background-color: #8ced73; /* Match loading screen background */
+      overflow: hidden;
+    }
+    .hidden { display: none !important; }
+    #loading-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #8ced73;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      color: #fff;
+      font-family: 'Fredoka One', 'Comic Sans MS', cursive, system-ui, sans-serif;
+      text-shadow: 2px 2px 0 #000;
+    }
+  </style>
 </head>
 
 <body>
@@ -17,8 +42,8 @@
       </div>
       <button id="start-btn" class="hidden">Start Game</button>
     </div>
-    <canvas id="game-canvas"></canvas>
-    <div id="ui-layer">
+    <canvas id="game-canvas" class="hidden"></canvas>
+    <div id="ui-layer" class="hidden">
       <div id="ui">
         <div id="hud">
           <div class="hud-item gold-container">
@@ -32,8 +57,11 @@
             <span id="hp">20 / 20</span>
           </div>
           <div id="instructions">
-            <span class="desktop-only">WASD to Move | P to Shop</span>
-            <button id="mobile-shop-btn" class="mobile-only">Shop</button>
+            <div style="margin-bottom: 8px;">
+              <span class="desktop-only">WASD to Move | P to Shop</span>
+              <button id="mobile-shop-btn" class="mobile-only">Shop</button>
+            </div>
+            <button id="mute-btn" style="padding: 4px 8px; font-size: 14px; display: inline-flex; align-items: center; gap: 4px;">🔊 Sound: ON</button>
           </div>
         </div>
         <div id="joystick-zone" class="mobile-only">

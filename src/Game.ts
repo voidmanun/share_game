@@ -42,9 +42,9 @@ export class Game {
     private weaponStatsEl: HTMLElement | null;
     private enemyStatsEl: HTMLElement | null;
 
-    private input: Input;
+    private input!: Input;
     public soundManager: SoundManager; // Public for weapons
-    public player: Player; // Public for Shop access
+    public player!: Player; // Public for Shop access
 
     private enemies: Enemy[] = [];
     public getEnemies(): Enemy[] { return this.enemies; }
@@ -60,11 +60,56 @@ export class Game {
     public gold: number = 0;
     public gameTime: number = 0; // In seconds
 
-    public shop: Shop;
+    public shop!: Shop;
     private isPaused: boolean = false;
     // private background: HTMLImageElement; // Removed image background
 
     private stars: { x: number; y: number; size: number; alpha: number }[] = [];
+
+    private initializeGame(): void {
+        this.enemies = [];
+        this.projectiles = [];
+        this.pickups = [];
+        this.particles = [];
+        this.floatingTexts = [];
+        this.pets = [];
+        this.spawnTimer = 0;
+        this.spawnInterval = 1.2;
+        this.bossSpawnTimer = 0;
+        this.damageFlashTimer = 0;
+        this.gold = 0;
+        this.gameTime = 0;
+        this.isPaused = false;
+
+        this.input = new Input();
+        this.player = new Player(this.WORLD_WIDTH / 2, this.WORLD_HEIGHT / 2, this.input, this.WORLD_WIDTH, this.WORLD_HEIGHT);
+        this.player.addWeapon(new MagicWand(this, this.player));
+
+        const rand = Math.random();
+        if (rand < 0.25) {
+            this.pets.push(new GreedyDog(this.player, this));
+        } else if (rand < 0.5) {
+            this.pets.push(new MagicFairy(this.player, this));
+        } else if (rand < 0.75) {
+            this.pets.push(new SpeedyTurtle(this.player, this));
+        } else {
+            this.pets.push(new GrumpyPorcupine(this.player, this));
+        }
+        
+        // Ensure Shop is linked correctly to the new player
+        if (this.shop) {
+            this.shop.updatePlayerRef();
+        }
+        
+        // Hide game over screen
+        const gameOverEl = document.getElementById('game-over');
+        if (gameOverEl) {
+            gameOverEl.classList.add('hidden');
+        }
+        
+        this.updateHUD();
+        this.updateStatsPanel();
+    }
 
     constructor(canvasId: string) {
         const canvas = document.getElementById(canvasId);
@@ -97,27 +142,9 @@ export class Game {
         // this.background.src = '/assets/background.png';
 
         this.soundManager = new SoundManager();
-        this.input = new Input();
-        // Start player in center of the world
-        this.player = new Player(this.WORLD_WIDTH / 2, this.WORLD_HEIGHT / 2, this.input, this.WORLD_WIDTH, this.WORLD_HEIGHT);
-
-        // Give player a weapon (Level 1 MagicWand by default)
-        this.player.addWeapon(new MagicWand(this, this.player));
-
-        // Start with a random pet
-        const rand = Math.random();
-        if (rand < 0.25) {
-            this.pets.push(new GreedyDog(this.player, this));
-        } else if (rand < 0.5) {
-            this.pets.push(new MagicFairy(this.player, this));
-        } else if (rand < 0.75) {
-            this.pets.push(new SpeedyTurtle(this.player, this));
-        } else {
-            this.pets.push(new GrumpyPorcupine(this.player, this));
-        }
-
 
         this.shop = new Shop(this);
+        this.initializeGame();
 
         this.resize();
         window.addEventListener('resize', () => this.resize());
@@ -380,16 +407,19 @@ export class Game {
             gameOverEl.classList.remove('hidden');
 
             restartBtn.onclick = () => {
-                window.location.reload();
+                this.initializeGame();
+                this.resume();
             };
             restartBtn.ontouchstart = (e) => {
                 e.preventDefault();
-                window.location.reload();
+                this.initializeGame();
+                this.resume();
             };
         } else {
             // Fallback
             alert(`Game Over! Gold: ${this.gold}`);
-            window.location.reload();
+            this.initializeGame();
+            this.resume();
         }
     }
 
@@ -652,12 +682,10 @@ export class Game {
 
         this.ctx.strokeText(`Time: ${timeString}`, debugX, 30);
         this.ctx.fillText(`Time: ${timeString}`, debugX, 30);
-        this.ctx.strokeText(`FPS: ${Math.round(1 / ((performance.now() - this.lastTime * 1000) / 1000) || 60)}`, debugX, 55);
-        this.ctx.fillText(`FPS: ${Math.round(1 / ((performance.now() - this.lastTime * 1000) / 1000) || 60)}`, debugX, 55);
-        this.ctx.strokeText(`Pos: ${Math.round(this.player.x)}, ${Math.round(this.player.y)}`, debugX, 80);
-        this.ctx.fillText(`Pos: ${Math.round(this.player.x)}, ${Math.round(this.player.y)}`, debugX, 80);
-        this.ctx.strokeText(`Enemies: ${this.enemies.length}`, debugX, 105);
-        this.ctx.fillText(`Enemies: ${this.enemies.length}`, debugX, 105);
+        this.ctx.strokeText(`Pos: ${Math.round(this.player.x)}, ${Math.round(this.player.y)}`, debugX, 55);
+        this.ctx.fillText(`Pos: ${Math.round(this.player.x)}, ${Math.round(this.player.y)}`, debugX, 55);
+        this.ctx.strokeText(`Enemies: ${this.enemies.length}`, debugX, 80);
+        this.ctx.fillText(`Enemies: ${this.enemies.length}`, debugX, 80);
         // this.ctx.fillText(`Gold: ${this.gold}`, debugX, 100); // Redundant, shown in HUD
         this.ctx.textAlign = 'left'; // Reset alignment
     }

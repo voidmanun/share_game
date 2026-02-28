@@ -17,6 +17,13 @@ export class Shop {
     private spanSpeed: HTMLElement;
     private spanHp: HTMLElement;
 
+    public updatePlayerRef(): void {
+        this.costDamage = 20;
+        this.costSpeed = 15;
+        this.costHp = 15;
+        this.updateUI();
+    }
+
     constructor(game: Game) {
         this.game = game;
         this.element = document.getElementById('shop')!;
