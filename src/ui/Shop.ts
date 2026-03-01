@@ -15,11 +15,6 @@ export class Shop {
     private btnHp: HTMLButtonElement;
     private btnPet: HTMLButtonElement;
 
-    private spanDamage: HTMLElement;
-    private spanSpeed: HTMLElement;
-    private spanHp: HTMLElement;
-    private spanPet: HTMLElement;
-
     public updatePlayerRef(): void {
         this.costDamage = 20;
         this.costSpeed = 15;
@@ -36,11 +31,6 @@ export class Shop {
         this.btnSpeed = document.getElementById('buy-speed') as HTMLButtonElement;
         this.btnHp = document.getElementById('buy-hp') as HTMLButtonElement;
         this.btnPet = document.getElementById('buy-pet') as HTMLButtonElement;
-
-        this.spanDamage = document.getElementById('cost-damage')!;
-        this.spanSpeed = document.getElementById('cost-speed')!;
-        this.spanHp = document.getElementById('cost-hp')!;
-        this.spanPet = document.getElementById('cost-pet')!;
 
         this.btnDamage?.addEventListener('click', () => this.buyDamage());
         this.btnSpeed?.addEventListener('click', () => this.buySpeed());
@@ -79,10 +69,15 @@ export class Shop {
     }
 
     private updateUI(): void {
-        this.spanDamage.textContent = this.costDamage.toString();
-        this.spanSpeed.textContent = this.costSpeed.toString();
-        this.spanHp.textContent = this.costHp.toString();
-        this.spanPet.textContent = this.costPet.toString();
+        const spanDamage = document.getElementById('cost-damage');
+        const spanSpeed = document.getElementById('cost-speed');
+        const spanHp = document.getElementById('cost-hp');
+        const spanPet = document.getElementById('cost-pet');
+
+        if (spanDamage) spanDamage.textContent = this.costDamage.toString();
+        if (spanSpeed) spanSpeed.textContent = this.costSpeed.toString();
+        if (spanHp) spanHp.textContent = this.costHp.toString();
+        if (spanPet) spanPet.textContent = this.costPet.toString();
 
         this.btnDamage.disabled = this.game.gold < this.costDamage;
         this.btnSpeed.disabled = this.game.gold < this.costSpeed;
