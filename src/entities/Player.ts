@@ -221,6 +221,7 @@ export class Player extends Entity {
   }
 
   public becomeInvincible(duration: number): void {
+    if (this.isInvincible) return;
     this.isInvincible = true;
     this.invincibilityTimer = duration;
     this.radius = this.originalRadius * 3; // Increase collision radius 3x
