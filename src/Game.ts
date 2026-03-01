@@ -22,6 +22,7 @@ import { MissileWeapon } from './weapons/MissileWeapon';
 import { Shotgun } from './weapons/Shotgun';
 import { OrbitShield } from './weapons/OrbitShield';
 import { BubbleGun } from './weapons/BubbleGun';
+import { Boomerang } from './weapons/Boomerang';
 import { BubbleProjectile } from './weapons/BubbleProjectile';
 import { FloatingText } from './entities/FloatingText';
 import { LollipopPickup } from './entities/LollipopPickup';
@@ -335,6 +336,42 @@ export class Game {
         }
     }
 
+    public handleEnemyDeath(enemy: Enemy): void {
+        if (enemy instanceof Splitter && !enemy.isSplitterling) {
+            const hpMult = 1 + (Math.floor(this.gameTime / 30) * 0.5);
+            const s1 = new Splitter(enemy.x - 10, enemy.y, this.player, true);
+            const s2 = new Splitter(enemy.x + 10, enemy.y, this.player, true);
+            s1.hp *= hpMult;
+            s2.hp *= hpMult;
+            this.enemies.push(s1, s2);
+        }
+
+        this.pickups.push(new Pickup(enemy.x, enemy.y, 1));
+
+        // Boss drops are always the newer, rarer weapons
+        const weaponTypes = ['Magic Wand', 'Laser', 'Missile Launcher', 'Shotgun', 'Orbit Shield', 'Bubble Gun', 'Boomerang'];
+        const bossWeaponTypes = ['Missile Launcher', 'Shotgun', 'Orbit Shield', 'Bubble Gun', 'Boomerang'];
+
+        if (enemy instanceof Boss) {
+            const type = bossWeaponTypes[Math.floor(Math.random() * bossWeaponTypes.length)];
+            this.pickups.push(new WeaponPickup(enemy.x, enemy.y, type));
+        } else {
+            // 5% chance for weapon, 2% chance for health, 1% for Lollipop
+            const dropRand = Math.random();
+            if (dropRand < 0.01) {
+                this.pickups.push(new LollipopPickup(enemy.x, enemy.y));
+            } else if (dropRand < 0.06) {
+                const type = weaponTypes[Math.floor(Math.random() * weaponTypes.length)];
+                this.pickups.push(new WeaponPickup(enemy.x, enemy.y, type));
+            } else if (dropRand < 0.08) {
+                this.pickups.push(new HealthPickup(enemy.x, enemy.y, 5)); // Heals 5 HP
+            }
+        }
+
+        this.createExplosion(enemy.x, enemy.y, enemy.color);
+        this.soundManager.playExplosionSound();
+    }
+
     private checkCollisions(): void {
         for (const projectile of this.projectiles) {
             for (const enemy of this.enemies) {
@@ -356,40 +393,8 @@ export class Game {
                     } else {
                         enemy.takeDamage(projectile.damage);
                         projectile.isDead = true;
-                        if (enemy.isDead) { // Check if dead after damage
-                            if (enemy instanceof Splitter && !enemy.isSplitterling) {
-                                const hpMult = 1 + (Math.floor(this.gameTime / 30) * 0.5);
-                                const s1 = new Splitter(enemy.x - 10, enemy.y, this.player, true);
-                                const s2 = new Splitter(enemy.x + 10, enemy.y, this.player, true);
-                                s1.hp *= hpMult;
-                                s2.hp *= hpMult;
-                                this.enemies.push(s1, s2);
-                            }
-
-                            this.pickups.push(new Pickup(enemy.x, enemy.y, 1));
-
-                            // Boss drops are always the newer, rarer weapons
-                            const weaponTypes = ['Magic Wand', 'Laser', 'Missile Launcher', 'Shotgun', 'Orbit Shield', 'Bubble Gun'];
-                            const bossWeaponTypes = ['Missile Launcher', 'Shotgun', 'Orbit Shield', 'Bubble Gun'];
-
-                            if (enemy instanceof Boss) {
-                                const type = bossWeaponTypes[Math.floor(Math.random() * bossWeaponTypes.length)];
-                                this.pickups.push(new WeaponPickup(enemy.x, enemy.y, type));
-                            } else {
-                                // 5% chance for weapon, 2% chance for health, 1% for Lollipop
-                                const dropRand = Math.random();
-                                if (dropRand < 0.01) {
-                                    this.pickups.push(new LollipopPickup(enemy.x, enemy.y));
-                                } else if (dropRand < 0.06) {
-                                    const type = weaponTypes[Math.floor(Math.random() * weaponTypes.length)];
-                                    this.pickups.push(new WeaponPickup(enemy.x, enemy.y, type));
-                                } else if (dropRand < 0.08) {
-                                    this.pickups.push(new HealthPickup(enemy.x, enemy.y, 5)); // Heals 5 HP
-                                }
-                            }
-
-                            this.createExplosion(enemy.x, enemy.y, enemy.color);
-                            this.soundManager.playExplosionSound();
+                        if (enemy.isDead) {
+                            this.handleEnemyDeath(enemy);
                         }
                     }
                     break;
@@ -521,6 +526,7 @@ export class Game {
         else if (type === 'Shotgun') newWeapon = new Shotgun(this, this.player);
         else if (type === 'Orbit Shield') newWeapon = new OrbitShield(this, this.player);
         else if (type === 'Bubble Gun') newWeapon = new BubbleGun(this, this.player);
+        else if (type === 'Boomerang') newWeapon = new Boomerang(this, this.player);
         else newWeapon = new MagicWand(this, this.player);
 
         const existingWeapon = this.player.weapons.find(w => w.name === newWeapon.name);

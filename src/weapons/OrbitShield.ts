@@ -38,6 +38,10 @@ export class OrbitSphere extends Entity {
                 // To prevent infinite instant damage, we apply per tick or push back
                 enemy.takeDamage(this.damage * deltaTime * 10);
 
+                if (enemy.isDead) {
+                    this.game.handleEnemyDeath(enemy);
+                }
+
                 // Add particle effect on hit
                 if (Math.random() < 0.2) {
                     this.game.particles.push(new Particle(this.x, this.y, '#FFFFFF'));

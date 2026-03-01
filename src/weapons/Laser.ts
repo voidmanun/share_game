@@ -1,7 +1,6 @@
 import { Weapon } from './Weapon';
 import { Game } from '../Game';
 import { Player } from '../entities/Player';
-import { Pickup } from '../entities/Pickup';
 
 export class Laser extends Weapon {
     public name = 'Laser';
@@ -91,19 +90,7 @@ export class Laser extends Weapon {
             if (dist < enemy.radius + (this.width / 2)) {
                 enemy.takeDamage(this.damage * deltaTime * 10);
                 if (enemy.isDead) {
-                    // Logic duplication from Game.ts CheckCollisions, ideally refactor but for now inline
-                    // Since Laser doesn't have access to createExplosion directly easily without refactor or public method
-                    // Let's make createExplosion public or just ignore particles for laser for now? 
-                    // Actually Game pass strictly, let's cast or better: make createExplosion public in Game.ts
-                    // But waiting for that edit might be sync issue.
-                    // For now, let's just play sound. Laser melts enemies so maybe no explosion?
-                    // USER request: "Add sound and effect when enemy is destroyed".
-                    // I should add effect. I need to make createExplosion public in Game.ts.
-                    this.game.createExplosion(enemy.x, enemy.y, enemy.color);
-                    this.game.soundManager.playExplosionSound();
-
-                    // Drop gold
-                    this.game.addPickup(new Pickup(enemy.x, enemy.y, 10));
+                    this.game.handleEnemyDeath(enemy);
                 }
             }
         }
