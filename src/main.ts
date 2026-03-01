@@ -1,5 +1,6 @@
 import './style.css'
 import { Game } from './Game'
+import { getLanguage, setLanguage, t } from './i18n'
 
 window.addEventListener('DOMContentLoaded', () => {
   const game = new Game('game-canvas');
@@ -8,12 +9,27 @@ window.addEventListener('DOMContentLoaded', () => {
   const loadingBar = document.getElementById('loading-bar');
   const startBtn = document.getElementById('start-btn');
   const muteBtn = document.getElementById('mute-btn');
+  const langBtn = document.getElementById('lang-btn');
   const loadingText = loadingScreen?.querySelector('h1');
 
   muteBtn?.addEventListener('click', () => {
     game.soundManager.toggleMute();
     if (muteBtn) {
-      muteBtn.textContent = game.soundManager.isMuted ? '🔇 Sound: OFF' : '🔊 Sound: ON';
+      const soundOnText = getLanguage() === 'zh' ? '🔊 声音: 开' : '🔊 Sound: ON';
+      const soundOffText = getLanguage() === 'zh' ? '🔇 声音: 关' : '🔇 Sound: OFF';
+      muteBtn.textContent = game.soundManager.isMuted ? soundOffText : soundOnText;
+    }
+  });
+
+  langBtn?.addEventListener('click', () => {
+    const newLang = getLanguage() === 'en' ? 'zh' : 'en';
+    setLanguage(newLang);
+    
+    // Update mute button text based on new language
+    if (muteBtn) {
+      const soundOnText = newLang === 'zh' ? '🔊 声音: 开' : '🔊 Sound: ON';
+      const soundOffText = newLang === 'zh' ? '🔇 声音: 关' : '🔇 Sound: OFF';
+      muteBtn.textContent = game.soundManager.isMuted ? soundOffText : soundOnText;
     }
   });
 
@@ -26,7 +42,7 @@ window.addEventListener('DOMContentLoaded', () => {
       progress = 100;
       clearInterval(loadInterval);
       if (loadingBar) loadingBar.style.width = '100%';
-      if (loadingText) loadingText.textContent = 'Ready!';
+      if (loadingText) loadingText.textContent = t('ready');
       
       setTimeout(() => {
         if (loadingBar?.parentElement) {

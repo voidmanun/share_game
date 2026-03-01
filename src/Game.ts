@@ -23,6 +23,7 @@ import { Shotgun } from './weapons/Shotgun';
 import { OrbitShield } from './weapons/OrbitShield';
 import { BubbleGun } from './weapons/BubbleGun';
 import { Boomerang } from './weapons/Boomerang';
+import { t, tWeapon, tEnemy } from './i18n';
 import { BubbleProjectile } from './weapons/BubbleProjectile';
 import { FloatingText } from './entities/FloatingText';
 import { LollipopPickup } from './entities/LollipopPickup';
@@ -182,6 +183,10 @@ export class Game {
 
         this.resize();
         window.addEventListener('resize', () => this.resize());
+        window.addEventListener('languageChanged', () => {
+            this.updateStatsPanel();
+            this.updateHUD();
+        });
     }
 
     private resize(): void {
@@ -197,12 +202,12 @@ export class Game {
         this.player.weapons.forEach(w => {
             weaponHTML += `
                 <div class="stat-row">
-                    <span class="stat-label">${w.name} Lv${w.level}:</span>
-                    <span class="stat-value">${w.damage.toFixed(1)} DMG</span>
+                    <span class="stat-label">${tWeapon(w.name)} ${t('lv')}${w.level}:</span>
+                    <span class="stat-value">${w.damage.toFixed(1)} ${t('dmg')}</span>
                 </div>
             `;
         });
-        if (weaponHTML === '') weaponHTML = '<div class="stat-row"><span class="stat-label">None</span></div>';
+        if (weaponHTML === '') weaponHTML = `<div class="stat-row"><span class="stat-label">${t('none')}</span></div>`;
         this.weaponStatsEl.innerHTML = weaponHTML;
 
         // 2. Update Enemy Stats
@@ -225,8 +230,8 @@ export class Game {
             const currentHP = (e.hp * hpMultiplier).toFixed(1);
             enemyHTML += `
                 <div class="stat-row">
-                    <span class="stat-label">${e.name}:</span>
-                    <span class="stat-value">${currentHP} HP | ${e.dmg} ATK</span>
+                    <span class="stat-label">${tEnemy(e.name)}:</span>
+                    <span class="stat-value">${currentHP} ${t('hp')} | ${e.dmg} ${t('atk')}</span>
                 </div>
             `;
         });
