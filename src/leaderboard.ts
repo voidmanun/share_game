@@ -1,16 +1,11 @@
-const KV_URL = 'https://kvdb.io/8TCWfbDnLwPerKzwDXAVY7/leaderboard';
-
 export async function getLeaderboard(): Promise<{name: string, score: number}[]> {
     try {
-        const res = await fetch(KV_URL);
+        const res = await fetch('/api/leaderboard');
         if (res.ok) {
             const data = await res.json();
             if (Array.isArray(data)) {
-                return data.sort((a: any, b: any) => b.score - a.score).slice(0, 10);
+                return data;
             }
-        } else if (res.status === 404) {
-            // No data yet
-            return [];
         }
     } catch (e) {
         console.error('Failed to get leaderboard:', e);
@@ -19,18 +14,20 @@ export async function getLeaderboard(): Promise<{name: string, score: number}[]>
 }
 
 export async function saveScore(name: string, score: number): Promise<{name: string, score: number}[]> {
-    let board = await getLeaderboard();
-    board.push({name, score});
-    board = board.sort((a, b) => b.score - a.score).slice(0, 10);
-    
     try {
-        await fetch(KV_URL, {
-            method: 'PUT',
+        const res = await fetch('/api/leaderboard', {
+            method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(board)
+            body: JSON.stringify({name, score})
         });
+        if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data)) {
+                return data;
+            }
+        }
     } catch (e) {
         console.error('Failed to save score:', e);
     }
-    return board;
+    return [];
 }

@@ -471,7 +471,8 @@ export class Game {
             const inputSection = document.getElementById('leaderboard-input-section');
             if (inputSection) {
                 // Check if top 10
-                if (!this.hasSavedScore && (leaderboard.length < 10 || this.gold > (leaderboard[9]?.score || 0))) {
+                const currentScore = Math.floor(this.gameTime);
+                if (!this.hasSavedScore && (leaderboard.length < 10 || currentScore > (leaderboard[9]?.score || 0))) {
                     inputSection.classList.remove('hidden');
                     const saveBtn = document.getElementById('save-score-btn');
                     const nameInput = document.getElementById('player-name') as HTMLInputElement;
@@ -489,7 +490,7 @@ export class Game {
                                 listEl.innerHTML = '<li>Saving...</li>';
                             }
                             
-                            saveScore(name, this.gold).then(newBoard => {
+                            saveScore(name, currentScore).then(newBoard => {
                                 this.backgroundLeaderboard = newBoard.slice(0, 10);
                                 this.updateLeaderboard();
                             });
@@ -509,7 +510,7 @@ export class Game {
         const restartBtn = document.getElementById('restart-btn');
 
         if (gameOverEl && scoreEl && restartBtn) {
-            scoreEl.textContent = this.gold.toString();
+            scoreEl.textContent = Math.floor(this.gameTime).toString();
             gameOverEl.classList.remove('hidden');
             this.updateLeaderboard();
 
@@ -524,7 +525,7 @@ export class Game {
             };
         } else {
             // Fallback
-            alert(`Game Over! Gold: ${this.gold}`);
+            alert(`Game Over! Score: ${Math.floor(this.gameTime)}`);
             this.initializeGame();
             this.resume();
         }
