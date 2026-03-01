@@ -106,7 +106,7 @@ export class Player extends Entity {
     ctx.rotate(angle);
 
     if (this.isInvincible) {
-      // Scale up the drawing of the ship by 3x
+      // Scale up the drawing of the horse by 3x
       ctx.scale(3, 3);
     }
 
@@ -182,9 +182,9 @@ export class Player extends Entity {
     // Draw rainbow aura if invincible
     if (this.isInvincible) {
       ctx.beginPath();
-      // Since radius scales, we draw an aura slightly bigger than the ship
-      // The ship drawing logic uses fixed numbers (15, -10, etc.)
-      // We should scale the context if invincible so the ship actually looks bigger!
+      // Since radius scales, we draw an aura slightly bigger than the horse
+      // The horse drawing logic uses fixed numbers (15, -10, etc.)
+      // We should scale the context if invincible so the horse actually looks bigger!
     }
 
     ctx.restore();
