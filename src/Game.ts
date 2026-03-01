@@ -95,6 +95,7 @@ export class Game {
     // private background: HTMLImageElement; // Removed image background
 
     private stars: { x: number; y: number; size: number; alpha: number }[] = [];
+    private backgroundLeaderboard: {name: string, score: number}[] = [];
 
     private initializeGame(): void {
         this.enemies = [];
@@ -111,6 +112,17 @@ export class Game {
         this.gameTime = 0;
         this.hasSavedScore = false;
         this.isPaused = false;
+
+        const leaderboardDataStr = localStorage.getItem('vampire_leaderboard');
+        this.backgroundLeaderboard = [];
+        if (leaderboardDataStr) {
+            try {
+                const parsed = JSON.parse(leaderboardDataStr);
+                if (Array.isArray(parsed)) {
+                    this.backgroundLeaderboard = parsed.sort((a, b) => b.score - a.score).slice(0, 10);
+                }
+            } catch (e) {}
+        }
 
         this.input = new Input();
         this.player = new Player(this.WORLD_WIDTH / 2, this.WORLD_HEIGHT / 2, this.input, this.WORLD_WIDTH, this.WORLD_HEIGHT);
@@ -453,6 +465,7 @@ export class Game {
         }
 
         leaderboard.sort((a, b) => b.score - a.score);
+        this.backgroundLeaderboard = leaderboard.slice(0, 10);
 
         const listEl = document.getElementById('leaderboard-list');
         if (listEl) {
@@ -484,6 +497,7 @@ export class Game {
 
                         this.hasSavedScore = true;
                         inputSection.classList.add('hidden');
+                        this.backgroundLeaderboard = leaderboard.slice(0, 10);
                         this.updateLeaderboard();
                     });
                 }
@@ -721,6 +735,22 @@ export class Game {
         // Clear screen with cartoon grass green
         this.ctx.fillStyle = '#8ced73';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Draw Leaderboard on Background
+        if (this.backgroundLeaderboard.length > 0) {
+            this.ctx.save();
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.2)'; // Faint text
+            this.ctx.font = 'bold 36px "Fredoka One", cursive, monospace';
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            this.ctx.fillText(t('leaderboardTitle'), this.canvas.width / 2, this.canvas.height / 2 - 200);
+            
+            this.ctx.font = '24px "Fredoka One", cursive, monospace';
+            this.backgroundLeaderboard.forEach((entry, i) => {
+                this.ctx.fillText(`${i + 1}. ${entry.name} - ${entry.score}`, this.canvas.width / 2, this.canvas.height / 2 - 150 + i * 35);
+            });
+            this.ctx.restore();
+        }
 
         // Camera follow logic
         const camX = this.player.x - this.canvas.width / 2;
