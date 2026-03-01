@@ -25,7 +25,7 @@ window.addEventListener('DOMContentLoaded', () => {
     if (e) e.preventDefault();
     const newLang = getLanguage() === 'en' ? 'zh' : 'en';
     setLanguage(newLang);
-    
+
     // Update mute button text based on new language
     if (muteBtn) {
       const soundOnText = newLang === 'zh' ? '🔊 声音: 开' : '🔊 Sound: ON';
@@ -35,7 +35,6 @@ window.addEventListener('DOMContentLoaded', () => {
   };
 
   langBtn?.addEventListener('click', handleLangToggle);
-  langBtn?.addEventListener('touchstart', handleLangToggle, { passive: false });
 
   // Simulate asset loading
   let progress = 0;
@@ -47,7 +46,7 @@ window.addEventListener('DOMContentLoaded', () => {
       clearInterval(loadInterval);
       if (loadingBar) loadingBar.style.width = '100%';
       if (loadingText) loadingText.textContent = t('ready');
-      
+
       setTimeout(() => {
         if (loadingBar?.parentElement) {
           loadingBar.parentElement.style.display = 'none';
@@ -69,13 +68,4 @@ window.addEventListener('DOMContentLoaded', () => {
     game.soundManager.playStartSound(); // Play game start sound
     game.start();
   });
-
-  startBtn?.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    if (loadingScreen) loadingScreen.style.display = 'none';
-    document.getElementById('game-canvas')?.classList.remove('hidden');
-    document.getElementById('ui-layer')?.classList.remove('hidden');
-    game.soundManager.playStartSound(); // Play game start sound
-    game.start();
-  }, { passive: false });
 });

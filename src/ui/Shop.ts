@@ -50,10 +50,6 @@ export class Shop {
         mobileShopBtn?.addEventListener('click', () => {
             this.toggle();
         });
-        mobileShopBtn?.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            this.toggle();
-        }, { passive: false });
     }
 
     public toggle(): void {
