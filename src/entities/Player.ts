@@ -17,7 +17,7 @@ export class Player extends Entity {
   public speedMultiplier: number = 1.0;
 
   constructor(x: number, y: number, input: Input, worldWidth: number, worldHeight: number) {
-    super(x, y, 20, '#FFFFFF'); // White Horse
+    super(x, y, 20, '#DDA0DD'); // Plum - Pony Color
     this.input = input;
     this.worldWidth = worldWidth;
     this.worldHeight = worldHeight;
@@ -110,56 +110,64 @@ export class Player extends Entity {
       ctx.scale(3, 3);
     }
 
-    // Horse Render
+    // Pony Render
     ctx.fillStyle = this.color;
     ctx.strokeStyle = '#000';
     ctx.lineWidth = 2;
     
-    // Horse Body
+    // Pony Body (rounder, shorter)
     ctx.beginPath();
-    ctx.ellipse(-5, 0, 15, 10, 0, 0, Math.PI * 2);
+    ctx.ellipse(-5, 2, 12, 9, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
 
-    // Horse Head/Neck
+    // Pony Head/Neck
     ctx.beginPath();
-    ctx.moveTo(0, -5);
-    ctx.lineTo(15, -15); // Ear/Top of head
-    ctx.lineTo(20, -10); // Nose
-    ctx.lineTo(10, 0); // Bottom of neck
+    ctx.moveTo(2, -2);
+    ctx.lineTo(12, -12); // Ear/Top of head
+    ctx.lineTo(16, -6); // Snout
+    ctx.lineTo(6, 4); // Bottom of neck
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
-    
-    // Legs (Animated)
+
     const time = Date.now() / 150;
     const legSwing = (x !== 0 || y !== 0) ? Math.sin(time) * 5 : 0;
     
+    // Legs (Animated)
     ctx.lineWidth = 3;
     ctx.beginPath();
     // Front legs
-    ctx.moveTo(5, 5);
-    ctx.lineTo(5 + legSwing, 15);
-    ctx.moveTo(0, 5);
-    ctx.lineTo(0 - legSwing, 15);
+    ctx.moveTo(4, 8);
+    ctx.lineTo(4 + legSwing, 16);
+    ctx.moveTo(-1, 8);
+    ctx.lineTo(-1 - legSwing, 16);
     // Back legs
-    ctx.moveTo(-10, 5);
-    ctx.lineTo(-10 - legSwing, 15);
-    ctx.moveTo(-15, 5);
-    ctx.lineTo(-15 + legSwing, 15);
+    ctx.moveTo(-8, 8);
+    ctx.lineTo(-8 - legSwing, 16);
+    ctx.moveTo(-13, 8);
+    ctx.lineTo(-13 + legSwing, 16);
     ctx.stroke();
+
+    // Mane (Pink/Colorful)
+    ctx.fillStyle = '#FF69B4'; // Hot Pink
+    ctx.beginPath();
+    ctx.moveTo(12, -12);
+    ctx.quadraticCurveTo(8, -16, 2, -6);
+    ctx.quadraticCurveTo(6, -2, 8, -6);
+    ctx.fill();
 
     // Tail
     ctx.beginPath();
-    ctx.moveTo(-20, -2);
-    ctx.quadraticCurveTo(-25, -5, -28 + legSwing/2, 5);
-    ctx.strokeStyle = '#CCC';
-    ctx.stroke();
+    ctx.moveTo(-17, 2);
+    ctx.quadraticCurveTo(-24, -2, -26 + legSwing/2, 6);
+    ctx.quadraticCurveTo(-20, 8, -17, 4);
+    ctx.fill();
 
-    // Googly Eyes
+    // Big Cute Eye
     ctx.fillStyle = 'white';
     ctx.beginPath();
-    ctx.arc(12, -12, 3, 0, Math.PI * 2); // Eye
+    ctx.arc(10, -8, 4, 0, Math.PI * 2); // Eye
     ctx.fill();
     ctx.strokeStyle = '#000';
     ctx.lineWidth = 1;
@@ -168,14 +176,24 @@ export class Player extends Entity {
     // Pupil
     ctx.fillStyle = 'black';
     ctx.beginPath();
-    ctx.arc(13, -12, 1.5, 0, Math.PI * 2);
+    ctx.arc(11, -8, 2, 0, Math.PI * 2);
     ctx.fill();
 
-    // Dust particles instead of flame when moving
+    // Cutie Mark (Star)
+    ctx.fillStyle = '#FFD700';
+    ctx.beginPath();
+    ctx.arc(-8, 2, 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Sparkle dust particles instead of flame when moving
     if (x !== 0 || y !== 0) {
-      ctx.fillStyle = 'rgba(200, 200, 200, 0.5)';
+      ctx.fillStyle = 'rgba(255, 105, 180, 0.7)'; // Hot pink sparkles
       ctx.beginPath();
-      ctx.arc(-25, 12 + Math.random() * 5, 2 + Math.random() * 3, 0, Math.PI * 2);
+      ctx.arc(-22, 12 + Math.random() * 5, 1.5 + Math.random() * 2.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(255, 215, 0, 0.7)'; // Gold sparkles
+      ctx.beginPath();
+      ctx.arc(-25, 8 + Math.random() * 6, 1 + Math.random() * 2, 0, Math.PI * 2);
       ctx.fill();
     }
 
