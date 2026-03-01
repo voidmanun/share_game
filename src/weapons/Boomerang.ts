@@ -17,7 +17,7 @@ class BoomerangProjectile extends Entity {
     private returning: boolean = false;
 
     constructor(x: number, y: number, vx: number, vy: number, damage: number, owner: Player) {
-        super(x, y, 12, '#8B4513'); // SaddleBrown
+        super(x, y, 12, '#A9A9A9'); // DarkGray for Shuriken
         this.velocityX = vx;
         this.velocityY = vy;
         this.damage = damage;
@@ -71,18 +71,23 @@ class BoomerangProjectile extends Entity {
         ctx.translate(this.x, this.y);
         ctx.rotate(this.rotation);
 
-        // Draw V-shaped boomerang
+        // Draw 4-pointed shuriken
         ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(12, 12);
-        ctx.quadraticCurveTo(15, 0, 12, -12);
-        ctx.lineTo(0, 0);
+        ctx.moveTo(12, 0);
+        ctx.lineTo(4, 4);
+        ctx.lineTo(0, 12);
+        ctx.lineTo(-4, 4);
+        ctx.lineTo(-12, 0);
+        ctx.lineTo(-4, -4);
+        ctx.lineTo(0, -12);
+        ctx.lineTo(4, -4);
+        ctx.closePath();
         
         ctx.fillStyle = this.color;
         ctx.fill();
         
         ctx.lineWidth = 2;
-        ctx.strokeStyle = '#5c2e0b';
+        ctx.strokeStyle = '#696969';
         ctx.stroke();
 
         ctx.restore();
@@ -119,7 +124,7 @@ export class Boomerang extends Weapon {
                     enemy.takeDamage(this.damage);
                     b.hasHitEnemy.add(enemy); // Pierce through, only hit once per direction
                     // Small particle effect
-                    this.game.createExplosion(enemy.x, enemy.y, '#8B4513');
+                    this.game.createExplosion(enemy.x, enemy.y, '#A9A9A9');
                     
                     if (enemy.isDead) {
                         this.game.handleEnemyDeath(enemy);
