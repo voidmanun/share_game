@@ -88,6 +88,7 @@ export class Game {
     private damageFlashTimer: number = 0;
     public gold: number = 0;
     public gameTime: number = 0; // In seconds
+    public hasSavedScore: boolean = false;
 
     public shop!: Shop;
     private isPaused: boolean = false;
@@ -108,6 +109,7 @@ export class Game {
         this.damageFlashTimer = 0;
         this.gold = 0;
         this.gameTime = 0;
+        this.hasSavedScore = false;
         this.isPaused = false;
 
         this.input = new Input();
@@ -445,7 +447,8 @@ export class Game {
         let leaderboard: {name: string, score: number}[] = [];
         if (leaderboardDataStr) {
             try {
-                leaderboard = JSON.parse(leaderboardDataStr);
+                const parsed = JSON.parse(leaderboardDataStr);
+                if (Array.isArray(parsed)) leaderboard = parsed;
             } catch (e) {}
         }
         
@@ -464,7 +467,7 @@ export class Game {
         const inputSection = document.getElementById('leaderboard-input-section');
         if (inputSection) {
             // Check if top 10
-            if (leaderboard.length < 10 || this.gold > (leaderboard[9]?.score || 0)) {
+            if (!this.hasSavedScore && (leaderboard.length < 10 || this.gold > (leaderboard[9]?.score || 0))) {
                 inputSection.classList.remove('hidden');
                 const saveBtn = document.getElementById('save-score-btn');
                 const nameInput = document.getElementById('player-name') as HTMLInputElement;
@@ -479,6 +482,7 @@ export class Game {
                         leaderboard = leaderboard.slice(0, 10);
                         localStorage.setItem('vampire_leaderboard', JSON.stringify(leaderboard));
                         
+                        this.hasSavedScore = true;
                         inputSection.classList.add('hidden');
                         this.updateLeaderboard();
                     });
