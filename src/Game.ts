@@ -32,6 +32,7 @@ import { MagicFairy } from './entities/MagicFairy';
 import { SpeedyTurtle } from './entities/SpeedyTurtle';
 import { GrumpyPorcupine } from './entities/GrumpyPorcupine';
 import { BouncySlime } from './entities/BouncySlime';
+import { LuckyCat } from './entities/LuckyCat';
 
 export class Game {
     private canvas: HTMLCanvasElement;
@@ -52,21 +53,24 @@ export class Game {
 
     public hatchRandomPet(): void {
         const rand = Math.random();
-        if (rand < 0.20) {
+        if (rand < 0.16) {
             this.pets.push(new GreedyDog(this.player, this));
             this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `Greedy Dog Hatched!`, '#8B4513'));
-        } else if (rand < 0.40) {
+        } else if (rand < 0.32) {
             this.pets.push(new MagicFairy(this.player, this));
             this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `Magic Fairy Hatched!`, '#FFB6C1'));
-        } else if (rand < 0.60) {
+        } else if (rand < 0.48) {
             this.pets.push(new SpeedyTurtle(this.player, this));
             this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `Speedy Turtle Hatched!`, '#2E8B57'));
-        } else if (rand < 0.80) {
+        } else if (rand < 0.64) {
             this.pets.push(new GrumpyPorcupine(this.player, this));
             this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `Grumpy Porcupine Hatched!`, '#A0522D'));
-        } else {
+        } else if (rand < 0.80) {
             this.pets.push(new BouncySlime(this.player, this));
             this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `Bouncy Slime Hatched!`, '#32CD32'));
+        } else {
+            this.pets.push(new LuckyCat(this.player, this));
+            this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `Lucky Cat Hatched!`, '#FFD700'));
         }
     }
 
@@ -108,17 +112,21 @@ export class Game {
         this.player = new Player(this.WORLD_WIDTH / 2, this.WORLD_HEIGHT / 2, this.input, this.WORLD_WIDTH, this.WORLD_HEIGHT);
         this.player.addWeapon(new MagicWand(this, this.player));
 
-        const rand = Math.random();
-        if (rand < 0.20) {
-            this.pets.push(new GreedyDog(this.player, this));
-        } else if (rand < 0.40) {
-            this.pets.push(new MagicFairy(this.player, this));
-        } else if (rand < 0.60) {
-            this.pets.push(new SpeedyTurtle(this.player, this));
-        } else if (rand < 0.80) {
-            this.pets.push(new GrumpyPorcupine(this.player, this));
-        } else {
-            this.pets.push(new BouncySlime(this.player, this));
+        for (let i = 0; i < 2; i++) {
+            const rand = Math.random();
+            if (rand < 0.16) {
+                this.pets.push(new GreedyDog(this.player, this));
+            } else if (rand < 0.32) {
+                this.pets.push(new MagicFairy(this.player, this));
+            } else if (rand < 0.48) {
+                this.pets.push(new SpeedyTurtle(this.player, this));
+            } else if (rand < 0.64) {
+                this.pets.push(new GrumpyPorcupine(this.player, this));
+            } else if (rand < 0.80) {
+                this.pets.push(new BouncySlime(this.player, this));
+            } else {
+                this.pets.push(new LuckyCat(this.player, this));
+            }
         }
         
         // Ensure Shop is linked correctly to the new player
