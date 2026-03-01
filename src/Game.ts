@@ -35,6 +35,7 @@ import { SpeedyTurtle } from './entities/SpeedyTurtle';
 import { GrumpyPorcupine } from './entities/GrumpyPorcupine';
 import { BouncySlime } from './entities/BouncySlime';
 import { LuckyCat } from './entities/LuckyCat';
+import { getLeaderboard, saveScore } from './leaderboard';
 
 export class Game {
     private canvas: HTMLCanvasElement;
@@ -113,16 +114,10 @@ export class Game {
         this.hasSavedScore = false;
         this.isPaused = false;
 
-        const leaderboardDataStr = localStorage.getItem('vampire_leaderboard');
         this.backgroundLeaderboard = [];
-        if (leaderboardDataStr) {
-            try {
-                const parsed = JSON.parse(leaderboardDataStr);
-                if (Array.isArray(parsed)) {
-                    this.backgroundLeaderboard = parsed.sort((a, b) => b.score - a.score).slice(0, 10);
-                }
-            } catch (e) {}
-        }
+        getLeaderboard().then(board => {
+            this.backgroundLeaderboard = board;
+        });
 
         this.input = new Input();
         this.player = new Player(this.WORLD_WIDTH / 2, this.WORLD_HEIGHT / 2, this.input, this.WORLD_WIDTH, this.WORLD_HEIGHT);
@@ -455,56 +450,56 @@ export class Game {
     }
 
     private updateLeaderboard(): void {
-        const leaderboardDataStr = localStorage.getItem('vampire_leaderboard');
-        let leaderboard: { name: string, score: number }[] = [];
-        if (leaderboardDataStr) {
-            try {
-                const parsed = JSON.parse(leaderboardDataStr);
-                if (Array.isArray(parsed)) leaderboard = parsed;
-            } catch (e) { }
-        }
-
-        leaderboard.sort((a, b) => b.score - a.score);
-        this.backgroundLeaderboard = leaderboard.slice(0, 10);
-
+        // Show loading state temporarily
         const listEl = document.getElementById('leaderboard-list');
         if (listEl) {
-            listEl.innerHTML = '';
-            for (let i = 0; i < Math.min(10, leaderboard.length); i++) {
-                const li = document.createElement('li');
-                li.textContent = `${leaderboard[i].name} - ${leaderboard[i].score}`;
-                listEl.appendChild(li);
-            }
+            listEl.innerHTML = '<li>Loading...</li>';
         }
 
-        const inputSection = document.getElementById('leaderboard-input-section');
-        if (inputSection) {
-            // Check if top 10
-            if (!this.hasSavedScore && (leaderboard.length < 10 || this.gold >= (leaderboard[9]?.score || 0))) {
-                inputSection.classList.remove('hidden');
-                const saveBtn = document.getElementById('save-score-btn');
-                const nameInput = document.getElementById('player-name') as HTMLInputElement;
-                if (saveBtn && nameInput) {
-                    const newBtn = saveBtn.cloneNode(true);
-                    saveBtn.parentNode?.replaceChild(newBtn, saveBtn);
+        getLeaderboard().then(leaderboard => {
+            this.backgroundLeaderboard = leaderboard.slice(0, 10);
 
-                    newBtn.addEventListener('click', () => {
-                        const name = nameInput.value.trim() || 'Anonymous';
-                        leaderboard.push({ name, score: this.gold });
-                        leaderboard.sort((a, b) => b.score - a.score);
-                        leaderboard = leaderboard.slice(0, 10);
-                        localStorage.setItem('vampire_leaderboard', JSON.stringify(leaderboard));
-
-                        this.hasSavedScore = true;
-                        inputSection.classList.add('hidden');
-                        this.backgroundLeaderboard = leaderboard.slice(0, 10);
-                        this.updateLeaderboard();
-                    });
+            if (listEl) {
+                listEl.innerHTML = '';
+                for (let i = 0; i < Math.min(10, leaderboard.length); i++) {
+                    const li = document.createElement('li');
+                    li.textContent = `${leaderboard[i].name} - ${leaderboard[i].score}`;
+                    listEl.appendChild(li);
                 }
-            } else {
-                inputSection.classList.add('hidden');
             }
-        }
+
+            const inputSection = document.getElementById('leaderboard-input-section');
+            if (inputSection) {
+                // Check if top 10
+                if (!this.hasSavedScore && (leaderboard.length < 10 || this.gold > (leaderboard[9]?.score || 0))) {
+                    inputSection.classList.remove('hidden');
+                    const saveBtn = document.getElementById('save-score-btn');
+                    const nameInput = document.getElementById('player-name') as HTMLInputElement;
+                    if (saveBtn && nameInput) {
+                        const newBtn = saveBtn.cloneNode(true);
+                        saveBtn.parentNode?.replaceChild(newBtn, saveBtn);
+
+                        newBtn.addEventListener('click', () => {
+                            const name = nameInput.value.trim() || 'Anonymous';
+                            this.hasSavedScore = true;
+                            inputSection.classList.add('hidden');
+                            
+                            // Show loading
+                            if (listEl) {
+                                listEl.innerHTML = '<li>Saving...</li>';
+                            }
+                            
+                            saveScore(name, this.gold).then(newBoard => {
+                                this.backgroundLeaderboard = newBoard.slice(0, 10);
+                                this.updateLeaderboard();
+                            });
+                        });
+                    }
+                } else {
+                    inputSection.classList.add('hidden');
+                }
+            }
+        });
     }
 
     private gameOver(): void {

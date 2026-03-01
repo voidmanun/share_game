@@ -1,6 +1,7 @@
 import './style.css'
 import { Game } from './Game'
-import { getLanguage, setLanguage, t } from './i18n'
+import { getLanguage, setLanguage, t } from './i18n';
+import { getLeaderboard } from './leaderboard';
 
 window.addEventListener('DOMContentLoaded', () => {
   const game = new Game('game-canvas');
@@ -27,26 +28,27 @@ window.addEventListener('DOMContentLoaded', () => {
   const closeLeaderboardBtn = document.getElementById('close-leaderboard-btn');
   const modalLeaderboardList = document.getElementById('modal-leaderboard-list');
 
-  leaderboardBtn?.addEventListener('click', (e) => {
+  leaderboardBtn?.addEventListener('click', async (e) => {
     e.preventDefault();
     if (leaderboardModal) leaderboardModal.classList.remove('hidden');
     if (modalLeaderboardList) {
-      modalLeaderboardList.innerHTML = '';
-      const dataStr = localStorage.getItem('vampire_leaderboard');
-      let data = [];
-      if (dataStr) {
-        try { data = JSON.parse(dataStr); } catch (e) {}
-      }
-      if (Array.isArray(data) && data.length > 0) {
-        data.sort((a, b) => b.score - a.score).slice(0, 10).forEach(entry => {
+      modalLeaderboardList.innerHTML = '<li>Loading...</li>';
+      try {
+        const data = await getLeaderboard();
+        modalLeaderboardList.innerHTML = '';
+        if (Array.isArray(data) && data.length > 0) {
+          data.slice(0, 10).forEach(entry => {
+            const li = document.createElement('li');
+            li.textContent = `${entry.name} - ${entry.score}`;
+            modalLeaderboardList.appendChild(li);
+          });
+        } else {
           const li = document.createElement('li');
-          li.textContent = `${entry.name} - ${entry.score}`;
+          li.textContent = getLanguage() === 'zh' ? '暂无数据' : 'No Data';
           modalLeaderboardList.appendChild(li);
-        });
-      } else {
-        const li = document.createElement('li');
-        li.textContent = getLanguage() === 'zh' ? '暂无数据' : 'No Data';
-        modalLeaderboardList.appendChild(li);
+        }
+      } catch (err) {
+        modalLeaderboardList.innerHTML = '<li>Error loading leaderboard</li>';
       }
     }
   });
