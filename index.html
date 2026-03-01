@@ -35,9 +35,6 @@
 
 <body>
   <div id="app">
-    <div style="position: absolute; top: 10px; right: 10px; z-index: 3000; display: flex; gap: 8px;">
-      <button id="lang-btn" style="padding: 4px 8px; font-size: 14px; display: inline-flex; align-items: center; gap: 4px; border-radius: 8px; cursor: pointer; border: 2px solid #000; background: #fff; color: #000; font-family: 'Fredoka One', cursive;">🌐 English</button>
-    </div>
     <div id="loading-screen">
       <h1>Loading Game...</h1>
       <div class="loading-bar-container">
@@ -64,8 +61,9 @@
               <span class="desktop-only">WASD to Move | P to Shop</span>
               <button id="mobile-shop-btn" class="mobile-only">Shop</button>
             </div>
-            <div style="display: flex; gap: 8px;">
+            <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
               <button id="mute-btn" style="padding: 4px 8px; font-size: 14px; display: inline-flex; align-items: center; gap: 4px;">🔊 Sound: ON</button>
+              <button id="lang-btn" style="padding: 4px 8px; font-size: 14px; display: inline-flex; align-items: center; gap: 4px;">🌐 English</button>
             </div>
           </div>
         </div>
