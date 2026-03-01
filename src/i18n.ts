@@ -27,6 +27,9 @@ export const translations = {
     dmg: 'DMG',
     hp: 'HP',
     atk: 'ATK',
+    leaderboardTitle: 'Leaderboard (Top 10)',
+    enterName: 'Enter your name',
+    saveScoreBtn: 'Save',
     // Enemies
     enemyBasic: 'Basic',
     enemyScout: 'Scout',
@@ -74,6 +77,9 @@ export const translations = {
     dmg: '伤害',
     hp: '生命',
     atk: '攻击',
+    leaderboardTitle: '排行榜 (前10名)',
+    enterName: '输入你的名字',
+    saveScoreBtn: '保存',
     // Enemies
     enemyBasic: '普通怪',
     enemyScout: '侦察怪',
@@ -153,6 +159,13 @@ function updateUI() {
   if (elements.gameOverTitle) elements.gameOverTitle.textContent = t('gameOver');
   if (elements.restartBtn) elements.restartBtn.textContent = t('restartGame');
   if (elements.langBtn) elements.langBtn.textContent = t('lang');
+
+  const leaderboardTitle = document.querySelector('#leaderboard-section h3');
+  const playerNameInput = document.getElementById('player-name') as HTMLInputElement;
+  const saveScoreBtn = document.getElementById('save-score-btn');
+  if (leaderboardTitle) leaderboardTitle.textContent = t('leaderboardTitle');
+  if (playerNameInput) playerNameInput.placeholder = t('enterName');
+  if (saveScoreBtn) saveScoreBtn.textContent = t('saveScoreBtn');
 
   // Update shop buttons with costs
   const buyDamage = document.getElementById('buy-damage');

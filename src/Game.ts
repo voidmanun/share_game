@@ -440,6 +440,55 @@ export class Game {
         }
     }
 
+    private updateLeaderboard(): void {
+        const leaderboardDataStr = localStorage.getItem('vampire_leaderboard');
+        let leaderboard: {name: string, score: number}[] = [];
+        if (leaderboardDataStr) {
+            try {
+                leaderboard = JSON.parse(leaderboardDataStr);
+            } catch (e) {}
+        }
+        
+        leaderboard.sort((a, b) => b.score - a.score);
+        
+        const listEl = document.getElementById('leaderboard-list');
+        if (listEl) {
+            listEl.innerHTML = '';
+            for (let i = 0; i < Math.min(10, leaderboard.length); i++) {
+                const li = document.createElement('li');
+                li.textContent = `${leaderboard[i].name} - ${leaderboard[i].score}`;
+                listEl.appendChild(li);
+            }
+        }
+        
+        const inputSection = document.getElementById('leaderboard-input-section');
+        if (inputSection) {
+            // Check if top 10
+            if (leaderboard.length < 10 || this.gold > (leaderboard[9]?.score || 0)) {
+                inputSection.classList.remove('hidden');
+                const saveBtn = document.getElementById('save-score-btn');
+                const nameInput = document.getElementById('player-name') as HTMLInputElement;
+                if (saveBtn && nameInput) {
+                    const newBtn = saveBtn.cloneNode(true);
+                    saveBtn.parentNode?.replaceChild(newBtn, saveBtn);
+                    
+                    newBtn.addEventListener('click', () => {
+                        const name = nameInput.value.trim() || 'Anonymous';
+                        leaderboard.push({name, score: this.gold});
+                        leaderboard.sort((a, b) => b.score - a.score);
+                        leaderboard = leaderboard.slice(0, 10);
+                        localStorage.setItem('vampire_leaderboard', JSON.stringify(leaderboard));
+                        
+                        inputSection.classList.add('hidden');
+                        this.updateLeaderboard();
+                    });
+                }
+            } else {
+                inputSection.classList.add('hidden');
+            }
+        }
+    }
+
     private gameOver(): void {
         this.pause();
         const gameOverEl = document.getElementById('game-over');
@@ -449,6 +498,7 @@ export class Game {
         if (gameOverEl && scoreEl && restartBtn) {
             scoreEl.textContent = this.gold.toString();
             gameOverEl.classList.remove('hidden');
+            this.updateLeaderboard();
 
             restartBtn.onclick = () => {
                 this.initializeGame();
