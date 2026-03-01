@@ -17,7 +17,7 @@ export class Player extends Entity {
   public speedMultiplier: number = 1.0;
 
   constructor(x: number, y: number, input: Input, worldWidth: number, worldHeight: number) {
-    super(x, y, 20, '#006994'); // Sea Blue
+    super(x, y, 20, '#FFFFFF'); // White Horse
     this.input = input;
     this.worldWidth = worldWidth;
     this.worldHeight = worldHeight;
@@ -110,46 +110,73 @@ export class Player extends Entity {
       ctx.scale(3, 3);
     }
 
+    // Horse Render
     ctx.fillStyle = this.color;
     ctx.strokeStyle = '#000';
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 2;
+    
+    // Horse Body
     ctx.beginPath();
-    ctx.moveTo(15, 0); // Tip
-    ctx.lineTo(-10, 10); // Back Right
-    ctx.lineTo(-5, 0); // Engine Checkpoint
-    ctx.lineTo(-10, -10); // Back Left
+    ctx.ellipse(-5, 0, 15, 10, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Horse Head/Neck
+    ctx.beginPath();
+    ctx.moveTo(0, -5);
+    ctx.lineTo(15, -15); // Ear/Top of head
+    ctx.lineTo(20, -10); // Nose
+    ctx.lineTo(10, 0); // Bottom of neck
     ctx.closePath();
     ctx.fill();
+    ctx.stroke();
+    
+    // Legs (Animated)
+    const time = Date.now() / 150;
+    const legSwing = (x !== 0 || y !== 0) ? Math.sin(time) * 5 : 0;
+    
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    // Front legs
+    ctx.moveTo(5, 5);
+    ctx.lineTo(5 + legSwing, 15);
+    ctx.moveTo(0, 5);
+    ctx.lineTo(0 - legSwing, 15);
+    // Back legs
+    ctx.moveTo(-10, 5);
+    ctx.lineTo(-10 - legSwing, 15);
+    ctx.moveTo(-15, 5);
+    ctx.lineTo(-15 + legSwing, 15);
+    ctx.stroke();
+
+    // Tail
+    ctx.beginPath();
+    ctx.moveTo(-20, -2);
+    ctx.quadraticCurveTo(-25, -5, -28 + legSwing/2, 5);
+    ctx.strokeStyle = '#CCC';
     ctx.stroke();
 
     // Googly Eyes
     ctx.fillStyle = 'white';
     ctx.beginPath();
-    ctx.arc(4, -4, 3, 0, Math.PI * 2); // Left eye
-    ctx.arc(4, 4, 3, 0, Math.PI * 2);  // Right eye
+    ctx.arc(12, -12, 3, 0, Math.PI * 2); // Eye
     ctx.fill();
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 1;
     ctx.stroke();
 
-    // Pupils
+    // Pupil
     ctx.fillStyle = 'black';
     ctx.beginPath();
-    ctx.arc(5, -4, 1.5, 0, Math.PI * 2);
-    ctx.arc(5, 4, 1.5, 0, Math.PI * 2);
+    ctx.arc(13, -12, 1.5, 0, Math.PI * 2);
     ctx.fill();
 
-    // Engine Flame
+    // Dust particles instead of flame when moving
     if (x !== 0 || y !== 0) {
-      ctx.fillStyle = '#ff9900';
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 2;
+      ctx.fillStyle = 'rgba(200, 200, 200, 0.5)';
       ctx.beginPath();
-      ctx.moveTo(-5, 0);
-      ctx.lineTo(-15, 5);
-      ctx.lineTo(-25, 0); // Flame tip
-      ctx.lineTo(-15, -5);
-      ctx.closePath();
+      ctx.arc(-25, 12 + Math.random() * 5, 2 + Math.random() * 3, 0, Math.PI * 2);
       ctx.fill();
-      ctx.stroke();
     }
 
     // Draw rainbow aura if invincible
