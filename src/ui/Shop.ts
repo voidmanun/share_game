@@ -8,19 +8,23 @@ export class Shop {
     private costDamage: number = 20;
     private costSpeed: number = 15;
     private costHp: number = 15;
+    private costPet: number = 50;
 
     private btnDamage: HTMLButtonElement;
     private btnSpeed: HTMLButtonElement;
     private btnHp: HTMLButtonElement;
+    private btnPet: HTMLButtonElement;
 
     private spanDamage: HTMLElement;
     private spanSpeed: HTMLElement;
     private spanHp: HTMLElement;
+    private spanPet: HTMLElement;
 
     public updatePlayerRef(): void {
         this.costDamage = 20;
         this.costSpeed = 15;
         this.costHp = 15;
+        this.costPet = 50;
         this.updateUI();
     }
 
@@ -31,14 +35,17 @@ export class Shop {
         this.btnDamage = document.getElementById('buy-damage') as HTMLButtonElement;
         this.btnSpeed = document.getElementById('buy-speed') as HTMLButtonElement;
         this.btnHp = document.getElementById('buy-hp') as HTMLButtonElement;
+        this.btnPet = document.getElementById('buy-pet') as HTMLButtonElement;
 
         this.spanDamage = document.getElementById('cost-damage')!;
         this.spanSpeed = document.getElementById('cost-speed')!;
         this.spanHp = document.getElementById('cost-hp')!;
+        this.spanPet = document.getElementById('cost-pet')!;
 
         this.btnDamage?.addEventListener('click', () => this.buyDamage());
         this.btnSpeed?.addEventListener('click', () => this.buySpeed());
         this.btnHp?.addEventListener('click', () => this.buyHp());
+        this.btnPet?.addEventListener('click', () => this.buyPet());
         document.getElementById('close-shop')?.addEventListener('click', () => this.toggle());
 
         // Toggle on 'P'
@@ -75,10 +82,12 @@ export class Shop {
         this.spanDamage.textContent = this.costDamage.toString();
         this.spanSpeed.textContent = this.costSpeed.toString();
         this.spanHp.textContent = this.costHp.toString();
+        this.spanPet.textContent = this.costPet.toString();
 
         this.btnDamage.disabled = this.game.gold < this.costDamage;
         this.btnSpeed.disabled = this.game.gold < this.costSpeed;
         this.btnHp.disabled = this.game.gold < this.costHp;
+        this.btnPet.disabled = this.game.gold < this.costPet;
     }
 
     private buyDamage(): void {
@@ -106,6 +115,15 @@ export class Shop {
             this.game.gold -= this.costHp;
             this.game.player.upgradeMaxHp();
             this.costHp = this.costHp * 2;
+            this.game.soundManager.playPickupSound(); // Success sound
+            this.updateUI();
+        }
+    }
+    private buyPet(): void {
+        if (this.game.gold >= this.costPet) {
+            this.game.gold -= this.costPet;
+            this.game.hatchRandomPet();
+            this.costPet = Math.floor(this.costPet * 1.5); // Increase cost for next pet
             this.game.soundManager.playPickupSound(); // Success sound
             this.updateUI();
         }

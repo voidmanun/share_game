@@ -49,6 +49,27 @@ export class Game {
     public player!: Player; // Public for Shop access
 
     private enemies: Enemy[] = [];
+
+    public hatchRandomPet(): void {
+        const rand = Math.random();
+        if (rand < 0.20) {
+            this.pets.push(new GreedyDog(this.player, this));
+            this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `Greedy Dog Hatched!`, '#8B4513'));
+        } else if (rand < 0.40) {
+            this.pets.push(new MagicFairy(this.player, this));
+            this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `Magic Fairy Hatched!`, '#FFB6C1'));
+        } else if (rand < 0.60) {
+            this.pets.push(new SpeedyTurtle(this.player, this));
+            this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `Speedy Turtle Hatched!`, '#2E8B57'));
+        } else if (rand < 0.80) {
+            this.pets.push(new GrumpyPorcupine(this.player, this));
+            this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `Grumpy Porcupine Hatched!`, '#A0522D'));
+        } else {
+            this.pets.push(new BouncySlime(this.player, this));
+            this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `Bouncy Slime Hatched!`, '#32CD32'));
+        }
+    }
+
     public getEnemies(): Enemy[] { return this.enemies; }
     private projectiles: Projectile[] = [];
     private pickups: (Pickup | WeaponPickup | HealthPickup | LollipopPickup | PetEggPickup)[] = [];
@@ -472,24 +493,7 @@ export class Game {
                     this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `INVINCIBLE!`, '#FF00FF'));
                     this.soundManager.playPickupSound();
                 } else if (pickup instanceof PetEggPickup) {
-                    // Hatch a pet
-                    const rand = Math.random();
-                    if (rand < 0.20) {
-                        this.pets.push(new GreedyDog(this.player, this));
-                        this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `Greedy Dog Hatched!`, '#8B4513'));
-                    } else if (rand < 0.40) {
-                        this.pets.push(new MagicFairy(this.player, this));
-                        this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `Magic Fairy Hatched!`, '#FFB6C1'));
-                    } else if (rand < 0.60) {
-                        this.pets.push(new SpeedyTurtle(this.player, this));
-                        this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `Speedy Turtle Hatched!`, '#2E8B57'));
-                    } else if (rand < 0.80) {
-                        this.pets.push(new GrumpyPorcupine(this.player, this));
-                        this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `Grumpy Porcupine Hatched!`, '#A0522D'));
-                    } else {
-                        this.pets.push(new BouncySlime(this.player, this));
-                        this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `Bouncy Slime Hatched!`, '#32CD32'));
-                    }
+                    this.hatchRandomPet();
                     this.soundManager.playPickupSound();
                 } else if (pickup instanceof Pickup) {
                     this.gold += pickup.value;
