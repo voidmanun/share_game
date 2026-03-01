@@ -21,7 +21,8 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  langBtn?.addEventListener('click', () => {
+  const handleLangToggle = (e?: Event) => {
+    if (e) e.preventDefault();
     const newLang = getLanguage() === 'en' ? 'zh' : 'en';
     setLanguage(newLang);
     
@@ -31,7 +32,10 @@ window.addEventListener('DOMContentLoaded', () => {
       const soundOffText = newLang === 'zh' ? '🔇 声音: 关' : '🔇 Sound: OFF';
       muteBtn.textContent = game.soundManager.isMuted ? soundOffText : soundOnText;
     }
-  });
+  };
+
+  langBtn?.addEventListener('click', handleLangToggle);
+  langBtn?.addEventListener('touchstart', handleLangToggle, { passive: false });
 
   // Simulate asset loading
   let progress = 0;
