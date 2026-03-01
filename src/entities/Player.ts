@@ -17,7 +17,7 @@ export class Player extends Entity {
   public speedMultiplier: number = 1.0;
 
   constructor(x: number, y: number, input: Input, worldWidth: number, worldHeight: number) {
-    super(x, y, 20, '#DDA0DD'); // Plum - Pony Color
+    super(x, y, 20, '#FFFFFF'); // White - Handsome Horse Color
     this.input = input;
     this.worldWidth = worldWidth;
     this.worldHeight = worldHeight;
@@ -110,90 +110,92 @@ export class Player extends Entity {
       ctx.scale(3, 3);
     }
 
-    // Pony Render
+    // Majestic White Horse Render
     ctx.fillStyle = this.color;
-    ctx.strokeStyle = '#000';
+    ctx.strokeStyle = '#333';
     ctx.lineWidth = 2;
     
-    // Pony Body (rounder, shorter)
+    // Horse Body (longer, more athletic)
     ctx.beginPath();
-    ctx.ellipse(-5, 2, 12, 9, 0, 0, Math.PI * 2);
+    ctx.ellipse(-5, 0, 16, 9, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
 
-    // Pony Head/Neck
+    // Majestic Chest and Neck
     ctx.beginPath();
-    ctx.moveTo(2, -2);
-    ctx.lineTo(12, -12); // Ear/Top of head
-    ctx.lineTo(16, -6); // Snout
-    ctx.lineTo(6, 4); // Bottom of neck
+    ctx.moveTo(5, -5);
+    ctx.lineTo(16, -18); // Top of neck / Ears
+    ctx.lineTo(24, -14); // Snout
+    ctx.lineTo(22, -9); // Jaw
+    ctx.lineTo(10, 5); // Bottom of neck
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
 
-    const time = Date.now() / 150;
-    const legSwing = (x !== 0 || y !== 0) ? Math.sin(time) * 5 : 0;
+    const time = Date.now() / 120; // slightly faster gallop
+    const legSwing = (x !== 0 || y !== 0) ? Math.sin(time) * 8 : 0;
+    const legSwingOffset = (x !== 0 || y !== 0) ? Math.cos(time) * 8 : 0;
     
-    // Legs (Animated)
+    // Legs (Longer, heroic stride)
     ctx.lineWidth = 3;
+    ctx.strokeStyle = '#111';
     ctx.beginPath();
     // Front legs
-    ctx.moveTo(4, 8);
-    ctx.lineTo(4 + legSwing, 16);
-    ctx.moveTo(-1, 8);
-    ctx.lineTo(-1 - legSwing, 16);
+    ctx.moveTo(8, 7);
+    ctx.lineTo(8 + legSwing, 20); // Knee
+    ctx.lineTo(8 + legSwing + legSwingOffset * 0.5, 26); // Hoof
+    
+    ctx.moveTo(2, 7);
+    ctx.lineTo(2 - legSwing, 20);
+    ctx.lineTo(2 - legSwing - legSwingOffset * 0.5, 26);
+    
     // Back legs
-    ctx.moveTo(-8, 8);
-    ctx.lineTo(-8 - legSwing, 16);
-    ctx.moveTo(-13, 8);
-    ctx.lineTo(-13 + legSwing, 16);
+    ctx.moveTo(-10, 6);
+    ctx.lineTo(-10 - legSwing, 18);
+    ctx.lineTo(-10 - legSwing - legSwingOffset * 0.5, 26);
+    
+    ctx.moveTo(-16, 6);
+    ctx.lineTo(-16 + legSwing, 18);
+    ctx.lineTo(-16 + legSwing + legSwingOffset * 0.5, 26);
     ctx.stroke();
 
-    // Mane (Pink/Colorful)
-    ctx.fillStyle = '#FF69B4'; // Hot Pink
+    // Majestic Mane (Silver/Ice Blue)
+    ctx.fillStyle = '#E0F7FA'; // Icy silver blue
     ctx.beginPath();
-    ctx.moveTo(12, -12);
-    ctx.quadraticCurveTo(8, -16, 2, -6);
-    ctx.quadraticCurveTo(6, -2, 8, -6);
+    ctx.moveTo(16, -18);
+    ctx.quadraticCurveTo(8, -20, 4, -8);
+    ctx.quadraticCurveTo(10, -10, 12, -14);
     ctx.fill();
 
-    // Tail
+    // Flowing Tail
+    ctx.fillStyle = '#E0F7FA';
     ctx.beginPath();
-    ctx.moveTo(-17, 2);
-    ctx.quadraticCurveTo(-24, -2, -26 + legSwing/2, 6);
-    ctx.quadraticCurveTo(-20, 8, -17, 4);
+    ctx.moveTo(-20, -2);
+    ctx.quadraticCurveTo(-32, -8, -35 + legSwing, 5);
+    ctx.quadraticCurveTo(-26, 6, -21, 2);
     ctx.fill();
 
-    // Big Cute Eye
+    // Heroic Eye (sharp, focused)
     ctx.fillStyle = 'white';
     ctx.beginPath();
-    ctx.arc(10, -8, 4, 0, Math.PI * 2); // Eye
+    ctx.moveTo(16, -14);
+    ctx.lineTo(19, -15);
+    ctx.lineTo(18, -13);
     ctx.fill();
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-
-    // Pupil
-    ctx.fillStyle = 'black';
+    ctx.fillStyle = '#00BFFF'; // Deep blue piercing eye
     ctx.beginPath();
-    ctx.arc(11, -8, 2, 0, Math.PI * 2);
+    ctx.arc(17.5, -14, 1.5, 0, Math.PI * 2);
     ctx.fill();
 
-    // Cutie Mark (Star)
-    ctx.fillStyle = '#FFD700';
-    ctx.beginPath();
-    ctx.arc(-8, 2, 2, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Sparkle dust particles instead of flame when moving
+    // Heroic Aura / Dust particles instead of cute sparkles
     if (x !== 0 || y !== 0) {
-      ctx.fillStyle = 'rgba(255, 105, 180, 0.7)'; // Hot pink sparkles
+      ctx.fillStyle = 'rgba(200, 200, 200, 0.6)'; // Dust
       ctx.beginPath();
-      ctx.arc(-22, 12 + Math.random() * 5, 1.5 + Math.random() * 2.5, 0, Math.PI * 2);
+      ctx.arc(-26 + Math.random() * 4, 14 + Math.random() * 4, 2 + Math.random() * 3, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = 'rgba(255, 215, 0, 0.7)'; // Gold sparkles
+      ctx.fillStyle = 'rgba(135, 206, 235, 0.4)'; // Light blue wind trail
       ctx.beginPath();
-      ctx.arc(-25, 8 + Math.random() * 6, 1 + Math.random() * 2, 0, Math.PI * 2);
+      ctx.arc(-22, 10 + Math.random() * 8, 1 + Math.random() * 4, 0, Math.PI * 2);
       ctx.fill();
     }
 
