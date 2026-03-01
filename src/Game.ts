@@ -132,18 +132,18 @@ export class Game {
                 this.pets.push(new LuckyCat(this.player, this));
             }
         }
-        
+
         // Ensure Shop is linked correctly to the new player
         if (this.shop) {
             this.shop.updatePlayerRef();
         }
-        
+
         // Hide game over screen
         const gameOverEl = document.getElementById('game-over');
         if (gameOverEl) {
             gameOverEl.classList.add('hidden');
         }
-        
+
         this.updateHUD();
         this.updateStatsPanel();
     }
@@ -333,10 +333,10 @@ export class Game {
         const hpEl = document.getElementById('hp');
         const hpBarFill = document.getElementById('hp-bar-fill');
         const goldEl = document.getElementById('gold');
-        
+
         if (hpEl) hpEl.textContent = `${Math.max(0, Math.floor(this.player.hp))} / ${this.player.maxHp}`;
         if (goldEl) goldEl.textContent = this.gold.toString();
-        
+
         if (hpBarFill) {
             const hpPercent = Math.max(0, (this.player.hp / this.player.maxHp) * 100);
             hpBarFill.style.width = `${hpPercent}%`;
@@ -444,16 +444,16 @@ export class Game {
 
     private updateLeaderboard(): void {
         const leaderboardDataStr = localStorage.getItem('vampire_leaderboard');
-        let leaderboard: {name: string, score: number}[] = [];
+        let leaderboard: { name: string, score: number }[] = [];
         if (leaderboardDataStr) {
             try {
                 const parsed = JSON.parse(leaderboardDataStr);
                 if (Array.isArray(parsed)) leaderboard = parsed;
-            } catch (e) {}
+            } catch (e) { }
         }
-        
+
         leaderboard.sort((a, b) => b.score - a.score);
-        
+
         const listEl = document.getElementById('leaderboard-list');
         if (listEl) {
             listEl.innerHTML = '';
@@ -463,25 +463,25 @@ export class Game {
                 listEl.appendChild(li);
             }
         }
-        
+
         const inputSection = document.getElementById('leaderboard-input-section');
         if (inputSection) {
             // Check if top 10
-            if (!this.hasSavedScore && (leaderboard.length < 10 || this.gold > (leaderboard[9]?.score || 0))) {
+            if (!this.hasSavedScore && (leaderboard.length < 10 || this.gold >= (leaderboard[9]?.score || 0))) {
                 inputSection.classList.remove('hidden');
                 const saveBtn = document.getElementById('save-score-btn');
                 const nameInput = document.getElementById('player-name') as HTMLInputElement;
                 if (saveBtn && nameInput) {
                     const newBtn = saveBtn.cloneNode(true);
                     saveBtn.parentNode?.replaceChild(newBtn, saveBtn);
-                    
+
                     newBtn.addEventListener('click', () => {
                         const name = nameInput.value.trim() || 'Anonymous';
-                        leaderboard.push({name, score: this.gold});
+                        leaderboard.push({ name, score: this.gold });
                         leaderboard.sort((a, b) => b.score - a.score);
                         leaderboard = leaderboard.slice(0, 10);
                         localStorage.setItem('vampire_leaderboard', JSON.stringify(leaderboard));
-                        
+
                         this.hasSavedScore = true;
                         inputSection.classList.add('hidden');
                         this.updateLeaderboard();
@@ -524,7 +524,7 @@ export class Game {
     private checkCollections(): void {
         for (const pickup of this.pickups) {
             let collected = false;
-            
+
             // Check player collision
             const dx = this.player.x - pickup.x;
             const dy = this.player.y - pickup.y;
