@@ -8,6 +8,7 @@ import { SwarmEnemy } from './entities/SwarmEnemy';
 import { Charger } from './entities/Charger';
 import { Splitter } from './entities/Splitter';
 import { Teleporter } from './entities/Teleporter';
+import { StarEnemy } from './entities/StarEnemy';
 import { Projectile } from './weapons/Projectile';
 import { MagicWand } from './weapons/MagicWand';
 import { Laser } from './weapons/Laser';
@@ -182,6 +183,7 @@ export class Game {
             { name: "Splitter", hp: 4, dmg: 1 },
             { name: "Charger", hp: 5, dmg: 2 },
             { name: "Teleporter", hp: 2, dmg: 1 },
+            { name: "Star", hp: 2, dmg: 1 },
             { name: "Boss", hp: 10, dmg: 3 }
         ];
 
@@ -568,7 +570,7 @@ export class Game {
         let newEnemy: Enemy;
 
         if (this.gameTime > 60) {
-            // 60s+: Tank(10%), Charger(10%), Teleporter(15%), Splitter(15%), Swarm(20%), Scout(10%), Basic(20%)
+            // 60s+: Tank(10%), Charger(10%), Teleporter(15%), Splitter(15%), Swarm(15%), Scout(10%), Star(10%), Basic(15%)
             if (rand < 0.10) {
                 newEnemy = new TankEnemy(x, y, this.player);
             } else if (rand < 0.20) {
@@ -577,15 +579,17 @@ export class Game {
                 newEnemy = new Teleporter(x, y, this.player, this);
             } else if (rand < 0.50) {
                 newEnemy = new Splitter(x, y, this.player);
-            } else if (rand < 0.70) {
+            } else if (rand < 0.65) {
                 newEnemy = new SwarmEnemy(x, y, this.player, this);
-            } else if (rand < 0.80) {
+            } else if (rand < 0.75) {
                 newEnemy = new Scout(x, y, this.player);
+            } else if (rand < 0.85) {
+                newEnemy = new StarEnemy(x, y, this.player);
             } else {
                 newEnemy = new Enemy(x, y, this.player);
             }
         } else if (this.gameTime > 30) {
-            // 30s-60s: Splitter(15%), Charger(10%), Teleporter(10%), Swarm(20%), Scout(20%), Basic(25%)
+            // 30s-60s: Splitter(15%), Charger(10%), Teleporter(10%), Swarm(20%), Scout(20%), Star(10%), Basic(15%)
             if (rand < 0.15) {
                 newEnemy = new Splitter(x, y, this.player);
             } else if (rand < 0.25) {
@@ -596,13 +600,17 @@ export class Game {
                 newEnemy = new SwarmEnemy(x, y, this.player, this);
             } else if (rand < 0.75) {
                 newEnemy = new Scout(x, y, this.player);
+            } else if (rand < 0.85) {
+                newEnemy = new StarEnemy(x, y, this.player);
             } else {
                 newEnemy = new Enemy(x, y, this.player);
             }
         } else {
-            // 0-30s: Scout (30%), Basic (70%)
+            // 0-30s: Scout (30%), Star (10%), Basic (60%)
             if (rand < 0.3) {
                 newEnemy = new Scout(x, y, this.player);
+            } else if (rand < 0.4) {
+                newEnemy = new StarEnemy(x, y, this.player);
             } else {
                 newEnemy = new Enemy(x, y, this.player);
             }
