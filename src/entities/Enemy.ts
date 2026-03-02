@@ -57,51 +57,94 @@ export class Enemy extends Entity {
         ctx.translate(this.x, this.y);
         ctx.rotate(angle);
 
-        // Draw Alien Body
+        // --- NEW MORE DETAILED ALIEN DESIGN ---
+
+        // Antennae
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.quadraticCurveTo(-15, -15, -10, -25); // Left antenna
+        ctx.moveTo(0, 0);
+        ctx.quadraticCurveTo(15, -15, 10, -25); // Right antenna
+        ctx.stroke();
+
+        // Antenna Balls (Glowing Red)
+        ctx.fillStyle = '#FF3333';
+        ctx.beginPath();
+        ctx.arc(-10, -25, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(10, -25, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Main Body (Squid/Jellyfish shape)
         ctx.fillStyle = this.color;
         ctx.strokeStyle = '#000';
         ctx.lineWidth = 3;
 
         ctx.beginPath();
-        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+        // Top dome
+        ctx.arc(0, 0, this.radius, Math.PI, 0); 
+        // Bottom wavy edge
+        ctx.quadraticCurveTo(this.radius * 0.75, this.radius * 0.5, this.radius * 0.5, 0);
+        ctx.quadraticCurveTo(0, this.radius * 0.8, -this.radius * 0.5, 0);
+        ctx.quadraticCurveTo(-this.radius * 0.75, this.radius * 0.5, -this.radius, 0);
+        ctx.closePath();
         ctx.fill();
         ctx.stroke();
 
-        // Angry Eyes (facing towards angle 0 since we rotated)
-        ctx.fillStyle = 'white';
-        const eyeX = this.radius * 0.4;
-        const eyeY = this.radius * 0.4;
-        const eyeSize = this.radius * 0.3;
-
+        // Tentacles
         ctx.beginPath();
-        ctx.arc(eyeX, -eyeY, eyeSize, 0, Math.PI * 2); // Left Eye
-        ctx.arc(eyeX, eyeY, eyeSize, 0, Math.PI * 2); // Right Eye
+        ctx.moveTo(-this.radius * 0.6, 0);
+        ctx.lineTo(-this.radius * 0.8, this.radius * 1.2);
+        
+        ctx.moveTo(-this.radius * 0.2, 0);
+        ctx.lineTo(-this.radius * 0.3, this.radius * 1.5);
+
+        ctx.moveTo(this.radius * 0.2, 0);
+        ctx.lineTo(this.radius * 0.3, this.radius * 1.5);
+
+        ctx.moveTo(this.radius * 0.6, 0);
+        ctx.lineTo(this.radius * 0.8, this.radius * 1.2);
+        ctx.stroke();
+
+        // Giant Single Cyclops Eye
+        ctx.fillStyle = 'white';
+        ctx.beginPath();
+        ctx.arc(0, -this.radius * 0.3, this.radius * 0.6, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
 
+        // Pupil (Slit like a cat/reptile)
         ctx.fillStyle = 'black';
         ctx.beginPath();
-        ctx.arc(eyeX + 1, -eyeY, eyeSize * 0.5, 0, Math.PI * 2);
-        ctx.arc(eyeX + 1, eyeY, eyeSize * 0.5, 0, Math.PI * 2);
+        ctx.ellipse(0, -this.radius * 0.3, this.radius * 0.15, this.radius * 0.4, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Angry Eyebrows
+        // Iris detail (Red center glow)
+        ctx.fillStyle = '#FF0000';
         ctx.beginPath();
-        ctx.moveTo(eyeX - 4, -eyeY - 6);
-        ctx.lineTo(eyeX + 4, -eyeY - 2);
-        ctx.moveTo(eyeX + 4, eyeY + 2);
-        ctx.lineTo(eyeX - 4, eyeY + 6);
-        ctx.stroke();
+        ctx.arc(0, -this.radius * 0.3, this.radius * 0.1, 0, Math.PI * 2);
+        ctx.fill();
 
         // Draw bubble if trapped
         if (this.trappedInBubble) {
             ctx.beginPath();
-            ctx.arc(0, 0, this.radius + 5, 0, Math.PI * 2);
+            ctx.arc(0, 0, this.radius + 15, 0, Math.PI * 2); // Larger bubble for tentacles
             ctx.fillStyle = 'rgba(0, 255, 255, 0.3)';
             ctx.fill();
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
             ctx.lineWidth = 3;
             ctx.stroke();
+            
+            // Bubble shine
+            ctx.beginPath();
+            ctx.arc(-this.radius * 0.5, -this.radius * 0.5, this.radius * 0.3, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.fill();
         }
 
         ctx.restore();
