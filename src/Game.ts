@@ -10,6 +10,7 @@ import { Splitter } from './entities/Splitter';
 import { Teleporter } from './entities/Teleporter';
 import { StarEnemy } from './entities/StarEnemy';
 import { TitanEnemy } from './entities/TitanEnemy';
+import { TwinElite } from './entities/TwinElite';
 import { Projectile } from './weapons/Projectile';
 import { MagicWand } from './weapons/MagicWand';
 import { Laser } from './weapons/Laser';
@@ -88,6 +89,7 @@ export class Game {
     private spawnInterval: number = 1.2; // Start slightly slower
     private bossSpawnTimer: number = 0;
     private titanSpawnTimer: number = 0;
+    private twinEliteSpawnTimer: number = 0;
     private damageFlashTimer: number = 0;
     public gold: number = 0;
     public gameTime: number = 0; // In seconds
@@ -111,6 +113,7 @@ export class Game {
         this.spawnInterval = 1.2;
         this.bossSpawnTimer = 0;
         this.titanSpawnTimer = 0;
+        this.twinEliteSpawnTimer = 0;
         this.damageFlashTimer = 0;
         this.gold = 0;
         this.gameTime = 0;
@@ -235,6 +238,7 @@ export class Game {
             { name: "Teleporter", hp: 4, dmg: 1 },
             { name: "Star", hp: 4, dmg: 1 },
             { name: "Boss", hp: 20, dmg: 3 },
+            { name: "TwinElite", hp: 200, dmg: 4 },
             { name: "Titan", hp: 500, dmg: 5 }
         ];
 
@@ -313,6 +317,13 @@ export class Game {
         if (this.titanSpawnTimer >= 45 && this.gameTime > 60) {
             this.titanSpawnTimer = 0;
             this.spawnTitan();
+        }
+
+        // Spawn twin elite
+        this.twinEliteSpawnTimer += deltaTime;
+        if (this.twinEliteSpawnTimer >= 30 && this.gameTime > 40) {
+            this.twinEliteSpawnTimer = 0;
+            this.spawnTwinElite();
         }
 
         // Update enemies
@@ -753,6 +764,29 @@ export class Game {
         const titan = new TitanEnemy(x, y, this.player);
         titan.hp *= hpMultiplier;
         this.enemies.push(titan);
+    }
+
+    private spawnTwinElite(): void {
+        const angle = Math.random() * Math.PI * 2;
+        const radius = Math.max(this.canvas.width, this.canvas.height) / 2 + 50;
+        const x1 = this.player.x + Math.cos(angle) * radius;
+        const y1 = this.player.y + Math.sin(angle) * radius;
+        const x2 = x1 + 40;
+        const y2 = y1 + 40;
+
+        const hpMultiplier = 1 + (Math.floor(this.gameTime / 30) * 0.5);
+        console.log(`Spawning Twin Elites with HP Multiplier: ${hpMultiplier}`);
+        
+        const lightTwin = new TwinElite(x1, y1, this.player, this, 'light');
+        const darkTwin = new TwinElite(x2, y2, this.player, this, 'dark');
+        
+        lightTwin.hp *= hpMultiplier;
+        darkTwin.hp *= hpMultiplier;
+        
+        lightTwin.sibling = darkTwin;
+        darkTwin.sibling = lightTwin;
+        
+        this.enemies.push(lightTwin, darkTwin);
     }
 
     private render(): void {
