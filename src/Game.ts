@@ -9,6 +9,7 @@ import { Charger } from './entities/Charger';
 import { Splitter } from './entities/Splitter';
 import { Teleporter } from './entities/Teleporter';
 import { StarEnemy } from './entities/StarEnemy';
+import { TitanEnemy } from './entities/TitanEnemy';
 import { Projectile } from './weapons/Projectile';
 import { MagicWand } from './weapons/MagicWand';
 import { Laser } from './weapons/Laser';
@@ -86,6 +87,7 @@ export class Game {
     private spawnTimer: number = 0;
     private spawnInterval: number = 1.2; // Start slightly slower
     private bossSpawnTimer: number = 0;
+    private titanSpawnTimer: number = 0;
     private damageFlashTimer: number = 0;
     public gold: number = 0;
     public gameTime: number = 0; // In seconds
@@ -108,6 +110,7 @@ export class Game {
         this.spawnTimer = 0;
         this.spawnInterval = 1.2;
         this.bossSpawnTimer = 0;
+        this.titanSpawnTimer = 0;
         this.damageFlashTimer = 0;
         this.gold = 0;
         this.gameTime = 0;
@@ -231,7 +234,8 @@ export class Game {
             { name: "Charger", hp: 5, dmg: 2 },
             { name: "Teleporter", hp: 2, dmg: 1 },
             { name: "Star", hp: 2, dmg: 1 },
-            { name: "Boss", hp: 10, dmg: 3 }
+            { name: "Boss", hp: 10, dmg: 3 },
+            { name: "Titan", hp: 100, dmg: 5 }
         ];
 
         let enemyHTML = '';
@@ -277,8 +281,8 @@ export class Game {
     private update(deltaTime: number): void {
         this.gameTime += deltaTime;
 
-        // Difficulty scaling: decrease spawn interval over time (min 0.2s)
-        this.spawnInterval = Math.max(0.2, 1.2 * Math.pow(0.9, Math.floor(this.gameTime / 30)));
+        // Difficulty scaling: decrease spawn interval over time (min 0.6s)
+        this.spawnInterval = Math.max(0.6, 1.2 * Math.pow(0.9, Math.floor(this.gameTime / 30)));
 
         if (this.damageFlashTimer > 0) {
             this.damageFlashTimer -= deltaTime;
@@ -290,8 +294,8 @@ export class Game {
         this.spawnTimer += deltaTime;
         if (this.spawnTimer >= this.spawnInterval) {
             this.spawnTimer = 0;
-            // Spawn 1 extra enemy every 60 seconds linearly scaling
-            const spawnCount = 1 + Math.floor(this.gameTime / 60);
+            // Spawn 1 extra enemy every 60 seconds linearly scaling, cap at 3
+            const spawnCount = Math.min(3, 1 + Math.floor(this.gameTime / 60));
             for (let i = 0; i < spawnCount; i++) {
                 this.spawnEnemy();
             }
@@ -302,6 +306,13 @@ export class Game {
         if (this.bossSpawnTimer >= 15) {
             this.bossSpawnTimer = 0;
             this.spawnBoss();
+        }
+
+        // Spawn titan
+        this.titanSpawnTimer += deltaTime;
+        if (this.titanSpawnTimer >= 45 && this.gameTime > 60) {
+            this.titanSpawnTimer = 0;
+            this.spawnTitan();
         }
 
         // Update enemies
@@ -366,13 +377,17 @@ export class Game {
         const weaponTypes = ['Magic Wand', 'Laser', 'Missile Launcher', 'Shotgun', 'Orbit Shield', 'Bubble Gun', 'Boomerang'];
         const bossWeaponTypes = ['Missile Launcher', 'Shotgun', 'Orbit Shield', 'Bubble Gun', 'Boomerang'];
 
-        if (enemy instanceof Boss) {
+        if (enemy instanceof Boss || enemy instanceof TitanEnemy) {
             const type = bossWeaponTypes[Math.floor(Math.random() * bossWeaponTypes.length)];
             this.pickups.push(new WeaponPickup(enemy.x, enemy.y, type));
+            if (enemy instanceof TitanEnemy) {
+                // Titan drops extra health
+                this.pickups.push(new HealthPickup(enemy.x + 10, enemy.y + 10, 10));
+            }
         } else {
-            // 5% chance for weapon, 2% chance for health, 1% for Lollipop
+            // 5% chance for weapon, 2% chance for health, 0.1% for Lollipop
             const dropRand = Math.random();
-            if (dropRand < 0.01) {
+            if (dropRand < 0.001) {
                 this.pickups.push(new LollipopPickup(enemy.x, enemy.y));
             } else if (dropRand < 0.06) {
                 const type = weaponTypes[Math.floor(Math.random() * weaponTypes.length)];
@@ -725,6 +740,19 @@ export class Game {
         const boss = new Boss(x, y, this.player);
         boss.hp *= hpMultiplier;
         this.enemies.push(boss);
+    }
+
+    private spawnTitan(): void {
+        const angle = Math.random() * Math.PI * 2;
+        const radius = Math.max(this.canvas.width, this.canvas.height) / 2 + 50;
+        const x = this.player.x + Math.cos(angle) * radius;
+        const y = this.player.y + Math.sin(angle) * radius;
+
+        const hpMultiplier = 1 + (Math.floor(this.gameTime / 30) * 0.5);
+        console.log(`Spawning Titan with HP Multiplier: ${hpMultiplier}`);
+        const titan = new TitanEnemy(x, y, this.player);
+        titan.hp *= hpMultiplier;
+        this.enemies.push(titan);
     }
 
     private render(): void {
