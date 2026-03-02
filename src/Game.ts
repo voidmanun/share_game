@@ -2,6 +2,7 @@ import { KnightPet } from './entities/KnightPet';
 import { Player } from './entities/Player';
 import { Input } from './systems/Input';
 import { Enemy } from './entities/Enemy';
+import { Necromancer } from './entities/Necromancer';
 import { Boss } from './entities/Boss';
 import { FusionBoss } from './entities/FusionBoss';
 import { Scout } from './entities/Scout';
@@ -259,7 +260,9 @@ export class Game {
             { name: "FusionBoss", hp: 100, dmg: 3 },
             { name: "TwinElite", hp: 200, dmg: 4 },
             { name: "DevourerElite", hp: 150, dmg: 3 },
-            { name: "Titan", hp: 500, dmg: 5 }
+            { name: "Titan", hp: 500, dmg: 5 },
+            { name: "Necromancer", hp: 1500, dmg: 5 },
+            { name: "Spirit", hp: 10, dmg: 1 }
         ];
 
         let enemyHTML = '';
@@ -778,7 +781,7 @@ export class Game {
         const hpMultiplier = 1 + (Math.floor(this.gameTime / 30) * 0.5);
         let newEnemy: Enemy;
 
-        if (this.gameTime > 60) {
+if (this.gameTime > 60) {
             // 60s+: Tank(10%), Charger(10%), Teleporter(10%), Splitter(10%), Swarm(15%), Scout(10%), Slime(10%), Star(10%), Basic(15%)
             if (rand < 0.10) {
                 newEnemy = new TankEnemy(x, y, this.player);
@@ -790,14 +793,16 @@ export class Game {
                 newEnemy = new Splitter(x, y, this.player);
             } else if (rand < 0.50) {
                 newEnemy = new SlimeEnemy(x, y, this.player, this, 0);
-            } else if (rand < 0.65) {
+            } else if (rand < 0.60) {
                 newEnemy = new SwarmEnemy(x, y, this.player, this);
-            } else if (rand < 0.75) {
+            } else if (rand < 0.70) {
                 newEnemy = new Scout(x, y, this.player);
-            } else if (rand < 0.85) {
+            } else if (rand < 0.80) {
                 newEnemy = new StarEnemy(x, y, this.player);
-            } else if (rand < 0.90) {
+            } else if (rand < 0.85) {
                 newEnemy = new HealerEnemy(x, y, this.player, this);
+            } else if (rand < 0.90) {
+                newEnemy = new Necromancer(x, y, this.player, this);
             } else {
                 newEnemy = new Enemy(x, y, this.player);
             }
@@ -837,6 +842,9 @@ export class Game {
 
         // Apply HP multiplier
         newEnemy.hp *= hpMultiplier;
+        if ((newEnemy as any).maxHp !== undefined) {
+            (newEnemy as any).maxHp = newEnemy.hp;
+        }
         this.enemies.push(newEnemy);
     }
 
