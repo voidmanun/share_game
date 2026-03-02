@@ -9,6 +9,7 @@ import { TankEnemy } from './entities/TankEnemy';
 import { SwarmEnemy } from './entities/SwarmEnemy';
 import { Charger } from './entities/Charger';
 import { Splitter } from './entities/Splitter';
+import { SlimeEnemy } from './entities/SlimeEnemy';
 import { Teleporter } from './entities/Teleporter';
 import { StarEnemy } from './entities/StarEnemy';
 import { TitanEnemy } from './entities/TitanEnemy';
@@ -251,6 +252,7 @@ export class Game {
             { name: "Charger", hp: 10, dmg: 2 },
             { name: "Teleporter", hp: 4, dmg: 1 },
             { name: "Star", hp: 4, dmg: 1 },
+            { name: "Slime", hp: 30, dmg: 2 },
             { name: "Boss", hp: 20, dmg: 3 },
             { name: "FusionBoss", hp: 100, dmg: 3 },
             { name: "TwinElite", hp: 200, dmg: 4 },
@@ -412,8 +414,23 @@ export class Game {
     }
 
     public handleEnemyDeath(enemy: Enemy): void {
+        const hpMult = 1 + (Math.floor(this.gameTime / 30) * 0.5);
+
+        if (enemy instanceof SlimeEnemy && enemy.generation < 3) {
+            const numSpawns = 4;
+            const radius = 20;
+            for (let i = 0; i < numSpawns; i++) {
+                const angle = (Math.PI * 2 / numSpawns) * i;
+                const sx = enemy.x + Math.cos(angle) * radius;
+                const sy = enemy.y + Math.sin(angle) * radius;
+                const newSlime = new SlimeEnemy(sx, sy, this.player, this, enemy.generation + 1);
+                newSlime.hp *= hpMult;
+                newSlime.maxHp = newSlime.hp;
+                this.enemies.push(newSlime);
+            }
+        }
+
         if (enemy instanceof Splitter && !enemy.isSplitterling) {
-            const hpMult = 1 + (Math.floor(this.gameTime / 30) * 0.5);
             const s1 = new Splitter(enemy.x - 10, enemy.y, this.player, true);
             const s2 = new Splitter(enemy.x + 10, enemy.y, this.player, true);
             s1.hp *= hpMult;
@@ -755,15 +772,17 @@ export class Game {
         let newEnemy: Enemy;
 
         if (this.gameTime > 60) {
-            // 60s+: Tank(10%), Charger(10%), Teleporter(15%), Splitter(15%), Swarm(15%), Scout(10%), Star(10%), Basic(15%)
+            // 60s+: Tank(10%), Charger(10%), Teleporter(10%), Splitter(10%), Swarm(15%), Scout(10%), Slime(10%), Star(10%), Basic(15%)
             if (rand < 0.10) {
                 newEnemy = new TankEnemy(x, y, this.player);
             } else if (rand < 0.20) {
                 newEnemy = new Charger(x, y, this.player, this);
-            } else if (rand < 0.35) {
+            } else if (rand < 0.30) {
                 newEnemy = new Teleporter(x, y, this.player, this);
-            } else if (rand < 0.50) {
+            } else if (rand < 0.40) {
                 newEnemy = new Splitter(x, y, this.player);
+            } else if (rand < 0.50) {
+                newEnemy = new SlimeEnemy(x, y, this.player, this, 0);
             } else if (rand < 0.65) {
                 newEnemy = new SwarmEnemy(x, y, this.player, this);
             } else if (rand < 0.75) {
@@ -774,18 +793,20 @@ export class Game {
                 newEnemy = new Enemy(x, y, this.player);
             }
         } else if (this.gameTime > 30) {
-            // 30s-60s: Splitter(15%), Charger(10%), Teleporter(10%), Swarm(20%), Scout(20%), Star(10%), Basic(15%)
+            // 30s-60s: Splitter(15%), Charger(10%), Teleporter(10%), Slime(10%), Swarm(20%), Scout(20%), Star(10%), Basic(5%)
             if (rand < 0.15) {
                 newEnemy = new Splitter(x, y, this.player);
             } else if (rand < 0.25) {
                 newEnemy = new Charger(x, y, this.player, this);
             } else if (rand < 0.35) {
                 newEnemy = new Teleporter(x, y, this.player, this);
-            } else if (rand < 0.55) {
+            } else if (rand < 0.45) {
+                newEnemy = new SlimeEnemy(x, y, this.player, this, 0);
+            } else if (rand < 0.65) {
                 newEnemy = new SwarmEnemy(x, y, this.player, this);
-            } else if (rand < 0.75) {
-                newEnemy = new Scout(x, y, this.player);
             } else if (rand < 0.85) {
+                newEnemy = new Scout(x, y, this.player);
+            } else if (rand < 0.95) {
                 newEnemy = new StarEnemy(x, y, this.player);
             } else {
                 newEnemy = new Enemy(x, y, this.player);

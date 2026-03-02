@@ -39,6 +39,7 @@ export const translations = {
     enemyCharger: 'Charger',
     enemyTeleporter: 'Teleporter',
     enemyStar: 'Star',
+    enemySlime: 'Slime',
     enemyBoss: 'Boss',
         FusionBoss: 'Fusion Boss',
     // Weapons
@@ -125,6 +126,7 @@ export const translations = {
     enemyCharger: '冲锋怪',
     enemyTeleporter: '传送怪',
     enemyStar: '星星怪',
+    enemySlime: '史莱姆',
     enemyBoss: '首领',
     // Weapons
     weaponWand: '法杖',
