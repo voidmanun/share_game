@@ -430,12 +430,17 @@ export class Game {
             }
         }
 
-        if (enemy instanceof Splitter && !enemy.isSplitterling) {
-            const s1 = new Splitter(enemy.x - 10, enemy.y, this.player, true);
-            const s2 = new Splitter(enemy.x + 10, enemy.y, this.player, true);
-            s1.hp *= hpMult;
-            s2.hp *= hpMult;
-            this.enemies.push(s1, s2);
+        if (enemy instanceof Splitter && !enemy.isSplitterling && !(enemy as any).isEvolved) {
+            const numSpawns = 5;
+            const radius = 15;
+            for (let i = 0; i < numSpawns; i++) {
+                const angle = (Math.PI * 2 / numSpawns) * i;
+                const sx = enemy.x + Math.cos(angle) * radius;
+                const sy = enemy.y + Math.sin(angle) * radius;
+                const s = new Splitter(sx, sy, this.player, true);
+                s.hp *= hpMult;
+                this.enemies.push(s);
+            }
         }
 
         this.pickups.push(new Pickup(enemy.x, enemy.y, 1));
