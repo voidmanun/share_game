@@ -17,7 +17,7 @@ export class Player extends Entity {
   public speedMultiplier: number = 1.0;
 
   constructor(x: number, y: number, input: Input, worldWidth: number, worldHeight: number) {
-    super(x, y, 20, '#FFFFFF'); // White - Handsome Horse Color
+    super(x, y, 20, '#FFFFFF'); // Paladin
     this.input = input;
     this.worldWidth = worldWidth;
     this.worldHeight = worldHeight;
@@ -84,19 +84,9 @@ export class Player extends Entity {
     // Draw Weapons Over Player? Under usually.
     this.weapons.forEach(w => w.render(ctx));
 
-    // Spaceship Render
     ctx.save();
     ctx.translate(this.x, this.y);
 
-    // Rotate towards mouse (Input needs to provide mouse pos relative to screen center or world pos)
-    // The Input system currently gives axis. Game.ts handles camera.
-    // For now, let's assume facing movement direction or just Up/Right? 
-    // Usually top-down shooters face mouse.
-    // Let's check Input.ts to see if we have mouse info.
-    // Actually, Input.ts usually just has keys. 
-    // Let's assume standard "face movement" for now if no mouse info, OR just face UP as default and rotate if moving.
-
-    // Better: Simple Triangle pointing UP
     const { x, y } = this.input.getAxis();
     let angle = -Math.PI / 2; // Default Up
     if (x !== 0 || y !== 0) {
@@ -106,106 +96,75 @@ export class Player extends Entity {
     ctx.rotate(angle);
 
     if (this.isInvincible) {
-      // Scale up the drawing of the horse by 3x
-      ctx.scale(3, 3);
+      ctx.scale(1.5, 1.5);
     }
 
-    // Majestic White Horse Render
-    ctx.fillStyle = this.color;
-    ctx.strokeStyle = '#333';
+    // Paladin Render
     ctx.lineWidth = 2;
-    
-    // Horse Body (longer, more athletic)
+    ctx.strokeStyle = '#333';
+
+    // Aura
+    ctx.fillStyle = 'rgba(255, 215, 0, 0.3)'; // Golden aura
     ctx.beginPath();
-    ctx.ellipse(-5, 0, 16, 9, 0, 0, Math.PI * 2);
+    ctx.arc(0, 0, 25, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Body / Armor
+    ctx.fillStyle = '#C0C0C0'; // Silver armor
+    ctx.beginPath();
+    ctx.rect(-12, -12, 24, 24);
     ctx.fill();
     ctx.stroke();
 
-    // Majestic Chest and Neck
+    // Head / Helm
+    ctx.fillStyle = '#A9A9A9'; // Darker silver helm
     ctx.beginPath();
-    ctx.moveTo(5, -5);
-    ctx.lineTo(16, -18); // Top of neck / Ears
-    ctx.lineTo(24, -14); // Snout
-    ctx.lineTo(22, -9); // Jaw
-    ctx.lineTo(10, 5); // Bottom of neck
+    ctx.arc(0, -5, 10, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Cross on helm (Golden)
+    ctx.fillStyle = '#FFD700'; // Gold
+    ctx.fillRect(-2, -12, 4, 10);
+    ctx.fillRect(-5, -9, 10, 4);
+
+    // Shield (Left side)
+    ctx.fillStyle = '#1E90FF'; // Blue shield
+    ctx.beginPath();
+    ctx.moveTo(-16, -10);
+    ctx.lineTo(-10, -10);
+    ctx.lineTo(-10, 10);
+    ctx.lineTo(-16, 5);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    // Shield Cross
+    ctx.fillStyle = '#FFF';
+    ctx.fillRect(-14, -5, 3, 10);
+    ctx.fillRect(-15, -1, 5, 3);
+
+    // Sword (Right side)
+    ctx.fillStyle = '#FFD700'; // Gold hilt
+    ctx.fillRect(10, 0, 4, 10);
+    ctx.fillStyle = '#E5E4E2'; // Platinum blade
+    ctx.beginPath();
+    ctx.moveTo(11, 0);
+    ctx.lineTo(13, 0);
+    ctx.lineTo(13, -15);
+    ctx.lineTo(12, -18);
+    ctx.lineTo(11, -15);
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
 
-    const time = Date.now() / 120; // slightly faster gallop
-    const legSwing = (x !== 0 || y !== 0) ? Math.sin(time) * 8 : 0;
-    const legSwingOffset = (x !== 0 || y !== 0) ? Math.cos(time) * 8 : 0;
+    // Walk animation
+    const time = Date.now() / 150;
+    const legSwing = (x !== 0 || y !== 0) ? Math.sin(time) * 5 : 0;
     
-    // Legs (Longer, heroic stride)
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = '#111';
-    ctx.beginPath();
-    // Front legs
-    ctx.moveTo(8, 7);
-    ctx.lineTo(8 + legSwing, 20); // Knee
-    ctx.lineTo(8 + legSwing + legSwingOffset * 0.5, 26); // Hoof
-    
-    ctx.moveTo(2, 7);
-    ctx.lineTo(2 - legSwing, 20);
-    ctx.lineTo(2 - legSwing - legSwingOffset * 0.5, 26);
-    
-    // Back legs
-    ctx.moveTo(-10, 6);
-    ctx.lineTo(-10 - legSwing, 18);
-    ctx.lineTo(-10 - legSwing - legSwingOffset * 0.5, 26);
-    
-    ctx.moveTo(-16, 6);
-    ctx.lineTo(-16 + legSwing, 18);
-    ctx.lineTo(-16 + legSwing + legSwingOffset * 0.5, 26);
-    ctx.stroke();
-
-    // Majestic Mane (Silver/Ice Blue)
-    ctx.fillStyle = '#E0F7FA'; // Icy silver blue
-    ctx.beginPath();
-    ctx.moveTo(16, -18);
-    ctx.quadraticCurveTo(8, -20, 4, -8);
-    ctx.quadraticCurveTo(10, -10, 12, -14);
-    ctx.fill();
-
-    // Flowing Tail
-    ctx.fillStyle = '#E0F7FA';
-    ctx.beginPath();
-    ctx.moveTo(-20, -2);
-    ctx.quadraticCurveTo(-32, -8, -35 + legSwing, 5);
-    ctx.quadraticCurveTo(-26, 6, -21, 2);
-    ctx.fill();
-
-    // Heroic Eye (sharp, focused)
-    ctx.fillStyle = 'white';
-    ctx.beginPath();
-    ctx.moveTo(16, -14);
-    ctx.lineTo(19, -15);
-    ctx.lineTo(18, -13);
-    ctx.fill();
-    ctx.fillStyle = '#00BFFF'; // Deep blue piercing eye
-    ctx.beginPath();
-    ctx.arc(17.5, -14, 1.5, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Heroic Aura / Dust particles instead of cute sparkles
-    if (x !== 0 || y !== 0) {
-      ctx.fillStyle = 'rgba(200, 200, 200, 0.6)'; // Dust
-      ctx.beginPath();
-      ctx.arc(-26 + Math.random() * 4, 14 + Math.random() * 4, 2 + Math.random() * 3, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = 'rgba(135, 206, 235, 0.4)'; // Light blue wind trail
-      ctx.beginPath();
-      ctx.arc(-22, 10 + Math.random() * 8, 1 + Math.random() * 4, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // Draw rainbow aura if invincible
-    if (this.isInvincible) {
-      ctx.beginPath();
-      // Since radius scales, we draw an aura slightly bigger than the horse
-      // The horse drawing logic uses fixed numbers (15, -10, etc.)
-      // We should scale the context if invincible so the horse actually looks bigger!
-    }
+    // Legs
+    ctx.fillStyle = '#808080';
+    ctx.fillRect(-8, 12, 6, 8 + legSwing);
+    ctx.fillRect(2, 12, 6, 8 - legSwing);
 
     ctx.restore();
   }
