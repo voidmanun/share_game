@@ -11,6 +11,7 @@ import { Teleporter } from './entities/Teleporter';
 import { StarEnemy } from './entities/StarEnemy';
 import { TitanEnemy } from './entities/TitanEnemy';
 import { TwinElite } from './entities/TwinElite';
+import { DevourerElite } from './entities/DevourerElite';
 import { Projectile } from './weapons/Projectile';
 import { MagicWand } from './weapons/MagicWand';
 import { Laser } from './weapons/Laser';
@@ -83,13 +84,19 @@ export class Game {
     private projectiles: Projectile[] = [];
     private pickups: (Pickup | WeaponPickup | HealthPickup | LollipopPickup | PetEggPickup)[] = [];
     public particles: Particle[] = [];
-    private floatingTexts: FloatingText[] = [];
+    public floatingTexts: FloatingText[] = [];
+
+    public addFloatingText(text: FloatingText): void {
+        this.floatingTexts.push(text);
+    }
+
     public pets: Pet[] = [];
     private spawnTimer: number = 0;
     private spawnInterval: number = 1.2; // Start slightly slower
     private bossSpawnTimer: number = 0;
     private titanSpawnTimer: number = 0;
     private twinEliteSpawnTimer: number = 0;
+    private devourerSpawnTimer: number = 0;
     private damageFlashTimer: number = 0;
     public gold: number = 0;
     public gameTime: number = 0; // In seconds
@@ -114,6 +121,7 @@ export class Game {
         this.bossSpawnTimer = 0;
         this.titanSpawnTimer = 0;
         this.twinEliteSpawnTimer = 0;
+        this.devourerSpawnTimer = 0;
         this.damageFlashTimer = 0;
         this.gold = 0;
         this.gameTime = 0;
@@ -239,6 +247,7 @@ export class Game {
             { name: "Star", hp: 4, dmg: 1 },
             { name: "Boss", hp: 20, dmg: 3 },
             { name: "TwinElite", hp: 200, dmg: 4 },
+            { name: "DevourerElite", hp: 150, dmg: 3 },
             { name: "Titan", hp: 500, dmg: 5 }
         ];
 
@@ -324,6 +333,13 @@ export class Game {
         if (this.twinEliteSpawnTimer >= 30 && this.gameTime > 40) {
             this.twinEliteSpawnTimer = 0;
             this.spawnTwinElite();
+        }
+
+        // Spawn devourer elite
+        this.devourerSpawnTimer += deltaTime;
+        if (this.devourerSpawnTimer >= 40 && this.gameTime > 50) {
+            this.devourerSpawnTimer = 0;
+            this.spawnDevourerElite();
         }
 
         // Update enemies
@@ -787,6 +803,19 @@ export class Game {
         darkTwin.sibling = lightTwin;
         
         this.enemies.push(lightTwin, darkTwin);
+    }
+
+    private spawnDevourerElite(): void {
+        const angle = Math.random() * Math.PI * 2;
+        const radius = Math.max(this.canvas.width, this.canvas.height) / 2 + 50;
+        const x = this.player.x + Math.cos(angle) * radius;
+        const y = this.player.y + Math.sin(angle) * radius;
+
+        const hpMultiplier = 1 + (Math.floor(this.gameTime / 30) * 0.5);
+        console.log(`Spawning Devourer Elite with HP Multiplier: ${hpMultiplier}`);
+        const devourer = new DevourerElite(x, y, this.player, this);
+        devourer.hp *= hpMultiplier;
+        this.enemies.push(devourer);
     }
 
     private render(): void {
