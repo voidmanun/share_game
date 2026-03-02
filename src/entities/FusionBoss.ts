@@ -4,6 +4,7 @@ import { Player } from './Player';
 export class FusionBoss extends Enemy {
     public fusions: number = 0;
     public maxHp: number;
+    public name: string = "FusionBoss";
     
     // Skills
     public canTeleport: boolean = false;

@@ -40,6 +40,7 @@ export const translations = {
     enemyTeleporter: 'Teleporter',
     enemyStar: 'Star',
     enemyBoss: 'Boss',
+        FusionBoss: 'Fusion Boss',
     // Weapons
     weaponWand: 'Wand',
     weaponWhip: 'Whip',
@@ -183,17 +184,17 @@ export function setLanguage(lang: Language) {
 }
 
 export function t(key: keyof typeof translations['en']): string {
-  return translations[currentLanguage][key] || key;
+  return (translations[currentLanguage] as any)[key] || key;
 }
 
 export function tWeapon(name: string): string {
   const key = 'weapon' + name.replace(/\s+/g, '') as keyof typeof translations['en'];
-  return translations[currentLanguage][key] || name;
+  return (translations[currentLanguage] as any)[key] || name;
 }
 
 export function tEnemy(name: string): string {
   const key = 'enemy' + name.replace(/\s+/g, '') as keyof typeof translations['en'];
-  return translations[currentLanguage][key] || name;
+  return (translations[currentLanguage] as any)[key] || name;
 }
 
 function updateUI() {

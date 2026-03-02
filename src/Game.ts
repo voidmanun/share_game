@@ -248,6 +248,7 @@ export class Game {
             { name: "Teleporter", hp: 4, dmg: 1 },
             { name: "Star", hp: 4, dmg: 1 },
             { name: "Boss", hp: 20, dmg: 3 },
+            { name: "FusionBoss", hp: 100, dmg: 3 },
             { name: "TwinElite", hp: 200, dmg: 4 },
             { name: "DevourerElite", hp: 150, dmg: 3 },
             { name: "Titan", hp: 500, dmg: 5 }
