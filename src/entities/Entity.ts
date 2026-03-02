@@ -20,7 +20,7 @@ export class Entity {
         this.color = color;
     }
 
-    public update(deltaTime: number): void {
+    public update(deltaTime: number, _game?: any): void {
         this.frameTimer += deltaTime;
         if (this.frameTimer >= this.frameInterval) {
             this.frameTimer = 0;

@@ -2,6 +2,7 @@ import { Player } from './entities/Player';
 import { Input } from './systems/Input';
 import { Enemy } from './entities/Enemy';
 import { Boss } from './entities/Boss';
+import { FusionBoss } from './entities/FusionBoss';
 import { Scout } from './entities/Scout';
 import { TankEnemy } from './entities/TankEnemy';
 import { SwarmEnemy } from './entities/SwarmEnemy';
@@ -94,6 +95,7 @@ export class Game {
     private spawnTimer: number = 0;
     private spawnInterval: number = 1.2; // Start slightly slower
     private bossSpawnTimer: number = 0;
+    private fusionBossSpawnTimer: number = 0;
     private titanSpawnTimer: number = 0;
     private twinEliteSpawnTimer: number = 0;
     private devourerSpawnTimer: number = 0;
@@ -328,6 +330,13 @@ export class Game {
             this.spawnTitan();
         }
 
+        // Spawn fusion boss
+        this.fusionBossSpawnTimer += deltaTime;
+        if (this.fusionBossSpawnTimer >= 50 && this.gameTime > 80) {
+            this.fusionBossSpawnTimer = 0;
+            this.spawnFusionBoss();
+        }
+
         // Spawn twin elite
         this.twinEliteSpawnTimer += deltaTime;
         if (this.twinEliteSpawnTimer >= 30 && this.gameTime > 40) {
@@ -404,7 +413,7 @@ export class Game {
         const weaponTypes = ['Magic Wand', 'Laser', 'Missile Launcher', 'Shotgun', 'Orbit Shield', 'Bubble Gun', 'Boomerang'];
         const bossWeaponTypes = ['Missile Launcher', 'Shotgun', 'Orbit Shield', 'Bubble Gun', 'Boomerang'];
 
-        if (enemy instanceof Boss || enemy instanceof TitanEnemy) {
+        if (enemy instanceof Boss || enemy instanceof TitanEnemy || enemy instanceof FusionBoss) {
             const type = bossWeaponTypes[Math.floor(Math.random() * bossWeaponTypes.length)];
             this.pickups.push(new WeaponPickup(enemy.x, enemy.y, type));
             if (enemy instanceof TitanEnemy) {
@@ -438,7 +447,7 @@ export class Game {
                 if (dist < projectile.radius + enemy.radius) {
                     if (projectile instanceof BubbleProjectile) {
                         // Bubble logic: trap enemy instead of raw damage
-                        if (!enemy.trappedInBubble && !(enemy instanceof Boss)) {
+                        if (!enemy.trappedInBubble && !(enemy instanceof Boss) && !(enemy instanceof FusionBoss)) {
                             enemy.trappedInBubble = true;
                             projectile.isDead = true;
                             this.soundManager.playExplosionSound(); // maybe a soft pop sound ideally
@@ -782,7 +791,22 @@ export class Game {
         this.enemies.push(titan);
     }
 
-    private spawnTwinElite(): void {
+    
+    private spawnFusionBoss(): void {
+        const angle = Math.random() * Math.PI * 2;
+        const radius = Math.max(this.canvas.width, this.canvas.height) / 2 + 50;
+        const x = this.player.x + Math.cos(angle) * radius;
+        const y = this.player.y + Math.sin(angle) * radius;
+
+        const hpMultiplier = 1 + (Math.floor(this.gameTime / 30) * 0.5);
+        console.log(`Spawning Fusion Boss with HP Multiplier: ${hpMultiplier}`);
+        const boss = new FusionBoss(x, y, this.player);
+        boss.hp *= hpMultiplier;
+        boss.maxHp = boss.hp;
+        this.enemies.push(boss);
+    }
+    
+private spawnTwinElite(): void {
         const angle = Math.random() * Math.PI * 2;
         const radius = Math.max(this.canvas.width, this.canvas.height) / 2 + 50;
         const x1 = this.player.x + Math.cos(angle) * radius;

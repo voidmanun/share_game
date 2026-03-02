@@ -22,7 +22,7 @@ export class Enemy extends Entity {
         }
     }
 
-    public update(deltaTime: number): void {
+    public update(deltaTime: number, _game?: any): void {
         super.update(deltaTime);
 
         if (this.trappedInBubble) {

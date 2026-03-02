@@ -1,0 +1,72 @@
+--- index.html
++++ index.html
+@@ -48,6 +48,10 @@
+     <div id="ui-layer" class="hidden">
+       <div id="ui">
+         <div id="hud">
++          <div style="margin-bottom: 8px;">
++            <button id="settings-btn" style="padding: 6px 12px; font-size: 16px; display: inline-flex; align-items: center; gap: 4px; border-radius: 8px; background: #66ccff; color: white; border: 2px solid #fff; font-family: 'Fredoka One', cursive; cursor: pointer; pointer-events: auto;">⚙️ <span id="settings-text">Settings</span></button>
++          </div>
++
+           <div class="hud-item gold-container">
+             <span class="gold-icon">🪙</span>
+             <span id="gold">0</span>
+@@ -58,26 +62,6 @@
+             </div>
+             <span id="hp">20 / 20</span>
+           </div>
+-          <div id="instructions">
+-            <div style="margin-bottom: 8px;">
+-              <span class="desktop-only">WASD to Move | P to Shop</span>
+-              <button id="mobile-shop-btn" class="mobile-only">Shop</button>
+-            </div>
+-            <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+-              <button id="mute-btn"
+-                style="padding: 4px 8px; font-size: 14px; display: inline-flex; align-items: center; gap: 4px;">🔊
+-                Sound: ON</button>
+-                            <button id="lang-btn"
+-                style="padding: 4px 8px; font-size: 14px; display: inline-flex; align-items: center; gap: 4px;">🌐
+-                English</button>
+-              <button id="leaderboard-btn"
+-                style="padding: 4px 8px; font-size: 14px; display: inline-flex; align-items: center; gap: 4px; margin-top: 4px;">🏆
+-                Leaderboard</button>
+-              <button id="encyclopedia-btn"
+-                style="padding: 4px 8px; font-size: 14px; display: inline-flex; align-items: center; gap: 4px; margin-top: 4px;">📖
+-                Encyclopedia</button>
+-
+-            </div>
+-          </div>
+         </div>
+         <div id="joystick-zone" class="mobile-only">
+           <div id="joystick-knob"></div>
+@@ -88,6 +72,31 @@
+           <h3>Enemies</h3>
+           <div id="enemy-stats"></div>
+         </div>
++
++        <!-- Settings Modal -->
++        <div id="settings-modal" class="hidden" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.85); color: white; padding: 25px; border-radius: 12px; z-index: 2500; text-align: center; min-width: 250px; border: 2px solid #66ccff; pointer-events: auto;">
++          <h2 id="settings-title" style="margin-top: 0; margin-bottom: 20px; color: #66ccff; text-shadow: 1px 1px 0 #000;">⚙️ Settings</h2>
++          <div style="display: flex; flex-direction: column; gap: 12px; align-items: stretch;">
++            <button id="mobile-shop-btn"
++              style="padding: 8px; font-size: 16px; border-radius: 8px;">🛒 Shop</button>
++            <button id="mute-btn"
++              style="padding: 8px; font-size: 16px; border-radius: 8px;">🔊
++              Sound: ON</button>
++            <button id="lang-btn"
++              style="padding: 8px; font-size: 16px; border-radius: 8px;">🌐
++              English</button>
++            <button id="leaderboard-btn"
++              style="padding: 8px; font-size: 16px; border-radius: 8px;">🏆
++              Leaderboard</button>
++            <button id="encyclopedia-btn"
++              style="padding: 8px; font-size: 16px; border-radius: 8px;">📖
++              Encyclopedia</button>
++            <div style="margin-top: 10px; font-size: 12px; color: #ccc;">
++              <span class="desktop-only" id="desktop-hint">WASD to Move | P to Shop</span>
++            </div>
++          </div>
++          <button id="close-settings-btn" style="margin-top: 20px; padding: 10px 20px; font-size: 16px; font-family: 'Fredoka One', cursive; cursor: pointer; border: none; border-radius: 8px; background: #66ccff; color: #333; width: 100%;">Close</button>
++        </div>
+         
+         <div id="leaderboard-modal" class="hidden" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.85); color: white; padding: 20px; border-radius: 10px; z-index: 3000; text-align: center; min-width: 250px; border: 2px solid #ffcc00;">
