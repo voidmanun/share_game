@@ -28,7 +28,34 @@ window.addEventListener('DOMContentLoaded', () => {
   const closeLeaderboardBtn = document.getElementById('close-leaderboard-btn');
   const modalLeaderboardList = document.getElementById('modal-leaderboard-list');
 
+  
+  const settingsBtn = document.getElementById('settings-btn');
+  const settingsModal = document.getElementById('settings-modal');
+  const closeSettingsBtn = document.getElementById('close-settings-btn');
+  const mobileShopBtn = document.getElementById('mobile-shop-btn'); // the shop btn in settings
+
+  settingsBtn?.addEventListener('click', () => {
+    if (settingsModal) settingsModal.classList.remove('hidden');
+    game.pause();
+  });
+
+  closeSettingsBtn?.addEventListener('click', () => {
+    if (settingsModal) settingsModal.classList.add('hidden');
+    game.resume();
+  });
+
+  // When clicking shop from settings, close settings so it doesn't overlap
+  mobileShopBtn?.addEventListener('click', () => {
+    if (settingsModal) settingsModal.classList.add('hidden');
+    // The shop toggle logic handles pausing/resuming
+  });
+
+  // Similarly for leaderboard and encyclopedia, they might not pause/resume cleanly if settings isn't closed
+  // But they are just modals that don't resume game by themselves currently. Wait, leaderboard btn doesn't pause game today?
+  // Let's modify leaderboard and encyclopedia to just hide settings modal when opened.
   leaderboardBtn?.addEventListener('click', async (e) => {
+    if (settingsModal) settingsModal.classList.add('hidden');
+
     e.preventDefault();
     if (leaderboardModal) leaderboardModal.classList.remove('hidden');
     if (modalLeaderboardList) {
@@ -54,6 +81,7 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 
   closeLeaderboardBtn?.addEventListener('click', () => {
+    game.resume();
     if (leaderboardModal) leaderboardModal.classList.add('hidden');
   });
 
@@ -194,12 +222,14 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   encyclopediaBtn?.addEventListener('click', (e) => {
+    if (settingsModal) settingsModal.classList.add('hidden');
     e.preventDefault();
     if (encyclopediaModal) encyclopediaModal.classList.remove('hidden');
     renderWeapons();
   });
 
   closeEncyclopediaBtn?.addEventListener('click', () => {
+    game.resume();
     if (encyclopediaModal) encyclopediaModal.classList.add('hidden');
   });
 
@@ -243,6 +273,31 @@ window.addEventListener('DOMContentLoaded', () => {
     const encModalTitle = encyclopediaModal?.querySelector('h2');
     if (encModalTitle) {
       encModalTitle.innerHTML = newLang === 'zh' ? '📖 图鉴' : '📖 Encyclopedia';
+    }
+    
+    // Update settings buttons
+    if (settingsBtn) {
+      const settingsTextSpan = document.getElementById('settings-text');
+      if (settingsTextSpan) {
+        settingsTextSpan.textContent = newLang === 'zh' ? '设置' : 'Settings';
+      }
+    }
+    const settingsTitle = document.getElementById('settings-title');
+    if (settingsTitle) {
+      settingsTitle.innerHTML = newLang === 'zh' ? '⚙️ 设置' : '⚙️ Settings';
+    }
+    if (closeSettingsBtn) {
+      closeSettingsBtn.textContent = newLang === 'zh' ? '关闭' : 'Close';
+    }
+    if (mobileShopBtn) {
+      mobileShopBtn.textContent = newLang === 'zh' ? '🛒 商店' : '🛒 Shop';
+    }
+    if (langBtn) {
+      langBtn.innerHTML = newLang === 'zh' ? '🌐 中文' : '🌐 English';
+    }
+    const desktopHint = document.getElementById('desktop-hint');
+    if (desktopHint) {
+      desktopHint.textContent = newLang === 'zh' ? 'WASD 移动 | P 打开商店' : 'WASD to Move | P to Shop';
     }
     if (closeEncyclopediaBtn) {
       closeEncyclopediaBtn.innerHTML = newLang === 'zh' ? '关闭' : 'Close';
