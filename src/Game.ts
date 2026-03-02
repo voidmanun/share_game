@@ -760,22 +760,6 @@ export class Game {
         this.ctx.fillStyle = '#8ced73';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Draw Leaderboard on Background
-        if (this.backgroundLeaderboard.length > 0) {
-            this.ctx.save();
-            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.2)'; // Faint text
-            this.ctx.font = 'bold 36px "Fredoka One", cursive, monospace';
-            this.ctx.textAlign = 'center';
-            this.ctx.textBaseline = 'middle';
-            this.ctx.fillText(t('leaderboardTitle'), this.canvas.width / 2, this.canvas.height / 2 - 200);
-            
-            this.ctx.font = '24px "Fredoka One", cursive, monospace';
-            this.backgroundLeaderboard.forEach((entry, i) => {
-                this.ctx.fillText(`${i + 1}. ${entry.name} - ${entry.score}`, this.canvas.width / 2, this.canvas.height / 2 - 150 + i * 35);
-            });
-            this.ctx.restore();
-        }
-
         // Camera follow logic
         const camX = this.player.x - this.canvas.width / 2;
         const camY = this.player.y - this.canvas.height / 2;
@@ -785,6 +769,26 @@ export class Game {
 
         // Render Grid
         this.drawGrid(camX, camY);
+
+        // Draw Leaderboard on Background (Fixed World Coordinate)
+        if (this.backgroundLeaderboard.length > 0) {
+            this.ctx.save();
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.2)'; // Faint text
+            this.ctx.font = 'bold 48px "Fredoka One", cursive, monospace';
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            
+            const centerX = this.WORLD_WIDTH / 2; // 2000
+            const centerY = this.WORLD_HEIGHT / 2; // 2000
+
+            this.ctx.fillText(t('leaderboardTitle'), centerX, centerY - 250);
+            
+            this.ctx.font = '36px "Fredoka One", cursive, monospace';
+            this.backgroundLeaderboard.forEach((entry, i) => {
+                this.ctx.fillText(`${i + 1}. ${entry.name} - ${entry.score}`, centerX, centerY - 180 + i * 45);
+            });
+            this.ctx.restore();
+        }
 
         // Render pickups
         this.pickups.forEach(p => p.render(this.ctx));
