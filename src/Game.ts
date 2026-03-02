@@ -773,13 +773,13 @@ export class Game {
         // Draw Leaderboard on Background (Fixed World Coordinate)
         if (this.backgroundLeaderboard.length > 0) {
             this.ctx.save();
-            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.2)'; // Faint text
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.4)'; // Lower transparency, more visible
             this.ctx.font = 'bold 48px "Fredoka One", cursive, monospace';
-            this.ctx.textAlign = 'center';
+            this.ctx.textAlign = 'left';
             this.ctx.textBaseline = 'middle';
             
-            const centerX = this.WORLD_WIDTH / 2; // 2000
-            const centerY = this.WORLD_HEIGHT / 2; // 2000
+            const centerX = this.WORLD_WIDTH / 2 - 200; // Offset for left align
+            const centerY = this.WORLD_HEIGHT / 2;
 
             this.ctx.fillText(t('leaderboardTitle'), centerX, centerY - 250);
             
