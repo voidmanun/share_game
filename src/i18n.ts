@@ -41,6 +41,7 @@ export const translations = {
     enemyStar: 'Star',
     enemySlime: 'Slime',
     enemyBoss: 'Boss',
+    enemyHealer: 'Healer',
         FusionBoss: 'Fusion Boss',
     // Weapons
     weaponWand: 'Wand',
@@ -128,6 +129,7 @@ export const translations = {
     enemyStar: '星星怪',
     enemySlime: '史莱姆',
     enemyBoss: '首领',
+    enemyHealer: '治疗怪',
     // Weapons
     weaponWand: '法杖',
     weaponWhip: '鞭子',

@@ -12,6 +12,7 @@ import { Splitter } from './entities/Splitter';
 import { SlimeEnemy } from './entities/SlimeEnemy';
 import { Teleporter } from './entities/Teleporter';
 import { StarEnemy } from './entities/StarEnemy';
+import { HealerEnemy } from './entities/HealerEnemy';
 import { TitanEnemy } from './entities/TitanEnemy';
 import { TwinElite } from './entities/TwinElite';
 import { DevourerElite } from './entities/DevourerElite';
@@ -253,6 +254,7 @@ export class Game {
             { name: "Teleporter", hp: 4, dmg: 1 },
             { name: "Star", hp: 4, dmg: 1 },
             { name: "Slime", hp: 30, dmg: 2 },
+            { name: "Healer", hp: 150, dmg: 1 },
             { name: "Boss", hp: 20, dmg: 3 },
             { name: "FusionBoss", hp: 100, dmg: 3 },
             { name: "TwinElite", hp: 200, dmg: 4 },
@@ -794,6 +796,8 @@ export class Game {
                 newEnemy = new Scout(x, y, this.player);
             } else if (rand < 0.85) {
                 newEnemy = new StarEnemy(x, y, this.player);
+            } else if (rand < 0.90) {
+                newEnemy = new HealerEnemy(x, y, this.player, this);
             } else {
                 newEnemy = new Enemy(x, y, this.player);
             }
@@ -813,6 +817,8 @@ export class Game {
                 newEnemy = new Scout(x, y, this.player);
             } else if (rand < 0.95) {
                 newEnemy = new StarEnemy(x, y, this.player);
+            } else if (rand < 0.98) {
+                newEnemy = new HealerEnemy(x, y, this.player, this);
             } else {
                 newEnemy = new Enemy(x, y, this.player);
             }
@@ -822,6 +828,8 @@ export class Game {
                 newEnemy = new Scout(x, y, this.player);
             } else if (rand < 0.4) {
                 newEnemy = new StarEnemy(x, y, this.player);
+            } else if (rand < 0.45) {
+                newEnemy = new HealerEnemy(x, y, this.player, this);
             } else {
                 newEnemy = new Enemy(x, y, this.player);
             }
