@@ -28,6 +28,7 @@ import { Shotgun } from './weapons/Shotgun';
 import { OrbitShield } from './weapons/OrbitShield';
 import { BubbleGun } from './weapons/BubbleGun';
 import { Boomerang } from './weapons/Boomerang';
+import { SplitterGun } from './weapons/SplitterGun';
 import { t, tWeapon, tEnemy } from './i18n';
 import { BubbleProjectile } from './weapons/BubbleProjectile';
 import { FloatingText } from './entities/FloatingText';
@@ -423,8 +424,8 @@ export class Game {
         this.pickups.push(new Pickup(enemy.x, enemy.y, 1));
 
         // Boss drops are always the newer, rarer weapons
-        const weaponTypes = ['Magic Wand', 'Laser', 'Missile Launcher', 'Shotgun', 'Orbit Shield', 'Bubble Gun', 'Boomerang'];
-        const bossWeaponTypes = ['Missile Launcher', 'Shotgun', 'Orbit Shield', 'Bubble Gun', 'Boomerang'];
+        const weaponTypes = ['Magic Wand', 'Laser', 'Missile Launcher', 'Shotgun', 'Orbit Shield', 'Bubble Gun', 'Boomerang', 'Splitter Gun'];
+        const bossWeaponTypes = ['Missile Launcher', 'Shotgun', 'Orbit Shield', 'Bubble Gun', 'Boomerang', 'Splitter Gun'];
 
         if (enemy instanceof Boss || enemy instanceof TitanEnemy || enemy instanceof FusionBoss) {
             const type = bossWeaponTypes[Math.floor(Math.random() * bossWeaponTypes.length)];
@@ -458,6 +459,10 @@ export class Game {
                 const dist = Math.sqrt(dx * dx + dy * dy);
 
                 if (dist < projectile.radius + enemy.radius) {
+                    if ((projectile as any).hitEnemies && (projectile as any).hitEnemies.has(enemy)) {
+                        continue;
+                    }
+
                     if (projectile instanceof BubbleProjectile) {
                         // Bubble logic: trap enemy instead of raw damage
                         if (!enemy.trappedInBubble && !(enemy instanceof Boss) && !(enemy instanceof FusionBoss)) {
@@ -470,12 +475,34 @@ export class Game {
                         }
                     } else {
                         enemy.takeDamage(projectile.damage);
-                        projectile.isDead = true;
+                        if ((projectile as any).hitEnemies) {
+                            (projectile as any).hitEnemies.add(enemy);
+                        }
+
+                        if (typeof (projectile as any).onHit === 'function') {
+                            (projectile as any).onHit(enemy);
+                        }
+
                         if (enemy.isDead) {
                             this.handleEnemyDeath(enemy);
+                            if (typeof (projectile as any).onKill === 'function') {
+                                (projectile as any).onKill(enemy);
+                            }
+                        }
+
+                        if (typeof (projectile as any).penetration === 'number') {
+                            (projectile as any).penetration--;
+                            if ((projectile as any).penetration <= 0) {
+                                projectile.isDead = true;
+                            }
+                        } else {
+                            projectile.isDead = true;
                         }
                     }
-                    break;
+
+                    if (projectile.isDead) {
+                        break;
+                    }
                 }
             }
         }
@@ -660,6 +687,7 @@ export class Game {
         else if (type === 'Orbit Shield') newWeapon = new OrbitShield(this, this.player);
         else if (type === 'Bubble Gun') newWeapon = new BubbleGun(this, this.player);
         else if (type === 'Boomerang') newWeapon = new Boomerang(this, this.player);
+        else if (type === 'Splitter Gun') newWeapon = new SplitterGun(this, this.player);
         else newWeapon = new MagicWand(this, this.player);
 
         const existingWeapon = this.player.weapons.find(w => w.name === newWeapon.name);
