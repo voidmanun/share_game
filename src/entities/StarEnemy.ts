@@ -8,9 +8,9 @@ export class StarEnemy extends Enemy {
         super(x, y, player);
         this.radius = 16;
         this.color = '#FFD700'; // Gold Star
-        this.hp = 2; // Relatively low HP
+        this.hp = 4; // Relatively low HP
         this.damage = 1;
-        this.speed = 100; // Normal speed
+        this.speed = 50; // Normal speed
     }
 
     public update(deltaTime: number): void {

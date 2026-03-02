@@ -3,8 +3,8 @@ import { Player } from './Player';
 
 export class Enemy extends Entity {
     protected player: Player;
-    protected speed: number = 100; // pixels per second
-    public hp: number = 3;
+    protected speed: number = 50; // pixels per second
+    public hp: number = 6;
     public damage: number = 1;
     public trappedInBubble: boolean = false;
     private floatDistance: number = 0;

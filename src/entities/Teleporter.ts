@@ -12,9 +12,9 @@ export class Teleporter extends Enemy {
         this.game = game;
         this.radius = 12;
         this.color = '#00FFFF'; // Cyan
-        this.hp = 2;
+        this.hp = 4;
         this.damage = 1;
-        this.speed = 50; // Moves very slowly normally
+        this.speed = 25; // Moves very slowly normally
         this.teleportTimer = 3 + Math.random() * 2; // Teleports every 3-5 seconds
     }
 

@@ -5,9 +5,9 @@ export class TitanEnemy extends Enemy {
     constructor(x: number, y: number, player: Player) {
         super(x, y, player);
         this.color = '#800080'; // Purple
-        this.speed = 120;       // Medium speed
+        this.speed = 60;       // Medium speed
         this.damage = 5;        // Massive damage
-        this.hp = 100;          // Huge HP
+        this.hp = 500;          // Huge HP
         this.radius = 40;       // Giant size
     }
 

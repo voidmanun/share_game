@@ -5,9 +5,9 @@ export class Boss extends Enemy {
     constructor(x: number, y: number, player: Player) {
         super(x, y, player);
         this.color = '#FF0000'; // Red
-        this.speed = 200;       // 2x speed
+        this.speed = 100;       // 2x speed
         this.damage = 2;        // 2x damage
-        this.hp = 10;           // More HP for boss feel
+        this.hp = 20;           // More HP for boss feel
         this.radius = 20;       // Slightly larger
     }
 

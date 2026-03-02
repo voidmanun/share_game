@@ -13,9 +13,9 @@ export class Charger extends Enemy {
         this.game = game;
         this.radius = 20; // Slightly bigger
         this.color = '#FFA500'; // Orange
-        this.hp = 5;
+        this.hp = 10;
         this.damage = 2; // High collision damage
-        this.speed = 80; // Slower normally
+        this.speed = 40; // Slower normally
         this.stateTimer = 2 + Math.random() * 2; // 2-4 seconds normal walking
     }
 
@@ -25,11 +25,11 @@ export class Charger extends Enemy {
         if (this.state === 'normal' && this.stateTimer <= 0) {
             this.state = 'charging';
             this.stateTimer = 1.0; // Charge for 1 second
-            this.speed = 450; // Very fast
+            this.speed = 225; // Very fast
         } else if (this.state === 'charging' && this.stateTimer <= 0) {
             this.state = 'normal';
             this.stateTimer = 2 + Math.random() * 2;
-            this.speed = 80;
+            this.speed = 40;
         }
 
         const dx = this.player.x - this.x;

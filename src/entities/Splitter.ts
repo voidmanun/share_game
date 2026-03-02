@@ -11,14 +11,14 @@ export class Splitter extends Enemy {
         if (isSplitterling) {
             this.radius = 8;
             this.color = '#FF69B4'; // Hot Pink
-            this.hp = 1;
-            this.speed = 150;
+            this.hp = 2;
+            this.speed = 75;
             this.damage = 1;
         } else {
             this.radius = 18;
             this.color = '#8A2BE2'; // Blue Violet
-            this.hp = 4;
-            this.speed = 90;
+            this.hp = 8;
+            this.speed = 45;
             this.damage = 1;
         }
     }

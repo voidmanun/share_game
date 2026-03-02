@@ -14,8 +14,8 @@ export class SwarmEnemy extends Scout {
         this.color = '#FFFF00';
 
         // Very low HP, very fast speed
-        this.hp = 1;
-        this.speed = 250;
+        this.hp = 2;
+        this.speed = 125;
         this.damage = 1;
 
         // Add random jitter to make movement erratic

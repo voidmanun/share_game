@@ -9,8 +9,8 @@ export class TankEnemy extends Enemy {
         this.color = '#555555';
 
         // High HP, very slow
-        this.hp = 15;
-        this.speed = 50;
+        this.hp = 30;
+        this.speed = 25;
         this.damage = 2; // Hits harder than basic
     }
 

@@ -226,16 +226,16 @@ export class Game {
         const hpMultiplier = 1 + (Math.floor(this.gameTime / 30) * 0.5);
 
         const enemyData = [
-            { name: "Basic", hp: 3, dmg: 1 },
-            { name: "Scout", hp: 2, dmg: 1 },
-            { name: "Swarm", hp: 1, dmg: 1 },
-            { name: "Tank", hp: 15, dmg: 2 },
-            { name: "Splitter", hp: 4, dmg: 1 },
-            { name: "Charger", hp: 5, dmg: 2 },
-            { name: "Teleporter", hp: 2, dmg: 1 },
-            { name: "Star", hp: 2, dmg: 1 },
-            { name: "Boss", hp: 10, dmg: 3 },
-            { name: "Titan", hp: 100, dmg: 5 }
+            { name: "Basic", hp: 6, dmg: 1 },
+            { name: "Scout", hp: 4, dmg: 1 },
+            { name: "Swarm", hp: 2, dmg: 1 },
+            { name: "Tank", hp: 30, dmg: 2 },
+            { name: "Splitter", hp: 8, dmg: 1 },
+            { name: "Charger", hp: 10, dmg: 2 },
+            { name: "Teleporter", hp: 4, dmg: 1 },
+            { name: "Star", hp: 4, dmg: 1 },
+            { name: "Boss", hp: 20, dmg: 3 },
+            { name: "Titan", hp: 500, dmg: 5 }
         ];
 
         let enemyHTML = '';

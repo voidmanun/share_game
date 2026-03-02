@@ -6,8 +6,8 @@ export class Scout extends Enemy {
 
     constructor(x: number, y: number, player: Player) {
         super(x, y, player);
-        this.speed = 250; // Fast
-        this.hp = 2; // Fragile
+        this.speed = 125; // Fast
+        this.hp = 4; // Fragile
         this.damage = 1; // Low damage
         this.color = '#00FFFF'; // Cyan
         this.radius = 10; // Smaller
