@@ -31,6 +31,7 @@ import { BubbleGun } from './weapons/BubbleGun';
 import { Boomerang } from './weapons/Boomerang';
 import { SplitterGun } from './weapons/SplitterGun';
 import { PoisonGun } from './weapons/PoisonGun';
+import { FreezeGun } from './weapons/FreezeGun';
 import { t, tWeapon, tEnemy } from './i18n';
 import { BubbleProjectile } from './weapons/BubbleProjectile';
 import { FloatingText } from './entities/FloatingText';
@@ -445,8 +446,8 @@ export class Game {
         this.pickups.push(new Pickup(enemy.x, enemy.y, 1));
 
         // Boss drops are always the newer, rarer weapons
-        const weaponTypes = ['Magic Wand', 'Laser', 'Missile Launcher', 'Shotgun', 'Orbit Shield', 'Bubble Gun', 'Boomerang', 'Splitter Gun', 'Poison Gun'];
-        const bossWeaponTypes = ['Missile Launcher', 'Shotgun', 'Orbit Shield', 'Bubble Gun', 'Boomerang', 'Splitter Gun', 'Poison Gun'];
+        const weaponTypes = ['Magic Wand', 'Laser', 'Missile Launcher', 'Shotgun', 'Orbit Shield', 'Bubble Gun', 'Boomerang', 'Splitter Gun', 'Poison Gun', 'Freeze Gun'];
+        const bossWeaponTypes = ['Missile Launcher', 'Shotgun', 'Orbit Shield', 'Bubble Gun', 'Boomerang', 'Splitter Gun', 'Poison Gun', 'Freeze Gun'];
 
         if (enemy instanceof Boss || enemy instanceof TitanEnemy || enemy instanceof FusionBoss) {
             const type = bossWeaponTypes[Math.floor(Math.random() * bossWeaponTypes.length)];
@@ -715,6 +716,7 @@ export class Game {
         else if (type === 'Boomerang') newWeapon = new Boomerang(this, this.player);
         else if (type === 'Splitter Gun') newWeapon = new SplitterGun(this, this.player);
         else if (type === 'Poison Gun') newWeapon = new PoisonGun(this, this.player);
+        else if (type === 'Freeze Gun') newWeapon = new FreezeGun(this, this.player);
         else newWeapon = new MagicWand(this, this.player);
 
         const existingWeapon = this.player.weapons.find(w => w.name === newWeapon.name);

@@ -12,6 +12,8 @@ export class Enemy extends Entity {
     public poisonTimer: number = 0;
     public poisonDamage: number = 0;
     public poisonTickTimer: number = 0;
+    public freezeTimer: number = 0;
+    public slowTimer: number = 0;
     public charmed: boolean = false;
     public charmTimer: number = 0;
     public charmTarget: Enemy | null = null;
@@ -61,6 +63,18 @@ export class Enemy extends Entity {
 
     public update(deltaTime: number, game?: any): void {
         super.update(deltaTime);
+
+        if (this.freezeTimer > 0) {
+            this.freezeTimer -= deltaTime;
+            if (this.freezeTimer <= 0) {
+                this.slowTimer = 4;
+            }
+            return; // Skip normal movement while frozen
+        }
+
+        if (this.slowTimer > 0) {
+            this.slowTimer -= deltaTime;
+        }
 
         if (this.poisonTimer > 0) {
             this.poisonTimer -= deltaTime;
@@ -128,8 +142,12 @@ export class Enemy extends Entity {
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist > 0) {
-            this.x += (dx / dist) * this.speed * deltaTime;
-            this.y += (dy / dist) * this.speed * deltaTime;
+            let currentSpeed = this.speed;
+            if (this.slowTimer > 0) {
+                currentSpeed *= 0.5;
+            }
+            this.x += (dx / dist) * currentSpeed * deltaTime;
+            this.y += (dy / dist) * currentSpeed * deltaTime;
         }
     }
 
@@ -287,6 +305,37 @@ export class Enemy extends Entity {
                 ctx.arc(hx, hy, 3, 0, Math.PI * 2);
                 ctx.fill();
             }
+        }
+
+        // Draw freeze effect
+        if (this.freezeTimer > 0) {
+            ctx.beginPath();
+            ctx.arc(0, 0, this.radius + 5, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0, 191, 255, 0.4)'; // Deep Sky Blue with transparency
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Draw ice crystals
+            for (let i = 0; i < 4; i++) {
+                const iceAngle = (i * Math.PI) / 2;
+                const ix = Math.cos(iceAngle) * this.radius;
+                const iy = Math.sin(iceAngle) * this.radius;
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(ix, iy, 4, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        } else if (this.slowTimer > 0) {
+            // Draw slow effect
+            ctx.beginPath();
+            ctx.arc(0, 0, this.radius + 3, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(0, 255, 255, 0.5)';
+            ctx.lineWidth = 4;
+            ctx.setLineDash([5, 5]);
+            ctx.stroke();
+            ctx.setLineDash([]);
         }
 
         ctx.restore();
