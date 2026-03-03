@@ -94,6 +94,44 @@ window.addEventListener('DOMContentLoaded', () => {
   const tabMonsters = document.getElementById('tab-monsters');
   const tabPets = document.getElementById('tab-pets');
 
+  // SVG Icons for monsters
+  const monsterSvgs: Record<string, string> = {
+    'Basic': `<svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="15" fill="#ff4444" stroke="#000" stroke-width="2"/><circle cx="14" cy="16" r="3" fill="#fff"/><circle cx="26" cy="16" r="3" fill="#fff"/><circle cx="14" cy="16" r="1.5" fill="#000"/><circle cx="26" cy="16" r="1.5" fill="#000"/><path d="M15 26 Q20 30 25 26" stroke="#000" stroke-width="2" fill="none"/></svg>`,
+    'Scout': `<svg width="40" height="40" viewBox="0 0 40 40"><polygon points="20,5 35,35 5,35" fill="#ff9900" stroke="#000" stroke-width="2"/><circle cx="15" cy="20" r="3" fill="#fff"/><circle cx="25" cy="20" r="3" fill="#fff"/><circle cx="15" cy="20" r="1.5" fill="#000"/><circle cx="25" cy="20" r="1.5" fill="#000"/></svg>`,
+    'Swarm': `<svg width="40" height="40" viewBox="0 0 40 40"><circle cx="12" cy="12" r="5" fill="#aa44aa" stroke="#000" stroke-width="1"/><circle cx="28" cy="12" r="5" fill="#aa44aa" stroke="#000" stroke-width="1"/><circle cx="20" cy="22" r="5" fill="#aa44aa" stroke="#000" stroke-width="1"/><circle cx="12" cy="32" r="5" fill="#aa44aa" stroke="#000" stroke-width="1"/><circle cx="28" cy="32" r="5" fill="#aa44aa" stroke="#000" stroke-width="1"/><circle cx="10" cy="22" r="3" fill="#aa44aa" stroke="#000" stroke-width="1"/><circle cx="30" cy="22" r="3" fill="#aa44aa" stroke="#000" stroke-width="1"/></svg>`,
+    'Tank': `<svg width="40" height="40" viewBox="0 0 40 40"><rect x="5" y="10" width="30" height="25" rx="3" fill="#448844" stroke="#000" stroke-width="2"/><rect x="10" y="5" width="20" height="8" rx="2" fill="#336633" stroke="#000" stroke-width="2"/><circle cx="20" cy="22" r="6" fill="#224422" stroke="#000" stroke-width="1"/><circle cx="14" cy="16" r="2" fill="#fff"/><circle cx="26" cy="16" r="2" fill="#fff"/></svg>`,
+    'Splitter': `<svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="12" fill="#ff6666" stroke="#000" stroke-width="2"/><circle cx="20" cy="20" r="6" fill="#ffcccc" stroke="#000" stroke-width="1"/><line x1="20" y1="8" x2="20" y2="2" stroke="#ff6666" stroke-width="3"/><line x1="20" y1="32" x2="20" y2="38" stroke="#ff6666" stroke-width="3"/><line x1="8" y1="20" x2="2" y2="20" stroke="#ff6666" stroke-width="3"/><line x1="32" y1="20" x2="38" y2="20" stroke="#ff6666" stroke-width="3"/></svg>`,
+    'Charger': `<svg width="40" height="40" viewBox="0 0 40 40"><polygon points="5,20 30,10 30,30" fill="#cc3333" stroke="#000" stroke-width="2"/><circle cx="25" cy="15" r="3" fill="#fff"/><circle cx="25" cy="25" r="3" fill="#fff"/><path d="M8 17 L5 20 L8 23" stroke="#000" stroke-width="2" fill="none"/></svg>`,
+    'Teleporter': `<svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="12" fill="#9933ff" stroke="#000" stroke-width="2"/><circle cx="20" cy="20" r="8" fill="none" stroke="#cc66ff" stroke-width="2"/><circle cx="20" cy="20" r="4" fill="#cc66ff"/><circle cx="15" cy="15" r="2" fill="#fff"/></svg>`,
+    'Star': `<svg width="40" height="40" viewBox="0 0 40 40"><polygon points="20,2 24,14 37,14 27,22 31,35 20,27 9,35 13,22 3,14 16,14" fill="#ffcc00" stroke="#000" stroke-width="2"/><circle cx="17" cy="18" r="2" fill="#000"/><circle cx="23" cy="18" r="2" fill="#000"/></svg>`,
+    'Boss': `<svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="22" r="14" fill="#880000" stroke="#000" stroke-width="2"/><polygon points="20,2 24,10 32,10 26,16 28,24 20,20 12,16 8,10 16,24 14,10" fill="#ffcc00" stroke="#000" stroke-width="1"/><circle cx="15" cy="18" r="3" fill="#fff"/><circle cx="25" cy="18" r="3" fill="#fff"/><circle cx="15" cy="18" r="1.5" fill="#000"/><circle cx="25" cy="18" r="1.5" fill="#000"/></svg>`,
+    'Twin Elite': `<svg width="40" height="40" viewBox="0 0 40 40"><circle cx="14" cy="20" r="10" fill="#4444ff" stroke="#000" stroke-width="2"/><circle cx="26" cy="20" r="10" fill="#4444ff" stroke="#000" stroke-width="2"/><circle cx="14" cy="17" r="2" fill="#fff"/><circle cx="26" cy="17" r="2" fill="#fff"/><circle cx="14" cy="23" r="2" fill="#fff"/><circle cx="26" cy="23" r="2" fill="#fff"/></svg>`,
+    'Titan': `<svg width="40" height="40" viewBox="0 0 40 40"><rect x="4" y="8" width="32" height="28" rx="4" fill="#555" stroke="#000" stroke-width="3"/><rect x="8" y="4" width="10" height="8" rx="2" fill="#777" stroke="#000" stroke-width="2"/><rect x="22" y="4" width="10" height="8" rx="2" fill="#777" stroke="#000" stroke-width="2"/><circle cx="14" cy="16" r="3" fill="#ff0000"/><circle cx="26" cy="16" r="3" fill="#ff0000"/><rect x="10" y="26" width="20" height="6" fill="#333" stroke="#000" stroke-width="1"/></svg>`,
+  };
+
+  // SVG Icons for pets
+  const petSvgs: Record<string, string> = {
+    'Greedy Dog': `<svg width="40" height="40" viewBox="0 0 40 40"><ellipse cx="20" cy="25" rx="12" ry="10" fill="#8B4513" stroke="#000" stroke-width="2"/><circle cx="20" cy="14" r="8" fill="#8B4513" stroke="#000" stroke-width="2"/><ellipse cx="14" cy="12" rx="4" ry="5" fill="#8B4513" stroke="#000" stroke-width="2"/><ellipse cx="26" cy="12" rx="4" ry="5" fill="#8B4513" stroke="#000" stroke-width="2"/><circle cx="17" cy="13" r="2" fill="#000"/><circle cx="23" cy="13" r="2" fill="#000"/><ellipse cx="20" cy="17" rx="3" ry="2" fill="#000"/><path d="M16 20 Q20 24 24 20" stroke="#000" stroke-width="1" fill="none"/></svg>`,
+    'Magic Fairy': `<svg width="40" height="40" viewBox="0 0 40 40"><ellipse cx="20" cy="22" rx="6" ry="8" fill="#ff99cc" stroke="#000" stroke-width="2"/><circle cx="20" cy="12" r="6" fill="#ff99cc" stroke="#000" stroke-width="2"/><path d="M14 18 Q8 12 14 8 Q20 4 20 8" fill="#66ff66" stroke="#000" stroke-width="1"/><path d="M26 18 Q32 12 26 8 Q20 4 20 8" fill="#66ff66" stroke="#000" stroke-width="1"/><circle cx="18" cy="11" r="1.5" fill="#000"/><circle cx="22" cy="11" r="1.5" fill="#000"/><ellipse cx="20" cy="15" rx="2" ry="1" fill="#ff6699"/></svg>`,
+    'Speedy Turtle': `<svg width="40" height="40" viewBox="0 0 40 40"><ellipse cx="20" cy="26" rx="14" ry="8" fill="#44aa44" stroke="#000" stroke-width="2"/><path d="M10 18 Q20 8 30 18" fill="#228822" stroke="#000" stroke-width="2"/><circle cx="20" cy="14" r="5" fill="#228822" stroke="#000" stroke-width="2"/><circle cx="18" cy="13" r="1.5" fill="#000"/><circle cx="22" cy="13" r="1.5" fill="#000"/><ellipse cx="20" cy="16" rx="2" ry="1" fill="#006600"/><line x1="12" y1="28" x2="8" y2="34" stroke="#228822" stroke-width="2"/><line x1="28" y1="28" x2="32" y2="34" stroke="#228822" stroke-width="2"/></svg>`,
+    'Grumpy Porcupine': `<svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="22" r="10" fill="#666" stroke="#000" stroke-width="2"/><line x1="20" y1="12" x2="20" y2="4" stroke="#888" stroke-width="2"/><line x1="14" y1="14" x2="10" y2="8" stroke="#888" stroke-width="2"/><line x1="26" y1="14" x2="30" y2="8" stroke="#888" stroke-width="2"/><line x1="10" y1="22" x2="4" y2="20" stroke="#888" stroke-width="2"/><line x1="30" y1="22" x2="36" y2="20" stroke="#888" stroke-width="2"/><circle cx="16" cy="20" r="2" fill="#fff"/><circle cx="24" cy="20" r="2" fill="#fff"/><circle cx="16" cy="20" r="1" fill="#000"/><circle cx="24" cy="20" r="1" fill="#000"/><path d="M17 26 Q20 28 23 26" stroke="#000" stroke-width="1" fill="none"/></svg>`,
+    'Bouncy Slime': `<svg width="40" height="40" viewBox="0 0 40 40"><path d="M8 30 Q4 20 12 14 Q20 4 28 14 Q36 20 32 30 Q20 36 8 30" fill="#33cc33" stroke="#000" stroke-width="2"/><circle cx="15" cy="18" r="3" fill="#fff"/><circle cx="25" cy="18" r="3" fill="#fff"/><circle cx="15" cy="18" r="1.5" fill="#000"/><circle cx="25" cy="18" r="1.5" fill="#000"/><ellipse cx="20" cy="24" rx="4" ry="2" fill="#229922"/></svg>`,
+    'Lucky Cat': `<svg width="40" height="40" viewBox="0 0 40 40"><ellipse cx="20" cy="24" rx="12" ry="10" fill="#fff" stroke="#000" stroke-width="2"/><polygon points="10,16 6,6 14,12" fill="#fff" stroke="#000" stroke-width="2"/><polygon points="30,16 34,6 26,12" fill="#fff" stroke="#000" stroke-width="2"/><polygon points="10,16 6,6 14,12" fill="#ff6666" stroke="#000" stroke-width="1"/><polygon points="30,16 34,6 26,12" fill="#ff6666" stroke="#000" stroke-width="1"/><circle cx="15" cy="20" r="3" fill="#000"/><circle cx="25" cy="20" r="3" fill="#000"/><circle cx="14" cy="19" r="1" fill="#fff"/><circle cx="24" cy="19" r="1" fill="#fff"/><ellipse cx="20" cy="26" rx="3" ry="2" fill="#ff6666"/><line x1="18" y1="10" x2="22" y2="10" stroke="#000" stroke-width="2"/><path d="M17 28 L20 30 L23 28" stroke="#000" stroke-width="1" fill="none"/></svg>`,
+  };
+
+  // SVG Icons for weapons
+  const weaponSvgs: Record<string, string> = {
+    'Magic Wand': `<svg width="40" height="40" viewBox="0 0 40 40"><rect x="18" y="15" width="4" height="20" rx="2" fill="#8B4513" stroke="#000" stroke-width="1"/><circle cx="20" cy="10" r="6" fill="#9933ff" stroke="#000" stroke-width="1"/><circle cx="18" cy="8" r="2" fill="#fff"/></svg>`,
+    'Laser': `<svg width="40" height="40" viewBox="0 0 40 40"><rect x="15" y="18" width="10" height="4" fill="#444" stroke="#000" stroke-width="1"/><rect x="10" y="10" width="20" height="3" fill="#ff0000" stroke="#000" stroke-width="1"/><rect x="10" y="27" width="20" height="3" fill="#ff0000" stroke="#000" stroke-width="1"/><circle cx="20" cy="20" r="4" fill="#ff0000" stroke="#000" stroke-width="1"/></svg>`,
+    'Missile Launcher': `<svg width="40" height="40" viewBox="0 0 40 40"><rect x="8" y="12" width="24" height="16" rx="2" fill="#666" stroke="#000" stroke-width="2"/><circle cx="14" cy="20" r="4" fill="#333" stroke="#000" stroke-width="1"/><circle cx="26" cy="20" r="4" fill="#333" stroke="#000" stroke-width="1"/><polygon points="6,18 2,20 6,22" fill="#ff6600" stroke="#000" stroke-width="1"/></svg>`,
+    'Shotgun': `<svg width="40" height="40" viewBox="0 0 40 40"><rect x="14" y="16" width="18" height="6" rx="1" fill="#444" stroke="#000" stroke-width="2"/><rect x="30" y="14" width="4" height="10" rx="1" fill="#222" stroke="#000" stroke-width="1"/><rect x="8" y="18" width="8" height="2" fill="#222" stroke="#000" stroke-width="1"/></svg>`,
+    'Orbit Shield': `<svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="none" stroke="#00ccff" stroke-width="2" stroke-dasharray="4,2"/><circle cx="20" cy="8" r="5" fill="#00ccff" stroke="#000" stroke-width="1"/><circle cx="32" cy="20" r="5" fill="#00ccff" stroke="#000" stroke-width="1"/><circle cx="20" cy="32" r="5" fill="#00ccff" stroke="#000" stroke-width="1"/><circle cx="8" cy="20" r="5" fill="#00ccff" stroke="#000" stroke-width="1"/></svg>`,
+    'Bubble Gun': `<svg width="40" height="40" viewBox="0 0 40 40"><rect x="14" y="18" width="12" height="8" rx="1" fill="#666" stroke="#000" stroke-width="2"/><circle cx="20" cy="12" r="6" fill="#66ccff" stroke="#000" stroke-width="1" opacity="0.8"/><circle cx="26" cy="8" r="4" fill="#66ccff" stroke="#000" stroke-width="1" opacity="0.6"/><circle cx="14" cy="8" r="3" fill="#66ccff" stroke="#000" stroke-width="1" opacity="0.5"/></svg>`,
+    'Boomerang': `<svg width="40" height="40" viewBox="0 0 40 40"><path d="M10 20 Q20 10 30 20 Q25 15 20 15 Q15 15 10 20" fill="#888" stroke="#000" stroke-width="2"/><path d="M12 22 Q20 14 28 22" fill="none" stroke="#555" stroke-width="1"/></svg>`,
+    'Splitter Gun': `<svg width="40" height="40" viewBox="0 0 40 40"><rect x="14" y="16" width="16" height="8" rx="1" fill="#444" stroke="#000" stroke-width="2"/><circle cx="20" cy="20" r="3" fill="#ff00ff" stroke="#000" stroke-width="1"/><polygon points="6,16 2,20 6,24" fill="#ff00ff" stroke="#000" stroke-width="1"/><polygon points="34,16 38,20 34,24" fill="#ff00ff" stroke="#000" stroke-width="1"/></svg>`,
+    'Poison Gun': `<svg width="40" height="40" viewBox="0 0 40 40"><rect x="14" y="18" width="16" height="6" rx="1" fill="#444" stroke="#000" stroke-width="2"/><circle cx="30" cy="21" r="4" fill="#00ff00" stroke="#000" stroke-width="1"/><path d="M28 21 Q30 18 32 21 Q30 24 28 21" fill="#00ff00" stroke="#000" stroke-width="1"/><circle cx="10" cy="20" r="3" fill="#00ff00" stroke="#000" stroke-width="1" opacity="0.6"/></svg>`,
+  };
+
   const weaponsData = [
     { name: 'Magic Wand', desc: 'Fires magic bolts at nearest enemy', dmg: '10', rate: '0.5s' },
     { name: 'Laser', desc: 'Fires powerful laser beams', dmg: '15', rate: '0.8s' },
@@ -153,10 +191,14 @@ window.addEventListener('DOMContentLoaded', () => {
          w.desc === 'Returns after hitting enemies' ? '击中敌人后返回' : 
          w.desc === 'Splits on impact' ? '击中后分裂' :
          w.desc === 'Poisons enemies, preventing them from healing' ? '使敌人中毒，阻止其恢复生命' : w.desc) : w.desc;
-      html += `<div style="margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 6px;">
-        <div style="font-weight: bold; color: #ffcc00;">${translatedName}</div>
-        <div style="color: #aaa; font-size: 12px;">${translatedDesc}</div>
-        <div style="font-size: 12px; margin-top: 4px;">DMG: ${w.dmg} | Rate: ${w.rate}</div>
+      const svg = weaponSvgs[w.name] || '';
+      html += `<div style="margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 6px; display: flex; align-items: center; gap: 12px;">
+        <div style="flex-shrink: 0;">${svg}</div>
+        <div style="flex: 1;">
+          <div style="font-weight: bold; color: #ffcc00;">${translatedName}</div>
+          <div style="color: #aaa; font-size: 12px;">${translatedDesc}</div>
+          <div style="font-size: 12px; margin-top: 4px;">DMG: ${w.dmg} | Rate: ${w.rate}</div>
+        </div>
       </div>`;
     });
     encyclopediaContent.innerHTML = html;
@@ -192,10 +234,14 @@ window.addEventListener('DOMContentLoaded', () => {
          m.desc === 'Rare boss enemy, drops rare weapons' ? '稀有首领敌人，掉落稀有武器' :
          m.desc === 'Elite twins, appear after 40s' ? '精英双子，40秒后出现' :
          m.desc === 'Giant boss, appears after 60s' ? '巨型首领，60秒后出现' : m.desc) : m.desc;
-      html += `<div style="margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 6px;">
-        <div style="font-weight: bold; color: #ff3366;">${translatedName}</div>
-        <div style="color: #aaa; font-size: 12px;">${translatedDesc}</div>
-        <div style="font-size: 12px; margin-top: 4px;">HP: ${currentHP} | ATK: ${m.dmg}</div>
+      const svg = monsterSvgs[m.name] || '';
+      html += `<div style="margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 6px; display: flex; align-items: center; gap: 12px;">
+        <div style="flex-shrink: 0;">${svg}</div>
+        <div style="flex: 1;">
+          <div style="font-weight: bold; color: #ff3366;">${translatedName}</div>
+          <div style="color: #aaa; font-size: 12px;">${translatedDesc}</div>
+          <div style="font-size: 12px; margin-top: 4px;">HP: ${currentHP} | ATK: ${m.dmg}</div>
+        </div>
       </div>`;
     });
     encyclopediaContent.innerHTML = html;
@@ -219,9 +265,13 @@ window.addEventListener('DOMContentLoaded', () => {
          p.desc === 'Shoots spikes at nearby enemies' ? '向附近的敌人发射尖刺' :
          p.desc === 'Bounces and damages enemies' ? '弹跳并伤害敌人' :
          p.desc === 'Increases gold pickup range' ? '增加金币拾取范围' : p.desc) : p.desc;
-      html += `<div style="margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 6px;">
-        <div style="font-weight: bold; color: #32cd32;">${translatedName}</div>
-        <div style="color: #aaa; font-size: 12px;">${translatedDesc}</div>
+      const svg = petSvgs[p.name] || '';
+      html += `<div style="margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 6px; display: flex; align-items: center; gap: 12px;">
+        <div style="flex-shrink: 0;">${svg}</div>
+        <div style="flex: 1;">
+          <div style="font-weight: bold; color: #32cd32;">${translatedName}</div>
+          <div style="color: #aaa; font-size: 12px;">${translatedDesc}</div>
+        </div>
       </div>`;
     });
     encyclopediaContent.innerHTML = html;
