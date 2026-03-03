@@ -8,6 +8,7 @@ export class Enemy extends Entity {
     public damage: number = 1;
     public trappedInBubble: boolean = false;
     private floatDistance: number = 0;
+    public antiHealTimer: number = 0;
 
     constructor(x: number, y: number, player: Player) {
         super(x, y, 15, '#39FF14'); // Neon Green
@@ -22,8 +23,18 @@ export class Enemy extends Entity {
         }
     }
 
+    public heal(amount: number): void {
+        if (this.antiHealTimer <= 0) {
+            this.hp += amount;
+        }
+    }
+
     public update(deltaTime: number, _game?: any): void {
         super.update(deltaTime);
+
+        if (this.antiHealTimer > 0) {
+            this.antiHealTimer -= deltaTime;
+        }
 
         if (this.trappedInBubble) {
             // Float upwards slowly
@@ -145,6 +156,25 @@ export class Enemy extends Entity {
             ctx.arc(-this.radius * 0.5, -this.radius * 0.5, this.radius * 0.3, 0, Math.PI * 2);
             ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
             ctx.fill();
+        }
+
+        // Draw anti-heal icon or color effect
+        if (this.antiHealTimer > 0) {
+            ctx.beginPath();
+            ctx.arc(0, 0, this.radius + 5, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(128, 0, 128, 0.8)'; // Purple border indicating anti-heal
+            ctx.lineWidth = 4;
+            ctx.stroke();
+            
+            // Small cross out mark
+            ctx.beginPath();
+            ctx.moveTo(-10, -10);
+            ctx.lineTo(10, 10);
+            ctx.moveTo(10, -10);
+            ctx.lineTo(-10, 10);
+            ctx.strokeStyle = '#800080';
+            ctx.lineWidth = 3;
+            ctx.stroke();
         }
 
         ctx.restore();

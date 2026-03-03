@@ -27,7 +27,7 @@ export class HealerEnemy extends Enemy {
         if (this.trappedInBubble) return;
 
         // 超强回血能力 (Super strong self healing)
-        this.hp += 30 * deltaTime; // 30 HP per second
+        this.heal(30 * deltaTime); // 30 HP per second
 
         const enemies = this.game.getEnemies();
         
@@ -45,7 +45,7 @@ export class HealerEnemy extends Enemy {
 
             // 超大光环
             if (dist <= this.auraRadius) {
-                enemy.hp += 15 * deltaTime; // continuous healing
+                enemy.heal(15 * deltaTime); // continuous healing
                 
                 // Random green particle for healing effect
                 if (Math.random() < 0.05) {
@@ -111,7 +111,7 @@ export class HealerEnemy extends Enemy {
                     const dy = enemy.y - this.y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
                     if (dist <= this.auraRadius) {
-                        enemy.hp += 50;
+                        enemy.heal(50);
                         for (let p = 0; p < 10; p++) {
                             this.game.particles.push(new Particle(enemy.x, enemy.y, '#00FF00'));
                         }
@@ -119,7 +119,7 @@ export class HealerEnemy extends Enemy {
                 }
             }
             // Self burst heal
-            this.hp += 50;
+            this.heal(50);
             for (let p = 0; p < 20; p++) {
                 this.game.particles.push(new Particle(this.x, this.y, '#00FF00'));
             }

@@ -102,6 +102,8 @@ window.addEventListener('DOMContentLoaded', () => {
     { name: 'Orbit Shield', desc: 'Shields that orbit around you', dmg: '5', rate: 'continuous' },
     { name: 'Bubble Gun', desc: 'Shoots bubbles that trap enemies', dmg: '2', rate: '0.6s' },
     { name: 'Boomerang', desc: 'Returns after hitting enemies', dmg: '12', rate: '0.7s' },
+    { name: 'Splitter Gun', desc: 'Splits on impact', dmg: '8', rate: '1.2s' },
+    { name: 'Poison Gun', desc: 'Poisons enemies, preventing them from healing', dmg: '2', rate: '1.5s' }
   ];
 
   const monstersData = [
@@ -138,7 +140,9 @@ window.addEventListener('DOMContentLoaded', () => {
          w.name === 'Shotgun' ? '霰弹枪' : 
          w.name === 'Orbit Shield' ? '轨道护盾' : 
          w.name === 'Bubble Gun' ? '泡泡枪' : 
-         w.name === 'Boomerang' ? '回旋镖' : w.name) : w.name;
+         w.name === 'Boomerang' ? '回旋镖' : 
+         w.name === 'Splitter Gun' ? '分裂枪' :
+         w.name === 'Poison Gun' ? '毒素枪' : w.name) : w.name;
       const translatedDesc = getLanguage() === 'zh' ?
         (w.desc === 'Fires magic bolts at nearest enemy' ? '向最近的敌人发射魔法弹' :
          w.desc === 'Fires powerful laser beams' ? '发射强大的激光束' :
@@ -146,7 +150,9 @@ window.addEventListener('DOMContentLoaded', () => {
          w.desc === 'Fires multiple pellets in a spread' ? '向多个方向发射弹丸' :
          w.desc === 'Shields that orbit around you' ? '环绕你的护盾' :
          w.desc === 'Shoots bubbles that trap enemies' ? '发射泡泡困住敌人' :
-         w.desc === 'Returns after hitting enemies' ? '击中敌人后返回' : w.desc) : w.desc;
+         w.desc === 'Returns after hitting enemies' ? '击中敌人后返回' : 
+         w.desc === 'Splits on impact' ? '击中后分裂' :
+         w.desc === 'Poisons enemies, preventing them from healing' ? '使敌人中毒，阻止其恢复生命' : w.desc) : w.desc;
       html += `<div style="margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 6px;">
         <div style="font-weight: bold; color: #ffcc00;">${translatedName}</div>
         <div style="color: #aaa; font-size: 12px;">${translatedDesc}</div>
