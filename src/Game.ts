@@ -1,4 +1,3 @@
-import { KnightPet } from './entities/KnightPet';
 import { Player } from './entities/Player';
 import { Input } from './systems/Input';
 import { Enemy } from './entities/Enemy';
@@ -98,7 +97,6 @@ export class Game {
     }
 
     public pets: Pet[] = [];
-    private knightSpawnTimer: number = 0;
     private spawnTimer: number = 0;
     private spawnInterval: number = 1.2; // Start slightly slower
     private bossSpawnTimer: number = 0;
@@ -145,7 +143,6 @@ export class Game {
         this.input = new Input();
         this.player = new Player(this.WORLD_WIDTH / 2, this.WORLD_HEIGHT / 2, this.input, this.WORLD_WIDTH, this.WORLD_HEIGHT);
         this.player.addWeapon(new MagicWand(this, this.player));
-        this.pets.push(new KnightPet(this.player, this));
 
         for (let i = 0; i < 2; i++) {
             const rand = Math.random();
@@ -317,15 +314,6 @@ export class Game {
         }
 
         this.player.update(deltaTime);
-
-        // Auto spawn Knight Pet every 10 seconds
-        this.knightSpawnTimer += deltaTime;
-        if (this.knightSpawnTimer >= 10) {
-            this.knightSpawnTimer = 0;
-            const knight = new KnightPet(this.player, this);
-            this.pets.push(knight);
-            // Limit knights if needed, or let them stack
-        }
 
         // Spawn enemies
         this.spawnTimer += deltaTime;
