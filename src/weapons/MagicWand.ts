@@ -5,7 +5,7 @@ export class MagicWand extends Weapon {
     public name = 'Magic Wand';
 
     constructor(game: import('../Game').Game, owner: import('../entities/Player').Player) {
-        super(game, owner, 0.5, 2);
+        super(game, owner, 0.5, 8);
     }
 
     protected fire(): void {
@@ -16,7 +16,7 @@ export class MagicWand extends Weapon {
         const dy = target.y - this.owner.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        const speed = 400;
+        const speed = 600;
         const vx = (dx / distance) * speed;
         const vy = (dy / distance) * speed;
 
