@@ -9,6 +9,10 @@ export class Enemy extends Entity {
     public trappedInBubble: boolean = false;
     private floatDistance: number = 0;
     public antiHealTimer: number = 0;
+    public charmed: boolean = false;
+    public charmTimer: number = 0;
+    public charmTarget: Enemy | null = null;
+    private attackCooldown: number = 0;
 
     constructor(x: number, y: number, player: Player) {
         super(x, y, 15, '#39FF14'); // Neon Green
@@ -29,11 +33,70 @@ export class Enemy extends Entity {
         }
     }
 
-    public update(deltaTime: number, _game?: any): void {
+    public applyCharm(duration: number): void {
+        this.charmed = true;
+        this.charmTimer = duration;
+        this.color = '#FF69B4'; // Hot pink when charmed
+    }
+
+    private findNearestEnemy(allEnemies: Enemy[]): Enemy | null {
+        let nearest: Enemy | null = null;
+        let minDist = Infinity;
+
+        for (const enemy of allEnemies) {
+            if (enemy === this || enemy.charmed) continue; // Don't target self or other charmed enemies
+            const dx = enemy.x - this.x;
+            const dy = enemy.y - this.y;
+            const dist = dx * dx + dy * dy;
+            if (dist < minDist) {
+                minDist = dist;
+                nearest = enemy;
+            }
+        }
+        return nearest;
+    }
+
+    public update(deltaTime: number, game?: any): void {
         super.update(deltaTime);
 
         if (this.antiHealTimer > 0) {
             this.antiHealTimer -= deltaTime;
+        }
+
+        // Handle charm timer
+        if (this.charmed) {
+            this.charmTimer -= deltaTime;
+            if (this.charmTimer <= 0) {
+                this.charmed = false;
+                this.color = '#39FF14'; // Revert to original color
+                this.charmTarget = null;
+            } else if (game && game.getEnemies) {
+                // Find nearest enemy to attack
+                const enemies = game.getEnemies();
+                this.charmTarget = this.findNearestEnemy(enemies);
+
+                if (this.charmTarget) {
+                    const dx = this.charmTarget.x - this.x;
+                    const dy = this.charmTarget.y - this.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist > 0) {
+                        // Move towards target
+                        this.x += (dx / dist) * this.speed * deltaTime;
+                        this.y += (dy / dist) * this.speed * deltaTime;
+                    }
+
+                    // Attack target if close enough
+                    if (dist < this.radius + this.charmTarget.radius) {
+                        this.attackCooldown -= deltaTime;
+                        if (this.attackCooldown <= 0) {
+                            this.charmTarget.takeDamage(this.damage);
+                            this.attackCooldown = 1.0; // Attack once per second
+                        }
+                    }
+                }
+            }
+            return; // Skip normal movement
         }
 
         if (this.trappedInBubble) {
@@ -175,6 +238,27 @@ export class Enemy extends Entity {
             ctx.strokeStyle = '#800080';
             ctx.lineWidth = 3;
             ctx.stroke();
+        }
+
+        // Draw charm effect (hearts around enemy)
+        if (this.charmed) {
+            ctx.beginPath();
+            ctx.arc(0, 0, this.radius + 8, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(255, 105, 180, 0.8)'; // Hot pink border
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Floating hearts
+            const time = Date.now() / 500;
+            for (let i = 0; i < 3; i++) {
+                const heartAngle = time + (i * Math.PI * 2 / 3);
+                const hx = Math.cos(heartAngle) * (this.radius + 12);
+                const hy = Math.sin(heartAngle) * (this.radius + 12);
+                ctx.fillStyle = '#FF69B4';
+                ctx.beginPath();
+                ctx.arc(hx, hy, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
         }
 
         ctx.restore();

@@ -36,6 +36,7 @@ import { BubbleProjectile } from './weapons/BubbleProjectile';
 import { FloatingText } from './entities/FloatingText';
 import { LollipopPickup } from './entities/LollipopPickup';
 import { PetEggPickup } from './entities/PetEggPickup';
+import { CharmPotionPickup } from './entities/CharmPotionPickup';
 import { Pet } from './entities/Pet';
 import { GreedyDog } from './entities/GreedyDog';
 import { MagicFairy } from './entities/MagicFairy';
@@ -91,7 +92,7 @@ export class Game {
 
     public getEnemies(): Enemy[] { return this.enemies; }
     private projectiles: Projectile[] = [];
-    private pickups: (Pickup | WeaponPickup | HealthPickup | LollipopPickup | PetEggPickup)[] = [];
+    private pickups: (Pickup | WeaponPickup | HealthPickup | LollipopPickup | PetEggPickup | CharmPotionPickup)[] = [];
     public particles: Particle[] = [];
     public floatingTexts: FloatingText[] = [];
 
@@ -455,7 +456,7 @@ export class Game {
                 this.pickups.push(new HealthPickup(enemy.x + 10, enemy.y + 10, 10));
             }
         } else {
-            // 5% chance for weapon, 2% chance for health, 0.1% for Lollipop
+            // 5% chance for weapon, 2% chance for health, 0.1% for Lollipop, 5% for Charm Potion
             const dropRand = Math.random();
             if (dropRand < 0.001) {
                 this.pickups.push(new LollipopPickup(enemy.x, enemy.y));
@@ -464,6 +465,8 @@ export class Game {
                 this.pickups.push(new WeaponPickup(enemy.x, enemy.y, type));
             } else if (dropRand < 0.08) {
                 this.pickups.push(new HealthPickup(enemy.x, enemy.y, 5)); // Heals 5 HP
+            } else if (dropRand < 0.13) {
+                this.pickups.push(new CharmPotionPickup(enemy.x, enemy.y));
             }
         }
 
@@ -688,6 +691,9 @@ export class Game {
                 } else if (pickup instanceof PetEggPickup) {
                     this.hatchRandomPet();
                     this.soundManager.playPickupSound();
+                } else if (pickup instanceof CharmPotionPickup) {
+                    this.applyCharmPotion();
+                    this.soundManager.playPickupSound();
                 } else if (pickup instanceof Pickup) {
                     this.gold += pickup.value;
                     this.soundManager.playPickupSound();
@@ -731,11 +737,11 @@ export class Game {
         this.projectiles.push(projectile);
     }
 
-    public addPickup(pickup: Pickup | WeaponPickup | HealthPickup | LollipopPickup | PetEggPickup): void {
+    public addPickup(pickup: Pickup | WeaponPickup | HealthPickup | LollipopPickup | PetEggPickup | CharmPotionPickup): void {
         this.pickups.push(pickup);
     }
 
-    public getPickups(): (Pickup | WeaponPickup | HealthPickup | LollipopPickup | PetEggPickup)[] {
+    public getPickups(): (Pickup | WeaponPickup | HealthPickup | LollipopPickup | PetEggPickup | CharmPotionPickup)[] {
         return this.pickups;
     }
 
@@ -753,6 +759,34 @@ export class Game {
             }
         }
         return nearest;
+    }
+
+    public applyCharmPotion(): void {
+        // Find strongest non-boss, non-elite enemy
+        let strongest: Enemy | null = null;
+        let maxHp = 0;
+
+        for (const enemy of this.enemies) {
+            // Skip bosses and elites
+            if (enemy instanceof Boss || enemy instanceof FusionBoss || 
+                enemy instanceof TitanEnemy || enemy instanceof TwinElite || 
+                enemy instanceof DevourerElite || enemy instanceof Necromancer) {
+                continue;
+            }
+            
+            if (enemy.hp > maxHp) {
+                maxHp = enemy.hp;
+                strongest = enemy;
+            }
+        }
+
+        if (strongest) {
+            strongest.applyCharm(20); // 20 seconds duration
+            this.floatingTexts.push(new FloatingText(strongest.x, strongest.y - 30, `CHARMED!`, '#FF69B4'));
+            this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `魅惑药水!`, '#FF69B4'));
+        } else {
+            this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `没有目标!`, '#FF69B4'));
+        }
     }
 
     public createExplosion(x: number, y: number, color: string): void {
