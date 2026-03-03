@@ -7,6 +7,9 @@ import { Enemy } from '../entities/Enemy';
 export class PoisonProjectile extends Projectile {
     public onHit(enemy: Enemy): void {
         enemy.antiHealTimer = 5; // Apply anti-heal effect for 5 seconds
+        enemy.poisonTimer = 5;
+        enemy.poisonDamage = this.damage * 0.5; // DoT damage
+        enemy.poisonTickTimer = 1;
     }
 }
 

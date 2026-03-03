@@ -2,8 +2,10 @@ import './style.css'
 import { Game } from './Game'
 import { getLanguage, setLanguage, t } from './i18n';
 import { getLeaderboard } from './leaderboard';
+import { initPWA } from './pwa';
 
 window.addEventListener('DOMContentLoaded', () => {
+  initPWA();
   const game = new Game('game-canvas');
 
   const loadingScreen = document.getElementById('loading-screen');
@@ -398,6 +400,7 @@ window.addEventListener('DOMContentLoaded', () => {
     if (closeEncyclopediaBtn) {
       closeEncyclopediaBtn.innerHTML = newLang === 'zh' ? '关闭' : 'Close';
     }
+    
 
 
   };

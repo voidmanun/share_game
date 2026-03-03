@@ -9,6 +9,9 @@ export class Enemy extends Entity {
     public trappedInBubble: boolean = false;
     private floatDistance: number = 0;
     public antiHealTimer: number = 0;
+    public poisonTimer: number = 0;
+    public poisonDamage: number = 0;
+    public poisonTickTimer: number = 0;
     public charmed: boolean = false;
     public charmTimer: number = 0;
     public charmTarget: Enemy | null = null;
@@ -58,6 +61,15 @@ export class Enemy extends Entity {
 
     public update(deltaTime: number, game?: any): void {
         super.update(deltaTime);
+
+        if (this.poisonTimer > 0) {
+            this.poisonTimer -= deltaTime;
+            this.poisonTickTimer -= deltaTime;
+            if (this.poisonTickTimer <= 0) {
+                this.takeDamage(this.poisonDamage);
+                this.poisonTickTimer = 1.0; // 1 tick per second
+            }
+        }
 
         if (this.antiHealTimer > 0) {
             this.antiHealTimer -= deltaTime;
@@ -218,6 +230,22 @@ export class Enemy extends Entity {
             ctx.beginPath();
             ctx.arc(-this.radius * 0.5, -this.radius * 0.5, this.radius * 0.3, 0, Math.PI * 2);
             ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.fill();
+        }
+
+        // Draw poison effect
+        if (this.poisonTimer > 0) {
+            ctx.beginPath();
+            ctx.arc(0, 0, this.radius + 2, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(0, 255, 0, 0.8)'; // Green border indicating poison
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            
+            // Bubbles
+            ctx.fillStyle = 'rgba(0, 255, 0, 0.6)';
+            ctx.beginPath();
+            ctx.arc(10, -10, 3, 0, Math.PI * 2);
+            ctx.arc(-5, -15, 2, 0, Math.PI * 2);
             ctx.fill();
         }
 

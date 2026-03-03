@@ -1,0 +1,21 @@
+{
+  "name": "小马的游戏共创",
+  "short_name": "Game",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#8ced73",
+  "theme_color": "#8ced73",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/vite.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

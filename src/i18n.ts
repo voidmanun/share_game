@@ -17,6 +17,7 @@ export const translations = {
     upgradeHp: 'Upgrade Max HP (',
     hatchPet: 'Hatch Random Pet (',
     closeShop: 'Close (P)',
+    saveDesktop: 'Save to Desktop',
     gameOver: 'Game Over',
     score: 'Score: ',
     gold: ' Seconds',
@@ -110,6 +111,7 @@ export const translations = {
     upgradeHp: '升级最大生命 (',
     hatchPet: '孵化随机宠物 (',
     closeShop: '关闭 (P)',
+    saveDesktop: '保存到桌面',
     gameOver: '游戏结束',
     score: '得分: ',
     gold: ' 秒',
@@ -223,6 +225,7 @@ function updateUI() {
     statsPanelEnemies: document.querySelector('#stats-panel h3:nth-of-type(2)'),
     shopTitle: document.querySelector('#shop h2'),
     closeShop: document.getElementById('close-shop'),
+    
     gameOverTitle: document.querySelector('#game-over h2'),
     restartBtn: document.getElementById('restart-btn'),
     langBtn: document.getElementById('lang-btn'),
@@ -247,6 +250,7 @@ function updateUI() {
   if (elements.statsPanelEnemies) elements.statsPanelEnemies.textContent = t('enemies');
   if (elements.shopTitle) elements.shopTitle.textContent = t('shopTitle');
   if (elements.closeShop) elements.closeShop.textContent = t('closeShop');
+  
   if (elements.gameOverTitle) elements.gameOverTitle.textContent = t('gameOver');
   if (elements.restartBtn) elements.restartBtn.textContent = t('restartGame');
   if (elements.langBtn) elements.langBtn.textContent = t('lang');
