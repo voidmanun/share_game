@@ -257,6 +257,46 @@ window.addEventListener('DOMContentLoaded', () => {
       const soundOffText = newLang === 'zh' ? '🔇 声音: 关' : '🔇 Sound: OFF';
       muteBtn.textContent = game.soundManager.isMuted ? soundOffText : soundOnText;
     }
+
+    // Update shop title and close button
+    const shopTitle = document.querySelector('#shop h2');
+    if (shopTitle) {
+      shopTitle.textContent = newLang === 'zh' ? '商店' : 'Shop';
+    }
+    const closeShopBtn = document.getElementById('close-shop');
+    if (closeShopBtn) {
+      closeShopBtn.textContent = newLang === 'zh' ? '关闭 (P)' : 'Close (P)';
+    }
+    
+    // Update shop buy buttons
+    const buyDamage = document.getElementById('buy-damage');
+    const costDamage = document.getElementById('cost-damage')?.textContent || '20';
+    if (buyDamage) {
+      buyDamage.innerHTML = newLang === 'zh' 
+        ? `升级伤害 (<span id="cost-damage">${costDamage}</span>g)` 
+        : `Upgrade Damage (<span id="cost-damage">${costDamage}</span>g)`;
+    }
+    const buySpeed = document.getElementById('buy-speed');
+    const costSpeed = document.getElementById('cost-speed')?.textContent || '15';
+    if (buySpeed) {
+      buySpeed.innerHTML = newLang === 'zh' 
+        ? `升级速度 (<span id="cost-speed">${costSpeed}</span>g)` 
+        : `Upgrade Speed (<span id="cost-speed">${costSpeed}</span>g)`;
+    }
+    const buyHp = document.getElementById('buy-hp');
+    const costHp = document.getElementById('cost-hp')?.textContent || '15';
+    if (buyHp) {
+      buyHp.innerHTML = newLang === 'zh' 
+        ? `升级最大生命 (<span id="cost-hp">${costHp}</span>g)` 
+        : `Upgrade Max HP (<span id="cost-hp">${costHp}</span>g)`;
+    }
+    const buyPet = document.getElementById('buy-pet');
+    const costPet = document.getElementById('cost-pet')?.textContent || '50';
+    if (buyPet) {
+      buyPet.innerHTML = newLang === 'zh' 
+        ? `孵化随机宠物 (<span id="cost-pet">${costPet}</span>g)` 
+        : `Hatch Random Pet (<span id="cost-pet">${costPet}g)`;
+    }
     
     // Update leaderboard button text
     if (leaderboardBtn) {
