@@ -41,6 +41,73 @@ const leaderboardBtn = document.getElementById('leaderboard-btn');
   const closeSettingsBtn = document.getElementById('close-settings-btn');
   const mobileShopBtn = document.getElementById('mobile-shop-btn'); // the shop btn in settings
 
+function timeAgo(dateString: string, lang: string = 'zh'): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  
+  if (seconds < 60) return lang === 'zh' ? '刚刚' : 'Just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return lang === 'zh' ? `${minutes}分钟前` : `${minutes} mins ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return lang === 'zh' ? `${hours}小时前` : `${hours} hrs ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return lang === 'zh' ? `${days}天前` : `${days} days ago`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return lang === 'zh' ? `${months}个月前` : `${months} mos ago`;
+  const years = Math.floor(days / 365);
+  return lang === 'zh' ? `${years}年前` : `${years} yrs ago`;
+}
+
+if (changelogBtn) {
+  changelogBtn.addEventListener('click', async () => {
+    try {
+      const res = await fetch('/api/changelog');
+      const data = await res.json();
+      changelogList.innerHTML = '';
+      if (data && data.length > 0) {
+        data.forEach((log: any) => {
+          const div = document.createElement('div');
+          div.style.padding = '8px';
+          div.style.background = 'rgba(255, 255, 255, 0.1)';
+          div.style.borderRadius = '6px';
+          div.style.borderLeft = '4px solid #ffcc00';
+          
+          const timeSpan = document.createElement('div');
+          timeSpan.style.fontSize = '12px';
+          timeSpan.style.color = '#ccc';
+          timeSpan.style.marginBottom = '4px';
+          timeSpan.textContent = timeAgo(log.time, getLanguage());
+          
+          const msgSpan = document.createElement('div');
+          msgSpan.style.fontSize = '14px';
+          msgSpan.style.color = '#fff';
+          msgSpan.textContent = log.msg;
+          
+          div.appendChild(timeSpan);
+          div.appendChild(msgSpan);
+          changelogList.appendChild(div);
+        });
+      } else {
+        changelogList.innerHTML = '<div style="text-align: center; color: #ccc;">暂无中文版本记录</div>';
+      }
+      if (settingsModal) settingsModal.classList.add('hidden');
+      changelogModal.classList.remove('hidden');
+    } catch (e) {
+      console.error('Failed to load changelog', e);
+    }
+  });
+}
+
+if (closeChangelogBtn) {
+  closeChangelogBtn.addEventListener('click', () => {
+    changelogModal.classList.add('hidden');
+    if (settingsModal) settingsModal.classList.remove('hidden');
+  });
+}
+
+
+
   settingsBtn?.addEventListener('click', () => {
     if (settingsModal) settingsModal.classList.remove('hidden');
     game.pause();
@@ -357,71 +424,6 @@ const leaderboardBtn = document.getElementById('leaderboard-btn');
     
     // Update leaderboard button text
     
-function timeAgo(dateString: string, lang: string = 'zh'): string {
-  const date = new Date(dateString);
-  const now = new Date();
-  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-  
-  if (seconds < 60) return lang === 'zh' ? '刚刚' : 'Just now';
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) return lang === 'zh' ? `${minutes}分钟前` : `${minutes} mins ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return lang === 'zh' ? `${hours}小时前` : `${hours} hrs ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 30) return lang === 'zh' ? `${days}天前` : `${days} days ago`;
-  const months = Math.floor(days / 30);
-  if (months < 12) return lang === 'zh' ? `${months}个月前` : `${months} mos ago`;
-  const years = Math.floor(days / 365);
-  return lang === 'zh' ? `${years}年前` : `${years} yrs ago`;
-}
-
-if (changelogBtn) {
-  changelogBtn.addEventListener('click', async () => {
-    try {
-      const res = await fetch('/api/changelog');
-      const data = await res.json();
-      changelogList.innerHTML = '';
-      if (data && data.length > 0) {
-        data.forEach((log: any) => {
-          const div = document.createElement('div');
-          div.style.padding = '8px';
-          div.style.background = 'rgba(255, 255, 255, 0.1)';
-          div.style.borderRadius = '6px';
-          div.style.borderLeft = '4px solid #ffcc00';
-          
-          const timeSpan = document.createElement('div');
-          timeSpan.style.fontSize = '12px';
-          timeSpan.style.color = '#ccc';
-          timeSpan.style.marginBottom = '4px';
-          timeSpan.textContent = timeAgo(log.time, getLanguage());
-          
-          const msgSpan = document.createElement('div');
-          msgSpan.style.fontSize = '14px';
-          msgSpan.style.color = '#fff';
-          msgSpan.textContent = log.msg;
-          
-          div.appendChild(timeSpan);
-          div.appendChild(msgSpan);
-          changelogList.appendChild(div);
-        });
-      } else {
-        changelogList.innerHTML = '<div style="text-align: center; color: #ccc;">暂无中文版本记录</div>';
-      }
-      if (settingsModal) settingsModal.classList.add('hidden');
-      changelogModal.classList.remove('hidden');
-    } catch (e) {
-      console.error('Failed to load changelog', e);
-    }
-  });
-}
-
-if (closeChangelogBtn) {
-  closeChangelogBtn.addEventListener('click', () => {
-    changelogModal.classList.add('hidden');
-    if (settingsModal) settingsModal.classList.remove('hidden');
-  });
-}
-
 if (leaderboardBtn) {
       leaderboardBtn.innerHTML = newLang === 'zh' ? '🏆 排行榜' : '🏆 Leaderboard';
     }
