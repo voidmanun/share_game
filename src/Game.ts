@@ -43,6 +43,7 @@ import { SpeedyTurtle } from './entities/SpeedyTurtle';
 import { GrumpyPorcupine } from './entities/GrumpyPorcupine';
 import { BouncySlime } from './entities/BouncySlime';
 import { LuckyCat } from './entities/LuckyCat';
+import { HolyLightTurtle } from './entities/HolyLightTurtle';
 import { getLeaderboard, saveScore } from './leaderboard';
 
 export class Game {
@@ -79,6 +80,9 @@ export class Game {
         } else if (rand < 0.80) {
             this.pets.push(new BouncySlime(this.player, this));
             this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `Bouncy Slime Hatched!`, '#32CD32'));
+        } else if (rand < 0.90) {
+            this.pets.push(new HolyLightTurtle(this.player, this));
+            this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `Holy Light Turtle Hatched!`, '#FFD700'));
         } else {
             this.pets.push(new LuckyCat(this.player, this));
             this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `Lucky Cat Hatched!`, '#FFD700'));
@@ -155,6 +159,8 @@ export class Game {
                 this.pets.push(new GrumpyPorcupine(this.player, this));
             } else if (rand < 0.80) {
                 this.pets.push(new BouncySlime(this.player, this));
+            } else if (rand < 0.90) {
+                this.pets.push(new HolyLightTurtle(this.player, this));
             } else {
                 this.pets.push(new LuckyCat(this.player, this));
             }

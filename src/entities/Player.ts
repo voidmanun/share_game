@@ -15,6 +15,8 @@ export class Player extends Entity {
   private invincibilityTimer: number = 0;
   private originalRadius: number = 20;
   public speedMultiplier: number = 1.0;
+  public shieldHits: number = 0; // Shield can block X attacks
+  private maxShieldHits: number = 3;
 
   constructor(x: number, y: number, input: Input, worldWidth: number, worldHeight: number) {
     super(x, y, 20, '#FFFFFF'); // Paladin
@@ -25,10 +27,22 @@ export class Player extends Entity {
   }
 
   public takeDamage(amount: number): void {
+    if (this.shieldHits > 0) {
+      this.shieldHits--;
+      return; // Shield blocks the damage
+    }
     this.hp -= amount;
     if (this.hp <= 0) {
       this.isDead = true;
     }
+  }
+
+  public addShield(hits: number): void {
+    this.shieldHits = Math.min(this.shieldHits + hits, this.maxShieldHits);
+  }
+
+  public getShieldHits(): number {
+    return this.shieldHits;
   }
 
   public addWeapon(weapon: Weapon): void {
@@ -165,6 +179,15 @@ export class Player extends Entity {
     ctx.fillStyle = '#808080';
     ctx.fillRect(-8, 12, 6, 8 + legSwing);
     ctx.fillRect(2, 12, 6, 8 - legSwing);
+
+    // Draw shield aura if shield is active
+    if (this.shieldHits > 0) {
+      ctx.strokeStyle = `rgba(255, 215, 0, ${0.3 + this.shieldHits * 0.2})`; // Gold, more opaque with more hits
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(0, 0, this.radius + 8, 0, Math.PI * 2);
+      ctx.stroke();
+    }
 
     ctx.restore();
   }
