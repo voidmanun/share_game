@@ -148,7 +148,7 @@ export class Game {
         this.player = new Player(this.WORLD_WIDTH / 2, this.WORLD_HEIGHT / 2, this.input, this.WORLD_WIDTH, this.WORLD_HEIGHT);
         this.player.addWeapon(new MagicWand(this, this.player));
 
-        for (let i = 0; i < 2; i++) {
+        for (let i = 0; i < 4; i++) {
             const rand = Math.random();
             if (rand < 0.16) {
                 this.pets.push(new GreedyDog(this.player, this));
