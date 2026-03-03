@@ -30,6 +30,8 @@ export const translations = {
     leaderboardTitle: 'Leaderboard (Top 10)',
     enterName: 'Enter your name',
     saveScoreBtn: 'Save',
+    settingsTitle: 'Settings',
+    closeSettings: 'Close',
     // Enemies
     enemyBasic: 'Basic',
     enemyScout: 'Scout',
@@ -121,6 +123,8 @@ export const translations = {
     leaderboardTitle: '排行榜 (前10名)',
     enterName: '输入你的名字',
     saveScoreBtn: '保存',
+    settingsTitle: '设置',
+    closeSettings: '关闭',
     // Enemies
     enemyBasic: '普通怪',
     enemyScout: '侦察怪',
@@ -184,7 +188,7 @@ export const translations = {
   }
 };
 
-let currentLanguage: Language = 'en';
+let currentLanguage: Language = 'zh';
 
 export function getLanguage(): Language {
   return currentLanguage;
@@ -222,6 +226,12 @@ function updateUI() {
     gameOverTitle: document.querySelector('#game-over h2'),
     restartBtn: document.getElementById('restart-btn'),
     langBtn: document.getElementById('lang-btn'),
+    settingsTitle: document.getElementById('settings-title'),
+    closeSettingsBtn: document.getElementById('close-settings-btn'),
+    muteBtn: document.getElementById('mute-btn'),
+    leaderboardBtn: document.getElementById('leaderboard-btn'),
+    encyclopediaBtn: document.getElementById('encyclopedia-btn'),
+    desktopHint: document.getElementById('desktop-hint'),
   };
 
   if (elements.loadingText && elements.loadingText.textContent !== t('ready') && elements.loadingText.textContent !== translations['en']['ready'] && elements.loadingText.textContent !== translations['zh']['ready']) {
@@ -240,6 +250,11 @@ function updateUI() {
   if (elements.gameOverTitle) elements.gameOverTitle.textContent = t('gameOver');
   if (elements.restartBtn) elements.restartBtn.textContent = t('restartGame');
   if (elements.langBtn) elements.langBtn.textContent = t('lang');
+  if (elements.settingsTitle) elements.settingsTitle.textContent = '⚙️ ' + t('settingsTitle');
+  if (elements.closeSettingsBtn) elements.closeSettingsBtn.textContent = t('closeSettings');
+  if (elements.leaderboardBtn) elements.leaderboardBtn.textContent = '🏆 ' + t('leaderboardTitle').replace(' (Top 10)', '');
+  if (elements.encyclopediaBtn) elements.encyclopediaBtn.textContent = '📖 ' + t('encyclopedia');
+  if (elements.desktopHint) elements.desktopHint.textContent = t('instructionsDesktop');
 
   const leaderboardTitle = document.querySelector('#leaderboard-section h3');
   const playerNameInput = document.getElementById('player-name') as HTMLInputElement;
