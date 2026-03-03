@@ -462,3 +462,20 @@ button:disabled {
 #leaderboard-input-section input {
   pointer-events: auto;
 }
+
+/* Custom scrollbar for changelog and other modals */
+#changelog-list::-webkit-scrollbar, #encyclopedia-content::-webkit-scrollbar {
+  width: 12px;
+}
+#changelog-list::-webkit-scrollbar-track, #encyclopedia-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 6px;
+}
+#changelog-list::-webkit-scrollbar-thumb, #encyclopedia-content::-webkit-scrollbar-thumb {
+  background: #ffcc00;
+  border-radius: 6px;
+  border: 3px solid #000;
+}
+#changelog-list::-webkit-scrollbar-thumb:hover, #encyclopedia-content::-webkit-scrollbar-thumb:hover {
+  background: #ffe680;
+}

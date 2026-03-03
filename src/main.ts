@@ -29,6 +29,7 @@ window.addEventListener('DOMContentLoaded', () => {
 const changelogModal = document.getElementById('changelog-modal') as HTMLElement;
 const changelogList = document.getElementById('changelog-list') as HTMLElement;
 const closeChangelogBtn = document.getElementById('close-changelog-btn') as HTMLButtonElement;
+const closeChangelogX = document.getElementById('close-changelog-x') as HTMLButtonElement;
 
 const leaderboardBtn = document.getElementById('leaderboard-btn');
   const leaderboardModal = document.getElementById('leaderboard-modal');
@@ -101,6 +102,12 @@ if (changelogBtn) {
 
 if (closeChangelogBtn) {
   closeChangelogBtn.addEventListener('click', () => {
+    changelogModal.classList.add('hidden');
+    if (settingsModal) settingsModal.classList.remove('hidden');
+  });
+}
+if (closeChangelogX) {
+  closeChangelogX.addEventListener('click', () => {
     changelogModal.classList.add('hidden');
     if (settingsModal) settingsModal.classList.remove('hidden');
   });
