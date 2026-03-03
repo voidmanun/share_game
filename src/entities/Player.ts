@@ -17,6 +17,7 @@ export class Player extends Entity {
   public speedMultiplier: number = 1.0;
   public shieldHits: number = 0; // Shield can block X attacks
   private maxShieldHits: number = 3;
+  private mercyTimer: number = 0;
 
   constructor(x: number, y: number, input: Input, worldWidth: number, worldHeight: number) {
     super(x, y, 20, '#FFFFFF'); // Paladin
@@ -27,11 +28,15 @@ export class Player extends Entity {
   }
 
   public takeDamage(amount: number): void {
+    if (this.isInvincible || this.mercyTimer > 0) {
+      return;
+    }
     if (this.shieldHits > 0) {
       this.shieldHits--;
       return; // Shield blocks the damage
     }
     this.hp -= amount;
+    this.mercyTimer = 1.0; // 1 second mercy invincibility
     if (this.hp <= 0) {
       this.isDead = true;
     }
@@ -87,6 +92,10 @@ export class Player extends Entity {
       }
     }
 
+    if (this.mercyTimer > 0) {
+      this.mercyTimer -= deltaTime;
+    }
+
     // Constrain to world bounds
     this.x = Math.max(this.radius, Math.min(this.worldWidth - this.radius, this.x));
     this.y = Math.max(this.radius, Math.min(this.worldHeight - this.radius, this.y));
@@ -111,6 +120,10 @@ export class Player extends Entity {
 
     if (this.isInvincible) {
       ctx.scale(1.5, 1.5);
+    }
+
+    if (this.mercyTimer > 0 && Math.floor(Date.now() / 100) % 2 === 0) {
+      ctx.globalAlpha = 0.5;
     }
 
     // Paladin Render
