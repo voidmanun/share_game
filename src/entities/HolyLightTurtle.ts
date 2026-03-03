@@ -5,8 +5,8 @@ import { Game } from '../Game';
 export class HolyLightTurtle extends Pet {
     private healTimer: number = 0;
     private shieldTimer: number = 0;
-    private readonly HEAL_INTERVAL: number = 1; // Heal every 1 second
-    private readonly SHIELD_INTERVAL: number = 5; // Shield every 5 seconds
+    private readonly HEAL_INTERVAL: number = 10; // Heal every 10 seconds
+    private readonly SHIELD_INTERVAL: number = 10; // Shield every 10 seconds
     private readonly HEAL_AMOUNT: number = 1; // Small heal each second
     private readonly SHIELD_HITS: number = 3; // Shield blocks 3 attacks
 
