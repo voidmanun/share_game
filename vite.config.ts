@@ -17,6 +17,23 @@ export default defineConfig({
       ignored: ['**/*']
     }
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Split vendor dependencies into separate chunks
+          'vendor': ['vite']
+        }
+      }
+    },
+    // Enable compression
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true
+      }
+    }
+  },
   plugins: [{
     name: 'remove-vite-client',
     transformIndexHtml(html) {

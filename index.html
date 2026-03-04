@@ -4,6 +4,17 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <script>
+    // Load font asynchronously after page load
+    window.addEventListener('load', function() {
+      var link = document.createElement('link');
+      link.href = 'https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap';
+      link.rel = 'stylesheet';
+      document.head.appendChild(link);
+    });
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>小马的游戏共创</title>
   <style>
