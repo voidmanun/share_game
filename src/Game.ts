@@ -418,19 +418,20 @@ export class Game {
     public handleEnemyDeath(enemy: Enemy): void {
         const hpMult = 1 + (Math.floor(this.gameTime / 30) * 0.5);
 
-        if (enemy instanceof SlimeEnemy && enemy.generation < 3) {
-            const numSpawns = 4;
-            const radius = 20;
-            for (let i = 0; i < numSpawns; i++) {
-                const angle = (Math.PI * 2 / numSpawns) * i;
-                const sx = enemy.x + Math.cos(angle) * radius;
-                const sy = enemy.y + Math.sin(angle) * radius;
-                const newSlime = new SlimeEnemy(sx, sy, this.player, this, enemy.generation + 1);
-                newSlime.hp *= hpMult;
-                newSlime.maxHp = newSlime.hp;
-                this.enemies.push(newSlime);
-            }
-        }
+        // Slime splitting disabled
+        // if (enemy instanceof SlimeEnemy && enemy.generation < 3) {
+        //     const numSpawns = 4;
+        //     const radius = 20;
+        //     for (let i = 0; i < numSpawns; i++) {
+        //         const angle = (Math.PI * 2 / numSpawns) * i;
+        //         const sx = enemy.x + Math.cos(angle) * radius;
+        //         const sy = enemy.y + Math.sin(angle) * radius;
+        //         const newSlime = new SlimeEnemy(sx, sy, this.player, this, enemy.generation + 1);
+        //         newSlime.hp *= hpMult;
+        //         newSlime.maxHp = newSlime.hp;
+        //         this.enemies.push(newSlime);
+        //     }
+        // }
 
         if (enemy instanceof Splitter && !enemy.isSplitterling && !(enemy as any).isEvolved) {
             const numSpawns = 5;
