@@ -527,13 +527,11 @@ export class Game {
 
             if (dist < this.player.radius + enemy.radius) {
                 if (this.player.isInvincible) {
-                    // Invincible player instantly destroys enemy on touch
-                    enemy.takeDamage(9999);
-                    this.createExplosion(enemy.x, enemy.y, enemy.color);
-                    this.soundManager.playExplosionSound();
-
-                    // Simple pickup logic for instakill
-                    this.pickups.push(new Pickup(enemy.x, enemy.y, 1));
+                    // Invincible: no damage to player, no damage to enemy either
+                    // Just push enemy back
+                    const angle = Math.atan2(dy, dx);
+                    enemy.x -= Math.cos(angle) * 50;
+                    enemy.y -= Math.sin(angle) * 50;
                 } else {
                     const totalDamage = enemy.damage + Math.floor(this.gameTime / 60);
                     this.player.takeDamage(totalDamage);
