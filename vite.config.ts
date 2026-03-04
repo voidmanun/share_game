@@ -19,20 +19,19 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
+      external: ['fsevents'],
       output: {
         manualChunks: {
-          // Split vendor dependencies into separate chunks
+          // Split vendor and game logic for better caching
           'vendor': ['vite']
         }
       }
     },
-    // Enable compression
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true
-      }
-    }
+    // Enable minification
+    minify: 'esbuild',
+    // Enable CSS code splitting
+    cssCodeSplit: true,
+    chunkSizeWarningLimit: 500
   },
   plugins: [{
     name: 'remove-vite-client',

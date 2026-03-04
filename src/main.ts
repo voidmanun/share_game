@@ -503,11 +503,10 @@ if (leaderboardBtn) {
 
   langBtn?.addEventListener('click', handleLangToggle);
 
-  // Simulate asset loading
+  // Simulate asset loading - optimized for faster initial load
   let progress = 0;
-  // Speed up loading: from 100ms interval to 30ms interval
   const loadInterval = setInterval(() => {
-    progress += Math.random() * 25 + 15;
+    progress += Math.random() * 35 + 25;
     if (progress >= 100) {
       progress = 100;
       clearInterval(loadInterval);
@@ -522,11 +521,11 @@ if (leaderboardBtn) {
           startBtn.classList.remove('hidden');
           startBtn.style.pointerEvents = 'auto';
         }
-      }, 100);
+      }, 50);
     } else {
       if (loadingBar) loadingBar.style.width = `${progress}%`;
     }
-  }, 30);
+  }, 15);
 
   startBtn?.addEventListener('click', () => {
     if (loadingScreen) loadingScreen.style.display = 'none';
