@@ -3,23 +3,32 @@ import { Player } from './Player';
 
 export class Spirit extends Enemy {
     public maxHp: number;
+    private summonCount: number = 0;
+    private static MAX_SUMMONS = 8;
 
     constructor(x: number, y: number, player: Player) {
         super(x, y, player);
         this.radius = 12;
-        this.color = '#AAAAAA'; // Ghostly grey
+        this.color = '#AAAAAA';
         this.hp = 10;
         this.maxHp = 10;
         this.speed = 80;
         this.damage = 1;
+        this.summonCount = 0;
     }
 
-    public takeDamage(amount: number): void {
+    public takeDamage(amount: number, game?: any): void {
         this.hp -= amount;
         if (this.hp <= 0) {
-            if (Math.random() < 0.5) {
-                // 50% chance to revive
+            if (this.summonCount < Spirit.MAX_SUMMONS && game && game.enemies) {
+                this.summonCount++;
+                this.isDead = false;
                 this.hp = this.maxHp;
+                const gameRef = game as any;
+                const babySpirit = new Spirit(this.x, this.y, this.player);
+                babySpirit.hp = this.maxHp;
+                babySpirit.maxHp = this.maxHp;
+                gameRef.enemies.push(babySpirit);
             } else {
                 this.isDead = true;
             }

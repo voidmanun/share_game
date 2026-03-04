@@ -6,6 +6,7 @@ export class SlimeEnemy extends Enemy {
     public maxHp: number;
     private state: 'normal' | 'dashing' = 'normal';
     private stateTimer: number = 0;
+    private hasSplit: boolean = false;
 
     constructor(x: number, y: number, player: Player, _game: Game, _generation: number = 0) {
         super(x, y, player);
@@ -16,6 +17,28 @@ export class SlimeEnemy extends Enemy {
         this.maxHp = this.hp;
         this.speed = 40;
         this.damage = 2;
+        this.hasSplit = false;
+    }
+
+    public takeDamage(amount: number, game?: any): void {
+        this.hp -= amount;
+        if (this.hp <= 0 && !this.hasSplit) {
+            this.hasSplit = true;
+            this.isDead = false;
+            this.hp = this.maxHp;
+            if (game && game.enemies) {
+                const gameRef = game as any;
+                for (let i = 0; i < 3; i++) {
+                    const angle = (Math.PI * 2 / 3) * i;
+                    const sx = this.x + Math.cos(angle) * 30;
+                    const sy = this.y + Math.sin(angle) * 30;
+                    const split = new SlimeEnemy(sx, sy, this.player, gameRef, 1);
+                    gameRef.enemies.push(split);
+                }
+            }
+        } else if (this.hp <= 0) {
+            this.isDead = true;
+        }
     }
 
     public update(deltaTime: number, game?: any): void {
