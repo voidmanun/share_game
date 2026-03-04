@@ -355,16 +355,16 @@ export class Game {
             this.spawnFusionBoss();
         }
 
-        // Spawn twin elite
+        // Spawn twin elite (reduced frequency: every 120s instead of 60s)
         this.twinEliteSpawnTimer += deltaTime;
-        if (this.twinEliteSpawnTimer >= 30 && this.gameTime > 40) {
+        if (this.twinEliteSpawnTimer >= 120 && this.gameTime > 40) {
             this.twinEliteSpawnTimer = 0;
             this.spawnTwinElite();
         }
 
-        // Spawn devourer elite
+        // Spawn devourer elite (reduced frequency: every 160s instead of 80s)
         this.devourerSpawnTimer += deltaTime;
-        if (this.devourerSpawnTimer >= 40 && this.gameTime > 50) {
+        if (this.devourerSpawnTimer >= 160 && this.gameTime > 50) {
             this.devourerSpawnTimer = 0;
             this.spawnDevourerElite();
         }
@@ -417,21 +417,6 @@ export class Game {
 
     public handleEnemyDeath(enemy: Enemy): void {
         const hpMult = 1 + (Math.floor(this.gameTime / 30) * 0.5);
-
-        // Slime splitting disabled
-        // if (enemy instanceof SlimeEnemy && enemy.generation < 3) {
-        //     const numSpawns = 4;
-        //     const radius = 20;
-        //     for (let i = 0; i < numSpawns; i++) {
-        //         const angle = (Math.PI * 2 / numSpawns) * i;
-        //         const sx = enemy.x + Math.cos(angle) * radius;
-        //         const sy = enemy.y + Math.sin(angle) * radius;
-        //         const newSlime = new SlimeEnemy(sx, sy, this.player, this, enemy.generation + 1);
-        //         newSlime.hp *= hpMult;
-        //         newSlime.maxHp = newSlime.hp;
-        //         this.enemies.push(newSlime);
-        //     }
-        // }
 
         if (enemy instanceof Splitter && !enemy.isSplitterling && !(enemy as any).isEvolved) {
             const numSpawns = 5;
