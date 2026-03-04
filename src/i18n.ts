@@ -219,7 +219,7 @@ export function tEnemy(name: string): string {
   return (translations[currentLanguage] as any)[key] || name;
 }
 
-function updateUI() {
+export function updateUI() {
   const elements = {
     loadingText: document.querySelector('#loading-screen h1'),
     startBtn: document.getElementById('start-btn'),

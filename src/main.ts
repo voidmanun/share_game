@@ -1,8 +1,11 @@
 import './style.css'
 import { Game } from './Game'
-import { getLanguage, setLanguage, t } from './i18n';
+import { getLanguage, setLanguage, t, updateUI } from './i18n';
 import { getLeaderboard } from './leaderboard';
 import { initPWA } from './pwa';
+
+// Initialize language UI immediately on load
+updateUI();
 
 window.addEventListener('DOMContentLoaded', () => {
   initPWA();
