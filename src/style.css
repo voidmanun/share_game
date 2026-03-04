@@ -462,6 +462,12 @@ button:disabled {
   pointer-events: auto;
 }
 
+#changelog-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 /* Custom scrollbar for changelog and other modals */
 #changelog-list::-webkit-scrollbar, #encyclopedia-content::-webkit-scrollbar {
   width: 12px;
