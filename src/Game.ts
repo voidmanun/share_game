@@ -249,6 +249,7 @@ export class Game {
 
         // 2. Update Enemy Stats
         const hpMultiplier = 1 + (Math.floor(this.gameTime / 30) * 0.5);
+        const damageBonus = Math.floor(this.gameTime / 60);
 
         const enemyData = [
             { name: "Basic", hp: 6, dmg: 1 },
@@ -272,10 +273,11 @@ export class Game {
         let enemyHTML = '';
         enemyData.forEach(e => {
             const currentHP = (e.hp * hpMultiplier).toFixed(1);
+            const currentDMG = (e.dmg + damageBonus);
             enemyHTML += `
                 <div class="stat-row">
                     <span class="stat-label">${tEnemy(e.name)}:</span>
-                    <span class="stat-value">${currentHP} ${t('hp')} | ${e.dmg} ${t('atk')}</span>
+                    <span class="stat-value">${currentHP} ${t('hp')} | ${currentDMG} ${t('atk')}</span>
                 </div>
             `;
         });
@@ -547,7 +549,8 @@ export class Game {
                     // Simple pickup logic for instakill
                     this.pickups.push(new Pickup(enemy.x, enemy.y, 1));
                 } else {
-                    this.player.takeDamage(enemy.damage);
+                    const totalDamage = enemy.damage + Math.floor(this.gameTime / 60);
+                    this.player.takeDamage(totalDamage);
                     this.soundManager.playPlayerHitSound();
                     this.damageFlashTimer = 0.2; // Flash for 0.2s
 

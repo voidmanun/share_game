@@ -36,7 +36,7 @@ export class Player extends Entity {
       return; // Shield blocks the damage
     }
     this.hp -= amount;
-    this.mercyTimer = 1.0; // 1 second mercy invincibility
+    this.mercyTimer = 0.2; // 0.2 second mercy invincibility
     if (this.hp <= 0) {
       this.isDead = true;
     }
