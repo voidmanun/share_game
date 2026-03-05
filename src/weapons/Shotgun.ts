@@ -32,7 +32,7 @@ export class Shotgun extends Weapon {
             const vx = Math.cos(angle) * speed;
             const vy = Math.sin(angle) * speed;
 
-            const proj = new Projectile(this.owner.x, this.owner.y, vx, vy, this.damage);
+            const proj = new Projectile(this.owner.x, this.owner.y, vx, vy, this.totalDamage);
             proj.maxLife = 0.5; // Short range!
             proj.color = '#FFA500'; // Orange
             this.game.addProjectile(proj);

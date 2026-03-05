@@ -17,6 +17,10 @@ export abstract class Weapon {
         this.damage = damage;
     }
 
+    public get totalDamage(): number {
+        return this.damage * this.owner.damageMultiplier;
+    }
+
     public upgrade(): { damage: number, fireRate: number } {
         this.level++;
         const oldDamage = this.damage;
@@ -33,7 +37,8 @@ export abstract class Weapon {
         this.cooldown -= deltaTime;
         if (this.cooldown <= 0) {
             this.fire();
-            this.cooldown = this.fireRate;
+            // If attackSpeedMultiplier is 2.0, interval is halved
+            this.cooldown = this.fireRate / this.owner.attackSpeedMultiplier;
         }
     }
 

@@ -18,8 +18,8 @@ export interface CharacterSkill {
 
 export class Player extends Entity {
   private input: Input;
-  private baseSpeed: number = 50; // pixels per second
-  private speed: number = 50;
+  private baseSpeed: number = 80; // pixels per second
+  private speed: number = 80;
   public weapons: Weapon[] = [];
   public hp: number = 30; // Increased base HP to survive scaling
   public maxHp: number = 30;
@@ -34,16 +34,19 @@ export class Player extends Entity {
   private maxShieldHits: number = 3;
   private mercyTimer: number = 0;
   private skillTreeManager: SkillTreeManager | null = null;
-  
-  // Character class system
-  public characterClass: CharacterClass = 'knight';
+
+  // Class and Skill properties
+  public characterClass: CharacterClass;
   public skill: CharacterSkill;
   public damageMultiplier: number = 1.0;
-  private game: Game | null = null;
-  
-  // Warrior rage state
+  public attackSpeedMultiplier: number = 1.0;
+  public game: Game | null = null;
+
+  // Skill states
   public isRaging: boolean = false;
   private rageTimer: number = 0;
+  public isHasting: boolean = false;
+  private hasteTimer: number = 0;
 
   constructor(x: number, y: number, input: Input, worldWidth: number, worldHeight: number, characterClass: CharacterClass = 'knight') {
     super(x, y, 20, '#FFFFFF'); // Paladin
@@ -51,15 +54,15 @@ export class Player extends Entity {
     this.worldWidth = worldWidth;
     this.worldHeight = worldHeight;
     this.characterClass = characterClass;
-    
+
     // Initialize skill based on class
     this.skill = this.initSkill(characterClass);
-    
+
     // Apply class-specific base stats
     this.applyClassStats(characterClass);
     // Removed sprite loading to enforce geometric shape
   }
-  
+
   private initSkill(characterClass: CharacterClass): CharacterSkill {
     switch (characterClass) {
       case 'knight':
@@ -84,17 +87,17 @@ export class Player extends Entity {
         };
       case 'mage':
         return {
-          name: 'Shockwave',
-          nameZh: '冲击波',
-          cooldown: 30,
+          name: 'Haste',
+          nameZh: '急速',
+          cooldown: 15,
           currentCooldown: 0,
-          duration: 0.5,
+          duration: 5,
           isActive: false,
-          icon: '✨'
+          icon: '⚡'
         };
     }
   }
-  
+
   private applyClassStats(characterClass: CharacterClass): void {
     switch (characterClass) {
       case 'knight':
@@ -113,23 +116,23 @@ export class Player extends Entity {
         // Mage: less HP, faster speed
         this.maxHp = 25;
         this.hp = 25;
-        this.baseSpeed = 60;
-        this.speed = 60;
+        this.baseSpeed = 100;
+        this.speed = 100;
         this.color = '#9932CC'; // Purple
         break;
     }
   }
-  
+
   public setGame(game: Game): void {
     this.game = game;
   }
 
   public useSkill(): void {
     if (this.skill.currentCooldown > 0 || this.skill.isActive) return;
-    
+
     this.skill.isActive = true;
     this.skill.currentCooldown = this.skill.cooldown;
-    
+
     switch (this.characterClass) {
       case 'knight':
         // Knight: 2 seconds invincibility
@@ -142,12 +145,10 @@ export class Player extends Entity {
         this.rageTimer = this.skill.duration;
         break;
       case 'mage':
-        // Mage: Shockwave - damage nearby enemies
-        if (this.game) {
-          this.game.castShockwave(this.x, this.y, 8); // 8 damage like base magic wand
-        }
-        // Shockwave is instant, end immediately
-        this.skill.isActive = false;
+        // Mage: Haste - double attack speed
+        this.isHasting = true;
+        this.attackSpeedMultiplier = 2.0;
+        this.hasteTimer = this.skill.duration;
         break;
     }
   }
@@ -162,10 +163,10 @@ export class Player extends Entity {
     if (!this.skillTreeManager) return;
 
     const bonuses = this.skillTreeManager.getSkillBonuses();
-    
+
     const speedBonus = bonuses.get('speed') || 0;
     this.speed = this.baseSpeed * (1 + speedBonus / 100);
-    
+
     const healthBonus = bonuses.get('health') || 0;
     const oldMaxHp = this.maxHp;
     this.maxHp = 30 + Math.floor(healthBonus);
@@ -201,7 +202,7 @@ export class Player extends Entity {
   public getShieldHits(): number {
     return this.shieldHits;
   }
-  
+
   public getSpeed(): number {
     return this.speed;
   }
@@ -258,6 +259,16 @@ export class Player extends Entity {
       if (this.rageTimer <= 0) {
         this.isRaging = false;
         this.damageMultiplier = 1.0;
+        this.skill.isActive = false;
+      }
+    }
+
+    // Mage haste timer
+    if (this.isHasting) {
+      this.hasteTimer -= deltaTime;
+      if (this.hasteTimer <= 0) {
+        this.isHasting = false;
+        this.attackSpeedMultiplier = 1.0;
         this.skill.isActive = false;
       }
     }
@@ -335,7 +346,7 @@ export class Player extends Entity {
       ctx.beginPath();
       ctx.arc(0, 0, this.radius + 12, 0, Math.PI * 2);
       ctx.stroke();
-      
+
       ctx.strokeStyle = 'rgba(255, 100, 0, 0.4)';
       ctx.lineWidth = 3;
       ctx.beginPath();
@@ -343,9 +354,26 @@ export class Player extends Entity {
       ctx.stroke();
     }
 
+    // Draw haste aura for mage
+    if (this.isHasting) {
+      ctx.strokeStyle = 'rgba(153, 50, 204, 0.6)';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(0, 0, this.radius + 12, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.arc(0, 0, this.radius + 18, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
     ctx.restore();
   }
-  
+
   private renderKnight(ctx: CanvasRenderingContext2D): void {
     ctx.lineWidth = 2;
     ctx.strokeStyle = '#333';
@@ -408,13 +436,13 @@ export class Player extends Entity {
     const { x, y } = this.input.getAxis();
     const time = Date.now() / 150;
     const legSwing = (x !== 0 || y !== 0) ? Math.sin(time) * 5 : 0;
-    
+
     // Legs
     ctx.fillStyle = '#808080';
     ctx.fillRect(-8, 12, 6, 8 + legSwing);
     ctx.fillRect(2, 12, 6, 8 - legSwing);
   }
-  
+
   private renderWarrior(ctx: CanvasRenderingContext2D): void {
     ctx.lineWidth = 2;
     ctx.strokeStyle = '#333';
@@ -448,7 +476,7 @@ export class Player extends Entity {
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
-    
+
     ctx.beginPath();
     ctx.moveTo(8, -14);
     ctx.lineTo(12, -22);
@@ -485,13 +513,13 @@ export class Player extends Entity {
     const { x, y } = this.input.getAxis();
     const time = Date.now() / 150;
     const legSwing = (x !== 0 || y !== 0) ? Math.sin(time) * 5 : 0;
-    
+
     // Legs
     ctx.fillStyle = '#4a0000';
     ctx.fillRect(-8, 10, 6, 8 + legSwing);
     ctx.fillRect(2, 10, 6, 8 - legSwing);
   }
-  
+
   private renderMage(ctx: CanvasRenderingContext2D): void {
     ctx.lineWidth = 2;
     ctx.strokeStyle = '#333';
@@ -529,7 +557,7 @@ export class Player extends Entity {
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
-    
+
     // Star on hat
     ctx.fillStyle = '#FFD700';
     ctx.beginPath();
@@ -559,7 +587,7 @@ export class Player extends Entity {
     const { x, y } = this.input.getAxis();
     const time = Date.now() / 150;
     const legSwing = (x !== 0 || y !== 0) ? Math.sin(time) * 3 : 0;
-    
+
     // Feet
     ctx.fillStyle = '#2E0854';
     ctx.fillRect(-8, 14, 5, 4 + legSwing);

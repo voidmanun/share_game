@@ -120,8 +120,8 @@ export class Game {
     // private background: HTMLImageElement; // Removed image background
 
     private stars: { x: number; y: number; size: number; alpha: number }[] = [];
-    private backgroundLeaderboard: {name: string, score: number}[] = [];
-    
+    private backgroundLeaderboard: { name: string, score: number }[] = [];
+
     // Selected character class
     public selectedCharacterClass: CharacterClass = 'knight';
 
@@ -596,12 +596,12 @@ export class Game {
                             const name = nameInput.value.trim() || 'Anonymous';
                             this.hasSavedScore = true;
                             inputSection.classList.add('hidden');
-                            
+
                             // Show loading
                             if (listEl) {
                                 listEl.innerHTML = '<li>Saving...</li>';
                             }
-                            
+
                             saveScore(name, currentScore).then(newBoard => {
                                 this.backgroundLeaderboard = newBoard.slice(0, 10);
                                 this.updateLeaderboard();
@@ -767,12 +767,12 @@ export class Game {
 
         for (const enemy of this.enemies) {
             // Skip bosses and elites
-            if (enemy instanceof Boss || enemy instanceof FusionBoss || 
-                enemy instanceof TitanEnemy || enemy instanceof TwinElite || 
+            if (enemy instanceof Boss || enemy instanceof FusionBoss ||
+                enemy instanceof TitanEnemy || enemy instanceof TwinElite ||
                 enemy instanceof DevourerElite || enemy instanceof Necromancer) {
                 continue;
             }
-            
+
             if (enemy.hp > maxHp) {
                 maxHp = enemy.hp;
                 strongest = enemy;
@@ -787,43 +787,13 @@ export class Game {
             this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `没有目标!`, '#FF69B4'));
         }
     }
-    
-    public castShockwave(x: number, y: number, damage: number): void {
-        // Shockwave damages all enemies within a radius, expanding outward
-        const maxRadius = 300;
-        const numWaves = 3;
-        
-        for (let wave = 0; wave < numWaves; wave++) {
-            const waveRadius = (maxRadius / numWaves) * (wave + 1);
-            
-            for (const enemy of this.enemies) {
-                const dx = enemy.x - x;
-                const dy = enemy.y - y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                
-                if (dist <= waveRadius && dist > (wave * maxRadius / numWaves)) {
-                    enemy.takeDamage(damage);
-                    if (enemy.isDead) {
-                        this.handleEnemyDeath(enemy);
-                    }
-                }
-            }
-        }
-        
-        // Create visual particles for shockwave
-        for (let i = 0; i < 30; i++) {
-            const angle = (Math.PI * 2 / 30) * i;
-            const particle = new Particle(x + Math.cos(angle) * 20, y + Math.sin(angle) * 20, '#9932CC');
-            this.particles.push(particle);
-        }
-        
-        // Create floating text
-        this.floatingTexts.push(new FloatingText(x, y - 40, `SHOCKWAVE!`, '#9932CC'));
-        this.soundManager.playExplosionSound();
-    }
+
 
     public createExplosion(x: number, y: number, color: string): void {
-        for (let i = 0; i < 15; i++) {
+        // Limit total active particles to avoid lag
+        if (this.particles.length > 300) return;
+
+        for (let i = 0; i < 8; i++) { // Reduced from 15 to 8 for performance during AOE
             this.particles.push(new Particle(x, y, color));
         }
     }
@@ -842,7 +812,7 @@ export class Game {
         const hpMultiplier = 1 + (Math.floor(this.gameTime / 30) * 0.5);
         let newEnemy: Enemy;
 
-if (this.gameTime > 60) {
+        if (this.gameTime > 60) {
             // 60s+: Tank(10%), Charger(10%), Teleporter(10%), Splitter(10%), Swarm(15%), Scout(10%), Slime(10%), Star(10%), Basic(15%)
             if (rand < 0.10) {
                 newEnemy = new TankEnemy(x, y, this.player);
@@ -929,7 +899,7 @@ if (this.gameTime > 60) {
         this.enemies.push(titan);
     }
 
-    
+
     private spawnFusionBoss(): void {
         const angle = Math.random() * Math.PI * 2;
         const radius = Math.max(this.canvas.width, this.canvas.height) / 2 + 50;
@@ -943,8 +913,8 @@ if (this.gameTime > 60) {
         boss.maxHp = boss.hp;
         this.enemies.push(boss);
     }
-    
-private spawnTwinElite(): void {
+
+    private spawnTwinElite(): void {
         const angle = Math.random() * Math.PI * 2;
         const radius = Math.max(this.canvas.width, this.canvas.height) / 2 + 50;
         const x1 = this.player.x + Math.cos(angle) * radius;
@@ -954,16 +924,16 @@ private spawnTwinElite(): void {
 
         const hpMultiplier = 1 + (Math.floor(this.gameTime / 30) * 0.5);
         console.log(`Spawning Twin Elites with HP Multiplier: ${hpMultiplier}`);
-        
+
         const lightTwin = new TwinElite(x1, y1, this.player, this, 'light');
         const darkTwin = new TwinElite(x2, y2, this.player, this, 'dark');
-        
+
         lightTwin.hp *= hpMultiplier;
         darkTwin.hp *= hpMultiplier;
-        
+
         lightTwin.sibling = darkTwin;
         darkTwin.sibling = lightTwin;
-        
+
         this.enemies.push(lightTwin, darkTwin);
     }
 
@@ -1002,12 +972,12 @@ private spawnTwinElite(): void {
             this.ctx.font = 'bold 48px "Fredoka One", cursive, monospace';
             this.ctx.textAlign = 'left';
             this.ctx.textBaseline = 'middle';
-            
+
             const centerX = this.WORLD_WIDTH / 2 - 200; // Offset for left align
             const centerY = this.WORLD_HEIGHT / 2;
 
             this.ctx.fillText(t('leaderboardTitle'), centerX, centerY - 250);
-            
+
             this.ctx.font = '36px "Fredoka One", cursive, monospace';
             this.backgroundLeaderboard.forEach((entry, i) => {
                 this.ctx.fillText(`${i + 1}. ${entry.name} - ${entry.score}`, centerX, centerY - 180 + i * 45);

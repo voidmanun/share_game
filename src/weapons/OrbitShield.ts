@@ -124,7 +124,7 @@ export class OrbitShield extends Weapon {
                 i * angleStep,
                 this.orbitRadius,
                 this.rotationSpeed,
-                this.damage
+                this.totalDamage
             ));
         }
     }

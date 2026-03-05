@@ -15,11 +15,11 @@ export class MagicWand extends Weapon {
         const dx = target.x - this.owner.x;
         const dy = target.y - this.owner.y;
         const baseAngle = Math.atan2(dy, dx);
-        
+
         const speed = 150;
         const vx = Math.cos(baseAngle) * speed;
         const vy = Math.sin(baseAngle) * speed;
-        this.game.addProjectile(new Projectile(this.owner.x, this.owner.y, vx, vy, this.damage));
+        this.game.addProjectile(new Projectile(this.owner.x, this.owner.y, vx, vy, this.totalDamage));
 
         this.game.soundManager.playShootSound();
     }

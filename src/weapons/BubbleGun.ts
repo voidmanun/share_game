@@ -59,7 +59,7 @@ export class BubbleGun extends Weapon {
                 this.owner.y,
                 pDirX,
                 pDirY,
-                this.damage
+                this.totalDamage
             ));
         }
     }

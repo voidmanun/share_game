@@ -19,14 +19,14 @@ export class FreezeGun extends Weapon {
 
     protected fire(): void {
         const target = this.game.getNearestEnemy(this.owner.x, this.owner.y);
-        
+
         if (target) {
             const angle = Math.atan2(target.y - this.owner.y, target.x - this.owner.x);
             const speed = 450;
             const vx = Math.cos(angle) * speed;
             const vy = Math.sin(angle) * speed;
 
-            const proj = new FreezeProjectile(this.owner.x, this.owner.y, vx, vy, this.damage);
+            const proj = new FreezeProjectile(this.owner.x, this.owner.y, vx, vy, this.totalDamage);
             proj.color = '#00FFFF'; // Cyan for freeze
             this.game.addProjectile(proj);
             this.game.soundManager.playShootSound();

@@ -23,7 +23,7 @@ export class MissileWeapon extends Weapon {
         const vx = Math.cos(angle) * initialSpeed;
         const vy = Math.sin(angle) * initialSpeed;
 
-        this.game.addProjectile(new Missile(this.owner.x, this.owner.y, vx, vy, this.damage, this.game));
+        this.game.addProjectile(new Missile(this.owner.x, this.owner.y, vx, vy, this.totalDamage, this.game));
         this.game.soundManager.playShootSound(); // Reusing shoot sound for now
     }
 }

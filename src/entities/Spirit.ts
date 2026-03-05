@@ -21,11 +21,12 @@ export class Spirit extends Enemy {
         this.hp -= amount;
         if (this.hp <= 0) {
             if (this.summonCount < Spirit.MAX_SUMMONS && game && game.enemies) {
-                this.summonCount++;
-                this.isDead = false;
-                this.hp = this.maxHp;
+                // To prevent exponential growth during shockwaves:
+                // Spawning a child means the parent MUST die.
+                this.isDead = true;
                 const gameRef = game as any;
                 const babySpirit = new Spirit(this.x, this.y, this.player);
+                babySpirit.summonCount = this.summonCount + 1; // Increment generation
                 babySpirit.hp = this.maxHp;
                 babySpirit.maxHp = this.maxHp;
                 gameRef.enemies.push(babySpirit);
@@ -51,7 +52,7 @@ export class Spirit extends Enemy {
         ctx.lineTo(-this.radius * 0.5, this.radius * 0.5);
         ctx.lineTo(-this.radius, this.radius);
         ctx.closePath();
-        
+
         ctx.fill();
         ctx.strokeStyle = '#FFFFFF';
         ctx.lineWidth = 1;

@@ -88,7 +88,7 @@ export class Laser extends Weapon {
 
             // Laser width check (radius of enemy + laser thickness/2)
             if (dist < enemy.radius + (this.width / 2)) {
-                enemy.takeDamage(this.damage * deltaTime * 10);
+                enemy.takeDamage(this.totalDamage * deltaTime * 10);
                 if (enemy.isDead) {
                     this.game.handleEnemyDeath(enemy);
                 }

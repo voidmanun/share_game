@@ -8,7 +8,7 @@ export class SlimeEnemy extends Enemy {
     private stateTimer: number = 0;
     private hasSplit: boolean = false;
 
-    constructor(x: number, y: number, player: Player, _game: Game, _generation: number = 0) {
+    constructor(x: number, y: number, player: Player, _game: Game, generation: number = 0) {
         super(x, y, player);
 
         this.radius = 24;
@@ -17,7 +17,7 @@ export class SlimeEnemy extends Enemy {
         this.maxHp = this.hp;
         this.speed = 40;
         this.damage = 2;
-        this.hasSplit = false;
+        this.hasSplit = generation > 0;
     }
 
     public takeDamage(amount: number, game?: any): void {
@@ -43,7 +43,7 @@ export class SlimeEnemy extends Enemy {
 
     public update(deltaTime: number, game?: any): void {
         super.update(deltaTime, game);
-        
+
         if (this.trappedInBubble) return;
 
         this.stateTimer -= deltaTime;

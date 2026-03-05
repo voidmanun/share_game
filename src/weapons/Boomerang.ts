@@ -27,10 +27,10 @@ class BoomerangProjectile extends Entity {
 
     public update(deltaTime: number): void {
         this.lifeTimer += deltaTime;
-        
+
         // Flight phase: 0 to 40% outward, 40% to 100% return to player
         const phase = this.lifeTimer / this.maxLife;
-        
+
         if (phase < 0.4) {
             // Slow down going out
             const speedMult = Math.max(0, 1 - (phase / 0.4));
@@ -41,12 +41,12 @@ class BoomerangProjectile extends Entity {
                 this.returning = true;
                 this.hasHitEnemy.clear(); // Can hit again on the way back
             }
-            
+
             // Accelerate back towards player
             const dx = this.owner.x - this.x;
             const dy = this.owner.y - this.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
-            
+
             if (dist > 20) {
                 // Homing return
                 const returnSpeed = this.initialSpeed * ((phase - 0.4) / 0.6) * 1.5;
@@ -82,10 +82,10 @@ class BoomerangProjectile extends Entity {
         ctx.lineTo(0, -12);
         ctx.lineTo(4, -4);
         ctx.closePath();
-        
+
         ctx.fillStyle = this.color;
         ctx.fill();
-        
+
         ctx.lineWidth = 2;
         ctx.strokeStyle = '#696969';
         ctx.stroke();
@@ -110,7 +110,7 @@ export class Boomerang extends Weapon {
         for (let i = this.activeBoomerangs.length - 1; i >= 0; i--) {
             const b = this.activeBoomerangs[i];
             b.update(deltaTime);
-            
+
             // Check collisions
             const enemies = this.game.getEnemies();
             for (const enemy of enemies) {
@@ -121,11 +121,11 @@ export class Boomerang extends Weapon {
                 const dist = Math.sqrt(dx * dx + dy * dy);
 
                 if (dist < enemy.radius + b.radius) {
-                    enemy.takeDamage(this.damage);
+                    enemy.takeDamage(this.totalDamage);
                     b.hasHitEnemy.add(enemy); // Pierce through, only hit once per direction
                     // Small particle effect
                     this.game.createExplosion(enemy.x, enemy.y, '#A9A9A9');
-                    
+
                     if (enemy.isDead) {
                         this.game.handleEnemyDeath(enemy);
                     }
@@ -160,8 +160,8 @@ export class Boomerang extends Weapon {
         // Add boomerang based on weapon level (more boomerangs at higher levels?)
         // For level 1, just 1. Let's make it shoot 1 normally, level up increases damage
         // But let's add a slight spread for higher levels: 
-        const numProjectiles = Math.min(3, 1 + Math.floor(this.level / 3)); 
-        
+        const numProjectiles = Math.min(3, 1 + Math.floor(this.level / 3));
+
         for (let i = 0; i < numProjectiles; i++) {
             // angle spread if multiple
             let angle = Math.atan2(vy, vx);
@@ -172,15 +172,15 @@ export class Boomerang extends Weapon {
             const finalVy = Math.sin(angle) * this.speed;
 
             this.activeBoomerangs.push(new BoomerangProjectile(
-                this.owner.x, 
-                this.owner.y, 
-                finalVx, 
-                finalVy, 
-                this.damage, 
+                this.owner.x,
+                this.owner.y,
+                finalVx,
+                finalVy,
+                this.totalDamage,
                 this.owner
             ));
         }
-        
+
         this.game.soundManager.playShootSound();
     }
 }
