@@ -123,6 +123,21 @@ export class EliteRewardSystem {
                 this.game.resume();
             }
         });
+
+        // Keyboard selection
+        window.addEventListener('keydown', this.handleKeyDown.bind(this));
+    }
+
+    private handleKeyDown(e: KeyboardEvent): void {
+        if (!this.isShowing) return;
+        
+        if (e.code === 'Digit1' || e.code === 'Numpad1') {
+            this.selectReward(0);
+        } else if (e.code === 'Digit2' || e.code === 'Numpad2') {
+            this.selectReward(1);
+        } else if (e.code === 'Digit3' || e.code === 'Numpad3') {
+            this.selectReward(2);
+        }
     }
 
     public show(): void {
