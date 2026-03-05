@@ -47,7 +47,6 @@ import { GrumpyPorcupine } from './entities/GrumpyPorcupine';
 import { BouncySlime } from './entities/BouncySlime';
 import { LuckyCat } from './entities/LuckyCat';
 import { HolyLightTurtle } from './entities/HolyLightTurtle';
-import { Chest } from './entities/Chest';
 import { getLeaderboard, saveScore } from './leaderboard';
 import { EliteRewardSystem } from './systems/EliteRewardSystem';
 
@@ -105,7 +104,6 @@ export class Game {
     public getEnemies(): Enemy[] { return this.enemies; }
     private projectiles: Projectile[] = [];
     private pickups: (Pickup | WeaponPickup | HealthPickup | LollipopPickup | PetEggPickup | CharmPotionPickup)[] = [];
-    private chests: Chest[] = [];
     public particles: Particle[] = [];
     public floatingTexts: FloatingText[] = [];
 
@@ -129,7 +127,6 @@ export class Game {
     public shop!: Shop;
     public eliteRewardSystem!: EliteRewardSystem;
     private isPaused: boolean = false;
-    // private background: HTMLImageElement; // Removed image background
 
     private stars: { x: number; y: number; size: number; alpha: number }[] = [];
     private backgroundLeaderboard: { name: string, score: number }[] = [];
@@ -141,7 +138,6 @@ export class Game {
         this.enemies = [];
         this.projectiles = [];
         this.pickups = [];
-        this.chests = [];
         this.particles = [];
         this.floatingTexts = [];
         this.pets = [];
@@ -213,12 +209,10 @@ export class Game {
         }
         this.ctx = ctx;
 
-        this.ctx = ctx;
-
         this.weaponStatsEl = document.getElementById('weapon-stats');
         this.enemyStatsEl = document.getElementById('enemy-stats');
 
-        // Generate Stars
+        // Generate Stars (used for grass patches)
         for (let i = 0; i < 2000; i++) {
             this.stars.push({
                 x: Math.random() * this.WORLD_WIDTH,
@@ -227,9 +221,6 @@ export class Game {
                 alpha: Math.random()
             });
         }
-
-        // this.background = new Image();
-        // this.background.src = '/assets/background.png';
 
         this.soundManager = new SoundManager();
 
@@ -346,78 +337,59 @@ export class Game {
         this.spawnTimer += deltaTime;
         if (this.spawnTimer >= this.spawnInterval) {
             this.spawnTimer = 0;
-            // Spawn 1 extra enemy every 60 seconds linearly scaling, cap at 3
             const spawnCount = Math.min(3, 1 + Math.floor(this.gameTime / 60));
             for (let i = 0; i < spawnCount; i++) {
                 this.spawnEnemy();
             }
         }
 
-        // Spawn boss
+        // Spawn bosses
         this.bossSpawnTimer += deltaTime;
         if (this.bossSpawnTimer >= 15) {
             this.bossSpawnTimer = 0;
             this.spawnBoss();
         }
 
-        // Spawn titan
         this.titanSpawnTimer += deltaTime;
         if (this.titanSpawnTimer >= 45 && this.gameTime > 60) {
             this.titanSpawnTimer = 0;
             this.spawnTitan();
         }
 
-        // Spawn fusion boss
         this.fusionBossSpawnTimer += deltaTime;
         if (this.fusionBossSpawnTimer >= 50 && this.gameTime > 80) {
             this.fusionBossSpawnTimer = 0;
             this.spawnFusionBoss();
         }
 
-        // Spawn twin elite (reduced frequency: every 120s instead of 60s)
         this.twinEliteSpawnTimer += deltaTime;
         if (this.twinEliteSpawnTimer >= 120 && this.gameTime > 40) {
             this.twinEliteSpawnTimer = 0;
             this.spawnTwinElite();
         }
 
-        // Spawn devourer elite (reduced frequency: every 160s instead of 80s)
         this.devourerSpawnTimer += deltaTime;
         if (this.devourerSpawnTimer >= 160 && this.gameTime > 50) {
             this.devourerSpawnTimer = 0;
             this.spawnDevourerElite();
         }
 
-        // Update enemies
         this.enemies.forEach(enemy => enemy.update(deltaTime));
-
-        // Update projectiles
         this.projectiles.forEach(p => p.update(deltaTime));
 
-        // Collision Detection
         this.checkCollisions();
-
-        // Check Collections
         this.checkCollections();
 
-        // Cleanup dead entities
         this.enemies = this.enemies.filter(e => !e.isDead);
         this.projectiles = this.projectiles.filter(p => !p.isDead);
         this.pickups = this.pickups.filter(p => !p.isDead);
-        this.chests = this.chests.filter(c => !c.isDead);
 
-        // Update chests
-        this.chests.forEach(c => c.update(deltaTime));
-
-        // Update particles
         this.particles.forEach(p => p.update(deltaTime));
         this.particles = this.particles.filter(p => !p.isDead);
 
-        // Update floating texts
         this.floatingTexts.forEach(t => t.update(deltaTime));
         this.floatingTexts = this.floatingTexts.filter(t => !t.isDead);
 
-        // Update pets
         this.pets.forEach(p => p.update(deltaTime));
         this.pets = this.pets.filter(p => !p.isDead);
 
@@ -457,59 +429,32 @@ export class Game {
 
         this.pickups.push(new Pickup(enemy.x, enemy.y, 1));
 
-        // Boss drops are always the newer, rarer weapons
-        const weaponTypes = ['Magic Wand', 'Laser', 'Missile Launcher', 'Shotgun', 'Orbit Shield', 'Bubble Gun', 'Boomerang', 'Splitter Gun', 'Poison Gun', 'Freeze Gun'];
-        const bossWeaponTypes = ['Missile Launcher', 'Shotgun', 'Orbit Shield', 'Bubble Gun', 'Boomerang', 'Splitter Gun', 'Poison Gun', 'Freeze Gun'];
+        if (enemy instanceof Boss || enemy instanceof TitanEnemy || enemy instanceof FusionBoss) {
+            this.pause();
+            this.eliteRewardSystem.show();
 
-        if (enemy instanceof Boss) {
-            // Boss drops treasure chest (pick 1 of 3)
-            const offset = 50;
-            const rewards: Array<{type: string, value: number | string}> = [
-                {type: 'health', value: 30},
-                {type: 'speed', value: 0.15},
-                {type: 'damage', value: 0.2},
-                {type: 'attackSpeed', value: 0.15},
-                {type: 'maxHp', value: 20},
-                {type: 'gold', value: 50},
-                {type: 'shield', value: 5}
-            ];
-            
-            // Pick 3 random rewards for the chests
-            const shuffled = rewards.sort(() => Math.random() - 0.5).slice(0, 3);
-            
-            this.chests.push(new Chest(enemy.x - offset, enemy.y, this, shuffled[0].type as any, shuffled[0].value as number));
-            this.chests.push(new Chest(enemy.x, enemy.y, this, shuffled[1].type as any, shuffled[1].value as number));
-            this.chests.push(new Chest(enemy.x + offset, enemy.y, this, shuffled[2].type as any, shuffled[2].value as number));
-            
-            this.floatingTexts.push(new FloatingText(enemy.x, enemy.y - 60, `宝箱掉落！三选一`, '#FFD700'));
+            let deathMsg = "精英强化！三选一";
+            if (enemy instanceof Boss) deathMsg = "Boss 陨落！强化三选一";
+            else if (enemy instanceof TitanEnemy) deathMsg = "泰坦 陨落！强化三选一";
+            else if (enemy instanceof FusionBoss) deathMsg = "融合体 陨落！强化三选一";
+
+            this.floatingTexts.push(new FloatingText(enemy.x, enemy.y - 60, deathMsg, '#FFD700'));
         } else if (enemy instanceof TwinElite) {
-            // Twin Elite: only trigger reward when both twins are dead
             const twin = enemy as TwinElite;
             const siblingAlive = twin.sibling && !twin.sibling.isDead;
-            
             if (!siblingAlive) {
-                // Both twins dead - trigger reward selection
                 this.pause();
                 this.eliteRewardSystem.show();
                 this.floatingTexts.push(new FloatingText(enemy.x, enemy.y - 60, `双子陨落！强化三选一`, '#FF4500'));
             } else {
-                // Only one twin dead - normal drop
                 this.floatingTexts.push(new FloatingText(enemy.x, enemy.y - 60, `一个双子逃走了！`, '#FF69B4'));
             }
         } else if (enemy instanceof DevourerElite) {
-            // Devourer Elite triggers reward selection UI
             this.pause();
             this.eliteRewardSystem.show();
             this.floatingTexts.push(new FloatingText(enemy.x, enemy.y - 60, `精英强化！三选一`, '#FF4500'));
-        } else if (enemy instanceof TitanEnemy || enemy instanceof FusionBoss) {
-            const type = bossWeaponTypes[Math.floor(Math.random() * bossWeaponTypes.length)];
-            this.pickups.push(new WeaponPickup(enemy.x, enemy.y, type));
-            if (enemy instanceof TitanEnemy) {
-                // Titan drops extra health
-                this.pickups.push(new HealthPickup(enemy.x + 10, enemy.y + 10, 10));
-            }
         } else {
-            // 5% chance for weapon, 2% chance for health, 0.1% for Lollipop, 5% for Charm Potion
+            const weaponTypes = ['Magic Wand', 'Laser', 'Missile Launcher', 'Shotgun', 'Orbit Shield', 'Bubble Gun', 'Boomerang', 'Splitter Gun', 'Poison Gun', 'Freeze Gun'];
             const dropRand = Math.random();
             if (dropRand < 0.001) {
                 this.pickups.push(new LollipopPickup(enemy.x, enemy.y));
@@ -517,7 +462,7 @@ export class Game {
                 const type = weaponTypes[Math.floor(Math.random() * weaponTypes.length)];
                 this.pickups.push(new WeaponPickup(enemy.x, enemy.y, type));
             } else if (dropRand < 0.08) {
-                this.pickups.push(new HealthPickup(enemy.x, enemy.y, 5)); // Heals 5 HP
+                this.pickups.push(new HealthPickup(enemy.x, enemy.y, 5));
             } else if (dropRand < 0.13) {
                 this.pickups.push(new CharmPotionPickup(enemy.x, enemy.y));
             }
@@ -528,10 +473,7 @@ export class Game {
     }
 
     private checkCollisions(): void {
-        // If player is invincible, projectiles deal no damage
-        if (this.player.isInvincible) {
-            return;
-        }
+        if (this.player.isInvincible) return;
 
         for (const projectile of this.projectiles) {
             for (const enemy of this.enemies) {
@@ -540,55 +482,39 @@ export class Game {
                 const dist = Math.sqrt(dx * dx + dy * dy);
 
                 if (dist < projectile.radius + enemy.radius) {
-                    if ((projectile as any).hitEnemies && (projectile as any).hitEnemies.has(enemy)) {
-                        continue;
-                    }
+                    if ((projectile as any).hitEnemies && (projectile as any).hitEnemies.has(enemy)) continue;
 
                     if (projectile instanceof BubbleProjectile) {
-                        // Bubble logic: trap enemy instead of raw damage
                         if (!enemy.trappedInBubble && !(enemy instanceof Boss) && !(enemy instanceof FusionBoss)) {
                             enemy.trappedInBubble = true;
                             projectile.isDead = true;
-                            this.soundManager.playExplosionSound(); // maybe a soft pop sound ideally
+                            this.soundManager.playExplosionSound();
                         } else {
-                            // Bosses are immune to bubbles, just pop bubble
                             projectile.isDead = true;
                         }
                     } else {
                         enemy.takeDamage(projectile.damage);
-                        if ((projectile as any).hitEnemies) {
-                            (projectile as any).hitEnemies.add(enemy);
-                        }
+                        if ((projectile as any).hitEnemies) (projectile as any).hitEnemies.add(enemy);
 
-                        if (typeof (projectile as any).onHit === 'function') {
-                            (projectile as any).onHit(enemy);
-                        }
+                        if (typeof (projectile as any).onHit === 'function') (projectile as any).onHit(enemy);
 
                         if (enemy.isDead) {
                             this.handleEnemyDeath(enemy);
-                            if (typeof (projectile as any).onKill === 'function') {
-                                (projectile as any).onKill(enemy);
-                            }
+                            if (typeof (projectile as any).onKill === 'function') (projectile as any).onKill(enemy);
                         }
 
                         if (typeof (projectile as any).penetration === 'number') {
                             (projectile as any).penetration--;
-                            if ((projectile as any).penetration <= 0) {
-                                projectile.isDead = true;
-                            }
+                            if ((projectile as any).penetration <= 0) projectile.isDead = true;
                         } else {
                             projectile.isDead = true;
                         }
                     }
-
-                    if (projectile.isDead) {
-                        break;
-                    }
+                    if (projectile.isDead) break;
                 }
             }
         }
 
-        // Enemy touches Player
         for (const enemy of this.enemies) {
             const dx = this.player.x - enemy.x;
             const dy = this.player.y - enemy.y;
@@ -596,8 +522,6 @@ export class Game {
 
             if (dist < this.player.radius + enemy.radius) {
                 if (this.player.isInvincible) {
-                    // Invincible: no damage to player, no damage to enemy either
-                    // Just push enemy back
                     const angle = Math.atan2(dy, dx);
                     enemy.x -= Math.cos(angle) * 50;
                     enemy.y -= Math.sin(angle) * 50;
@@ -605,31 +529,22 @@ export class Game {
                     const totalDamage = enemy.damage + Math.floor(this.gameTime / 60);
                     this.player.takeDamage(totalDamage);
                     this.soundManager.playPlayerHitSound();
-                    this.damageFlashTimer = 0.2; // Flash for 0.2s
-
-                    // Push enemy back to avoid instant death
+                    this.damageFlashTimer = 0.2;
                     const angle = Math.atan2(dy, dx);
                     enemy.x -= Math.cos(angle) * 50;
                     enemy.y -= Math.sin(angle) * 50;
-
-                    if (this.player.isDead) {
-                        this.gameOver();
-                    }
+                    if (this.player.isDead) this.gameOver();
                 }
             }
         }
     }
 
     private updateLeaderboard(): void {
-        // Show loading state temporarily
         const listEl = document.getElementById('leaderboard-list');
-        if (listEl) {
-            listEl.innerHTML = '<li>Loading...</li>';
-        }
+        if (listEl) listEl.innerHTML = '<li>Loading...</li>';
 
         getLeaderboard().then(leaderboard => {
             this.backgroundLeaderboard = leaderboard.slice(0, 10);
-
             if (listEl) {
                 listEl.innerHTML = '';
                 for (let i = 0; i < Math.min(10, leaderboard.length); i++) {
@@ -641,7 +556,6 @@ export class Game {
 
             const inputSection = document.getElementById('leaderboard-input-section');
             if (inputSection) {
-                // Check if top 10
                 const currentScore = Math.floor(this.gameTime);
                 if (!this.hasSavedScore && (leaderboard.length < 10 || currentScore > (leaderboard[9]?.score || 0))) {
                     inputSection.classList.remove('hidden');
@@ -650,17 +564,11 @@ export class Game {
                     if (saveBtn && nameInput) {
                         const newBtn = saveBtn.cloneNode(true);
                         saveBtn.parentNode?.replaceChild(newBtn, saveBtn);
-
                         newBtn.addEventListener('click', () => {
                             const name = nameInput.value.trim() || 'Anonymous';
                             this.hasSavedScore = true;
                             inputSection.classList.add('hidden');
-
-                            // Show loading
-                            if (listEl) {
-                                listEl.innerHTML = '<li>Saving...</li>';
-                            }
-
+                            if (listEl) listEl.innerHTML = '<li>Saving...</li>';
                             saveScore(name, currentScore).then(newBoard => {
                                 this.backgroundLeaderboard = newBoard.slice(0, 10);
                                 this.updateLeaderboard();
@@ -684,18 +592,9 @@ export class Game {
             scoreEl.textContent = Math.floor(this.gameTime).toString();
             gameOverEl.classList.remove('hidden');
             this.updateLeaderboard();
-
-            restartBtn.onclick = () => {
-                this.initializeGame();
-                this.resume();
-            };
-            restartBtn.ontouchstart = (e) => {
-                e.preventDefault();
-                this.initializeGame();
-                this.resume();
-            };
+            restartBtn.onclick = () => { this.initializeGame(); this.resume(); };
+            restartBtn.ontouchstart = (e) => { e.preventDefault(); this.initializeGame(); this.resume(); };
         } else {
-            // Fallback
             alert(`Game Over! Score: ${Math.floor(this.gameTime)}`);
             this.initializeGame();
             this.resume();
@@ -705,17 +604,13 @@ export class Game {
     private checkCollections(): void {
         for (const pickup of this.pickups) {
             let collected = false;
-
-            // Check player collision
             const dx = this.player.x - pickup.x;
             const dy = this.player.y - pickup.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
 
-            // Collection radius slightly larger than player
             if (dist < this.player.radius + pickup.radius + 10) {
                 collected = true;
             } else {
-                // Check GreedyDog collision
                 for (const pet of this.pets) {
                     if (pet instanceof GreedyDog) {
                         const pdx = pet.x - pickup.x;
@@ -735,11 +630,8 @@ export class Game {
                     this.soundManager.playPickupSound();
                 } else if (pickup instanceof HealthPickup) {
                     const healed = this.player.heal(pickup.healAmount);
-                    if (healed > 0) {
-                        this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 20, `+${healed} HP`, '#00FF00'));
-                    } else {
-                        this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 20, `MAX HP`, '#00FF00'));
-                    }
+                    if (healed > 0) this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 20, `+${healed} HP`, '#00FF00'));
+                    else this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 20, `MAX HP`, '#00FF00'));
                     this.soundManager.playPickupSound();
                 } else if (pickup instanceof LollipopPickup) {
                     this.player.becomeInvincible(10);
@@ -758,27 +650,10 @@ export class Game {
                 pickup.isDead = true;
             }
         }
-
-        // Handle chest selection - player picks one chest and all disappear
-        for (const chest of this.chests) {
-            const dx = this.player.x - chest.x;
-            const dy = this.player.y - chest.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-
-            if (dist < this.player.radius + chest.radius + 10) {
-                chest.select();
-                this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 50, `获得强化！`, '#FFD700'));
-                this.soundManager.playPickupSound();
-                // Remove all chests after selection
-                this.chests.forEach(c => c.isDead = true);
-                break;
-            }
-        }
     }
 
     private handleWeaponPickup(pickup: WeaponPickup): void {
         const type = pickup.weaponType;
-
         let newWeapon;
         if (type === 'Laser') newWeapon = new Laser(this, this.player);
         else if (type === 'Missile Launcher') newWeapon = new MissileWeapon(this, this.player);
@@ -792,7 +667,6 @@ export class Game {
         else newWeapon = new MagicWand(this, this.player);
 
         const existingWeapon = this.player.weapons.find(w => w.name === newWeapon.name);
-
         if (existingWeapon) {
             if (existingWeapon.level < 10) {
                 const stats = existingWeapon.upgrade();
@@ -803,7 +677,6 @@ export class Game {
         } else {
             this.player.addWeapon(newWeapon);
             this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 20, `New: ${type}!`, '#00FFFF'));
-            console.log(`Picked up new weapon: ${type}`);
         }
     }
 
@@ -811,140 +684,81 @@ export class Game {
         this.projectiles.push(projectile);
     }
 
-    public addPickup(pickup: Pickup | WeaponPickup | HealthPickup | LollipopPickup | PetEggPickup | CharmPotionPickup): void {
+    public addPickup(pickup: any): void {
         this.pickups.push(pickup);
     }
 
-    public getPickups(): (Pickup | WeaponPickup | HealthPickup | LollipopPickup | PetEggPickup | CharmPotionPickup)[] {
+    public getPickups(): any[] {
         return this.pickups;
     }
 
     public getNearestEnemy(x: number, y: number): Enemy | null {
         let nearest: Enemy | null = null;
         let minDist = Infinity;
-
         for (const enemy of this.enemies) {
             const dx = enemy.x - x;
             const dy = enemy.y - y;
             const dist = dx * dx + dy * dy;
-            if (dist < minDist) {
-                minDist = dist;
-                nearest = enemy;
-            }
+            if (dist < minDist) { minDist = dist; nearest = enemy; }
         }
         return nearest;
     }
 
-    public applyCharmPotion(): void {
-        // Find strongest non-boss, non-elite enemy
+    private applyCharmPotion(): void {
         let strongest: Enemy | null = null;
         let maxHp = 0;
-
         for (const enemy of this.enemies) {
-            // Skip bosses and elites
-            if (enemy instanceof Boss || enemy instanceof FusionBoss ||
-                enemy instanceof TitanEnemy || enemy instanceof TwinElite ||
-                enemy instanceof DevourerElite || enemy instanceof Necromancer) {
-                continue;
-            }
-
-            if (enemy.hp > maxHp) {
-                maxHp = enemy.hp;
-                strongest = enemy;
-            }
+            if (enemy instanceof Boss || enemy instanceof FusionBoss || enemy instanceof TitanEnemy ||
+                enemy instanceof TwinElite || enemy instanceof DevourerElite || enemy instanceof Necromancer) continue;
+            if (enemy.hp > maxHp) { maxHp = enemy.hp; strongest = enemy; }
         }
-
         if (strongest) {
-            strongest.applyCharm(20); // 20 seconds duration
+            strongest.applyCharm(20);
             this.floatingTexts.push(new FloatingText(strongest.x, strongest.y - 30, `CHARMED!`, '#FF69B4'));
-            this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `魅惑药水!`, '#FF69B4'));
-        } else {
-            this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `没有目标!`, '#FF69B4'));
         }
     }
 
-
     public createExplosion(x: number, y: number, color: string): void {
-        // Limit total active particles to avoid lag
         if (this.particles.length > 300) return;
-
-        for (let i = 0; i < 8; i++) { // Reduced from 15 to 8 for performance during AOE
-            this.particles.push(new Particle(x, y, color));
-        }
+        for (let i = 0; i < 8; i++) this.particles.push(new Particle(x, y, color));
     }
 
     private spawnEnemy(): void {
-        // Spawn distance: outside of screen
         const angle = Math.random() * Math.PI * 2;
         const radius = Math.max(this.canvas.width, this.canvas.height) / 2 + 50;
         const x = this.player.x + Math.cos(angle) * radius;
         const y = this.player.y + Math.sin(angle) * radius;
-
-        // Dynamic spawn pool based on gameTime
         const rand = Math.random();
-
-        // High HP scaling: +50% HP per 30 seconds
         const hpMultiplier = 1 + (Math.floor(this.gameTime / 30) * 0.5);
         let newEnemy: Enemy;
 
         if (this.gameTime > 60) {
-            // 60s+: Tank(10%), Charger(10%), Teleporter(10%), Splitter(10%), Swarm(15%), Scout(10%), Slime(10%), Star(10%), Basic(15%)
-            if (rand < 0.10) {
-                newEnemy = new TankEnemy(x, y, this.player);
-            } else if (rand < 0.20) {
-                newEnemy = new Charger(x, y, this.player, this);
-            } else if (rand < 0.30) {
-                newEnemy = new Teleporter(x, y, this.player, this);
-            } else if (rand < 0.40) {
-                newEnemy = new Splitter(x, y, this.player);
-            } else if (rand < 0.50) {
-                newEnemy = new SlimeEnemy(x, y, this.player, this, 0);
-            } else if (rand < 0.60) {
-                newEnemy = new SwarmEnemy(x, y, this.player, this);
-            } else if (rand < 0.70) {
-                newEnemy = new Scout(x, y, this.player);
-            } else if (rand < 0.80) {
-                newEnemy = new StarEnemy(x, y, this.player);
-            } else if (rand < 0.90) {
-                newEnemy = new Necromancer(x, y, this.player, this);
-            } else {
-                newEnemy = new Enemy(x, y, this.player);
-            }
+            if (rand < 0.10) newEnemy = new TankEnemy(x, y, this.player);
+            else if (rand < 0.20) newEnemy = new Charger(x, y, this.player, this);
+            else if (rand < 0.30) newEnemy = new Teleporter(x, y, this.player, this);
+            else if (rand < 0.40) newEnemy = new Splitter(x, y, this.player);
+            else if (rand < 0.50) newEnemy = new SlimeEnemy(x, y, this.player, this, 0);
+            else if (rand < 0.60) newEnemy = new SwarmEnemy(x, y, this.player, this);
+            else if (rand < 0.70) newEnemy = new Scout(x, y, this.player);
+            else if (rand < 0.80) newEnemy = new StarEnemy(x, y, this.player);
+            else if (rand < 0.90) newEnemy = new Necromancer(x, y, this.player, this);
+            else newEnemy = new Enemy(x, y, this.player);
         } else if (this.gameTime > 30) {
-            // 30s-60s: Splitter(15%), Charger(10%), Teleporter(10%), Slime(10%), Swarm(20%), Scout(20%), Star(10%), Basic(5%)
-            if (rand < 0.15) {
-                newEnemy = new Splitter(x, y, this.player);
-            } else if (rand < 0.25) {
-                newEnemy = new Charger(x, y, this.player, this);
-            } else if (rand < 0.35) {
-                newEnemy = new Teleporter(x, y, this.player, this);
-            } else if (rand < 0.45) {
-                newEnemy = new SlimeEnemy(x, y, this.player, this, 0);
-            } else if (rand < 0.65) {
-                newEnemy = new SwarmEnemy(x, y, this.player, this);
-            } else if (rand < 0.85) {
-                newEnemy = new Scout(x, y, this.player);
-            } else if (rand < 0.95) {
-                newEnemy = new StarEnemy(x, y, this.player);
-            } else {
-                newEnemy = new Enemy(x, y, this.player);
-            }
+            if (rand < 0.15) newEnemy = new Splitter(x, y, this.player);
+            else if (rand < 0.25) newEnemy = new Charger(x, y, this.player, this);
+            else if (rand < 0.35) newEnemy = new Teleporter(x, y, this.player, this);
+            else if (rand < 0.45) newEnemy = new SlimeEnemy(x, y, this.player, this, 0);
+            else if (rand < 0.65) newEnemy = new SwarmEnemy(x, y, this.player, this);
+            else if (rand < 0.85) newEnemy = new Scout(x, y, this.player);
+            else if (rand < 0.95) newEnemy = new StarEnemy(x, y, this.player);
+            else newEnemy = new Enemy(x, y, this.player);
         } else {
-            // 0-30s: Scout (30%), Star (10%), Basic (60%)
-            if (rand < 0.3) {
-                newEnemy = new Scout(x, y, this.player);
-            } else if (rand < 0.4) {
-                newEnemy = new StarEnemy(x, y, this.player);
-            } else {
-                newEnemy = new Enemy(x, y, this.player);
-            }
+            if (rand < 0.3) newEnemy = new Scout(x, y, this.player);
+            else if (rand < 0.4) newEnemy = new StarEnemy(x, y, this.player);
+            else newEnemy = new Enemy(x, y, this.player);
         }
-
-        // Apply HP multiplier
         newEnemy.hp *= hpMultiplier;
-        if ((newEnemy as any).maxHp !== undefined) {
-            (newEnemy as any).maxHp = newEnemy.hp;
-        }
+        if ((newEnemy as any).maxHp !== undefined) (newEnemy as any).maxHp = newEnemy.hp;
         this.enemies.push(newEnemy);
     }
 
@@ -953,9 +767,7 @@ export class Game {
         const radius = Math.max(this.canvas.width, this.canvas.height) / 2 + 50;
         const x = this.player.x + Math.cos(angle) * radius;
         const y = this.player.y + Math.sin(angle) * radius;
-
         const hpMultiplier = 1 + (Math.floor(this.gameTime / 30) * 0.5);
-        console.log(`Spawning Boss with HP Multiplier: ${hpMultiplier}`);
         const boss = new Boss(x, y, this.player);
         boss.hp *= hpMultiplier;
         this.enemies.push(boss);
@@ -966,23 +778,18 @@ export class Game {
         const radius = Math.max(this.canvas.width, this.canvas.height) / 2 + 50;
         const x = this.player.x + Math.cos(angle) * radius;
         const y = this.player.y + Math.sin(angle) * radius;
-
         const hpMultiplier = 1 + (Math.floor(this.gameTime / 30) * 0.5);
-        console.log(`Spawning Titan with HP Multiplier: ${hpMultiplier}`);
         const titan = new TitanEnemy(x, y, this.player);
         titan.hp *= hpMultiplier;
         this.enemies.push(titan);
     }
-
 
     private spawnFusionBoss(): void {
         const angle = Math.random() * Math.PI * 2;
         const radius = Math.max(this.canvas.width, this.canvas.height) / 2 + 50;
         const x = this.player.x + Math.cos(angle) * radius;
         const y = this.player.y + Math.sin(angle) * radius;
-
         const hpMultiplier = 1 + (Math.floor(this.gameTime / 30) * 0.5);
-        console.log(`Spawning Fusion Boss with HP Multiplier: ${hpMultiplier}`);
         const boss = new FusionBoss(x, y, this.player);
         boss.hp *= hpMultiplier;
         boss.maxHp = boss.hp;
@@ -994,21 +801,11 @@ export class Game {
         const radius = Math.max(this.canvas.width, this.canvas.height) / 2 + 50;
         const x1 = this.player.x + Math.cos(angle) * radius;
         const y1 = this.player.y + Math.sin(angle) * radius;
-        const x2 = x1 + 40;
-        const y2 = y1 + 40;
-
-        const hpMultiplier = 1 + (Math.floor(this.gameTime / 30) * 0.5);
-        console.log(`Spawning Twin Elites with HP Multiplier: ${hpMultiplier}`);
-
         const lightTwin = new TwinElite(x1, y1, this.player, this, 'light');
-        const darkTwin = new TwinElite(x2, y2, this.player, this, 'dark');
-
-        lightTwin.hp *= hpMultiplier;
-        darkTwin.hp *= hpMultiplier;
-
-        lightTwin.sibling = darkTwin;
-        darkTwin.sibling = lightTwin;
-
+        const darkTwin = new TwinElite(x1 + 40, y1 + 40, this.player, this, 'dark');
+        const hpMultiplier = 1 + (Math.floor(this.gameTime / 30) * 0.5);
+        lightTwin.hp *= hpMultiplier; darkTwin.hp *= hpMultiplier;
+        lightTwin.sibling = darkTwin; darkTwin.sibling = lightTwin;
         this.enemies.push(lightTwin, darkTwin);
     }
 
@@ -1017,42 +814,28 @@ export class Game {
         const radius = Math.max(this.canvas.width, this.canvas.height) / 2 + 50;
         const x = this.player.x + Math.cos(angle) * radius;
         const y = this.player.y + Math.sin(angle) * radius;
-
         const hpMultiplier = 1 + (Math.floor(this.gameTime / 30) * 0.5);
-        console.log(`Spawning Devourer Elite with HP Multiplier: ${hpMultiplier}`);
         const devourer = new DevourerElite(x, y, this.player, this);
         devourer.hp *= hpMultiplier;
         this.enemies.push(devourer);
     }
 
     private render(): void {
-        // Clear screen with cartoon grass green
         this.ctx.fillStyle = '#8ced73';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        // Camera follow logic
         const camX = this.player.x - this.canvas.width / 2;
         const camY = this.player.y - this.canvas.height / 2;
-
         this.ctx.save();
         this.ctx.translate(-camX, -camY);
-
-        // Render Grid
         this.drawGrid(camX, camY);
 
-        // Draw Leaderboard on Background (Fixed World Coordinate)
         if (this.backgroundLeaderboard.length > 0) {
             this.ctx.save();
-            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.4)'; // Lower transparency, more visible
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
             this.ctx.font = 'bold 48px "Fredoka One", cursive, monospace';
-            this.ctx.textAlign = 'left';
-            this.ctx.textBaseline = 'middle';
-
-            const centerX = this.WORLD_WIDTH / 2 - 200; // Offset for left align
+            const centerX = this.WORLD_WIDTH / 2 - 200;
             const centerY = this.WORLD_HEIGHT / 2;
-
             this.ctx.fillText(t('leaderboardTitle'), centerX, centerY - 250);
-
             this.ctx.font = '36px "Fredoka One", cursive, monospace';
             this.backgroundLeaderboard.forEach((entry, i) => {
                 this.ctx.fillText(`${i + 1}. ${entry.name} - ${entry.score}`, centerX, centerY - 180 + i * 45);
@@ -1060,84 +843,51 @@ export class Game {
             this.ctx.restore();
         }
 
-        // Render pickups
         this.pickups.forEach(p => p.render(this.ctx));
-
-        // Render chests
-        this.chests.forEach(c => c.render(this.ctx));
-
-        // Render enemies
         this.enemies.forEach(enemy => enemy.render(this.ctx));
-
-        // Render projectiles
         this.projectiles.forEach(p => p.render(this.ctx));
-
-        // Render particles
         this.particles.forEach(p => p.render(this.ctx));
-
-        // Render game objects
         this.pets.forEach(p => p.render(this.ctx));
         this.player.render(this.ctx);
-
-        // Render floating texts on top
         this.floatingTexts.forEach(t => t.render(this.ctx));
-
         this.ctx.restore();
 
-        // Damage Flash
         if (this.damageFlashTimer > 0) {
-            this.ctx.fillStyle = `rgba(255, 0, 0, ${this.damageFlashTimer * 2})`; // Fade out
+            this.ctx.fillStyle = `rgba(255, 0, 0, ${this.damageFlashTimer * 2})`;
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         }
 
-        // Debug info (Top Right)
         const debugX = this.canvas.width - 20;
         this.ctx.textAlign = 'right';
         this.ctx.fillStyle = 'white';
         this.ctx.strokeStyle = 'black';
         this.ctx.lineWidth = 4;
         this.ctx.font = '18px "Fredoka One", cursive, monospace';
-
-        let displayMin = Math.floor(this.gameTime / 60);
-        let displaySec = Math.floor(this.gameTime % 60);
-        let timeString = `${displayMin.toString().padStart(2, '0')}:${displaySec.toString().padStart(2, '0')}`;
-
+        let timeString = `${Math.floor(this.gameTime / 60).toString().padStart(2, '0')}:${Math.floor(this.gameTime % 60).toString().padStart(2, '0')}`;
         this.ctx.strokeText(`Time: ${timeString}`, debugX, 30);
         this.ctx.fillText(`Time: ${timeString}`, debugX, 30);
         this.ctx.strokeText(`Pos: ${Math.round(this.player.x)}, ${Math.round(this.player.y)}`, debugX, 55);
         this.ctx.fillText(`Pos: ${Math.round(this.player.x)}, ${Math.round(this.player.y)}`, debugX, 55);
         this.ctx.strokeText(`Enemies: ${this.enemies.length}`, debugX, 80);
         this.ctx.fillText(`Enemies: ${this.enemies.length}`, debugX, 80);
-        // this.ctx.fillText(`Gold: ${this.gold}`, debugX, 100); // Redundant, shown in HUD
-        this.ctx.textAlign = 'left'; // Reset alignment
+        this.ctx.textAlign = 'left';
     }
 
     private drawGrid(camX: number, camY: number): void {
         this.ctx.save();
-        // Draw grass patches instead of stars
-        const viewX = camX;
-        const viewY = camY;
-        const viewW = this.canvas.width;
-        const viewH = this.canvas.height;
-
-        this.ctx.fillStyle = '#65c44f'; // Darker green for grass details
+        this.ctx.fillStyle = '#65c44f';
         for (const star of this.stars) {
-            // Simple culling
-            if (star.x >= viewX && star.x <= viewX + viewW &&
-                star.y >= viewY && star.y <= viewY + viewH) {
-
-                this.ctx.globalAlpha = star.alpha * 0.5 + 0.5; // More visible
+            if (star.x >= camX && star.x <= camX + this.canvas.width && star.y >= camY && star.y <= camY + this.canvas.height) {
+                this.ctx.globalAlpha = star.alpha * 0.5 + 0.5;
                 this.ctx.beginPath();
                 this.ctx.ellipse(star.x, star.y, star.size * 3, star.size * 1.5, 0, 0, Math.PI * 2);
                 this.ctx.fill();
             }
         }
         this.ctx.restore();
-
-        // Draw World Border
         this.ctx.save();
-        this.ctx.strokeStyle = '#52993d'; // Dark green cartoon border
-        this.ctx.lineWidth = 15; // Thick border
+        this.ctx.strokeStyle = '#52993d';
+        this.ctx.lineWidth = 15;
         this.ctx.strokeRect(0, 0, this.WORLD_WIDTH, this.WORLD_HEIGHT);
         this.ctx.restore();
     }
