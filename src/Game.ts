@@ -464,6 +464,11 @@ export class Game {
     }
 
     private checkCollisions(): void {
+        // If player is invincible, projectiles deal no damage
+        if (this.player.isInvincible) {
+            return;
+        }
+
         for (const projectile of this.projectiles) {
             for (const enemy of this.enemies) {
                 const dx = projectile.x - enemy.x;
