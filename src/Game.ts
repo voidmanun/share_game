@@ -49,6 +49,7 @@ import { LuckyCat } from './entities/LuckyCat';
 import { HolyLightTurtle } from './entities/HolyLightTurtle';
 import { Chest } from './entities/Chest';
 import { getLeaderboard, saveScore } from './leaderboard';
+import { EliteRewardSystem } from './systems/EliteRewardSystem';
 
 export class Game {
     private canvas: HTMLCanvasElement;
@@ -126,6 +127,7 @@ export class Game {
     public hasSavedScore: boolean = false;
 
     public shop!: Shop;
+    public eliteRewardSystem!: EliteRewardSystem;
     private isPaused: boolean = false;
     // private background: HTMLImageElement; // Removed image background
 
@@ -232,6 +234,7 @@ export class Game {
         this.soundManager = new SoundManager();
 
         this.shop = new Shop(this);
+        this.eliteRewardSystem = new EliteRewardSystem(this);
         this.initializeGame();
 
         this.resize();
@@ -479,6 +482,25 @@ export class Game {
             this.chests.push(new Chest(enemy.x + offset, enemy.y, this, shuffled[2].type as any, shuffled[2].value as number));
             
             this.floatingTexts.push(new FloatingText(enemy.x, enemy.y - 60, `宝箱掉落！三选一`, '#FFD700'));
+        } else if (enemy instanceof TwinElite) {
+            // Twin Elite: only trigger reward when both twins are dead
+            const twin = enemy as TwinElite;
+            const siblingAlive = twin.sibling && !twin.sibling.isDead;
+            
+            if (!siblingAlive) {
+                // Both twins dead - trigger reward selection
+                this.pause();
+                this.eliteRewardSystem.show();
+                this.floatingTexts.push(new FloatingText(enemy.x, enemy.y - 60, `双子陨落！强化三选一`, '#FF4500'));
+            } else {
+                // Only one twin dead - normal drop
+                this.floatingTexts.push(new FloatingText(enemy.x, enemy.y - 60, `一个双子逃走了！`, '#FF69B4'));
+            }
+        } else if (enemy instanceof DevourerElite) {
+            // Devourer Elite triggers reward selection UI
+            this.pause();
+            this.eliteRewardSystem.show();
+            this.floatingTexts.push(new FloatingText(enemy.x, enemy.y - 60, `精英强化！三选一`, '#FF4500'));
         } else if (enemy instanceof TitanEnemy || enemy instanceof FusionBoss) {
             const type = bossWeaponTypes[Math.floor(Math.random() * bossWeaponTypes.length)];
             this.pickups.push(new WeaponPickup(enemy.x, enemy.y, type));
