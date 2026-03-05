@@ -114,6 +114,9 @@
             <button id="settings-btn" style="padding: 8px; font-size: 18px; display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; background: rgba(0,0,0,0.6); color: white; border: 2px solid #fff; font-family: 'Fredoka One', cursive; cursor: pointer;">
               ⚙️ 
             </button>
+            <button id="stats-btn" style="padding: 8px; font-size: 18px; display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; background: rgba(0,0,0,0.6); color: white; border: 2px solid #fff; font-family: 'Fredoka One', cursive; cursor: pointer;">
+              📊 
+            </button>
             <button id="install-btn" style="padding: 8px; font-size: 18px; display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; background: rgba(0,0,0,0.6); color: white; border: 2px solid #fff; font-family: 'Fredoka One', cursive; cursor: pointer;">
               ⬇️ 
             </button>
@@ -168,6 +171,31 @@
           </div>
           <button id="close-settings-btn" style="margin-top: 10px; padding: 10px 20px; font-size: 18px; font-family: 'Fredoka One', cursive; cursor: pointer; border: none; border-radius: 12px; background: #ffcc00; color: #000; width: 100%; font-weight: bold; border: 3px solid #000; box-shadow: 4px 4px 0px #000; text-shadow: none;">关闭</button>
         </div>
+        
+        <!-- Stats Modal -->
+        <div id="stats-modal" class="hidden" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); color: white; padding: 25px 20px 20px 20px; border-radius: 16px; z-index: 3000; text-align: center; min-width: 320px; max-width: 90%; width: 450px; max-height: 85vh; border: 4px solid #00ff88; box-shadow: 0 0 20px rgba(0,255,136,0.3); display: flex; flex-direction: column;">
+          <button id="close-stats-x" style="position: absolute; top: 10px; right: 10px; background: none; border: none; color: #00ff88; font-size: 24px; cursor: pointer; box-shadow: none; text-shadow: none; padding: 0; line-height: 1; width: auto;">&times;</button>
+          <h2 id="stats-title" style="margin-top: 0; color: #00ff88; text-shadow: 2px 2px 0 #000; font-size: 28px;">📊 属性面板</h2>
+          <div id="stats-content" style="text-align: left; font-size: 14px; margin: 10px 0; padding: 10px; flex: 1; overflow-y: auto; background: rgba(255,255,255,0.05); border-radius: 8px; border: 2px solid rgba(0,255,136,0.3);">
+            <!-- Player Stats Section -->
+            <div style="margin-bottom: 15px;">
+              <h3 style="margin: 0 0 10px 0; color: #FFD700; font-size: 18px; border-bottom: 2px solid #FFD700; padding-bottom: 5px;">👤 玩家属性</h3>
+              <div id="player-stats-content"></div>
+            </div>
+            <!-- Weapons Stats Section -->
+            <div style="margin-bottom: 15px;">
+              <h3 style="margin: 0 0 10px 0; color: #FF6B6B; font-size: 18px; border-bottom: 2px solid #FF6B6B; padding-bottom: 5px;">⚔️ 武器伤害</h3>
+              <div id="weapons-stats-content"></div>
+            </div>
+            <!-- Enemies Stats Section -->
+            <div>
+              <h3 style="margin: 0 0 10px 0; color: #FF4444; font-size: 18px; border-bottom: 2px solid #FF4444; padding-bottom: 5px;">👾 怪物属性</h3>
+              <div id="enemies-stats-content"></div>
+            </div>
+          </div>
+          <button id="close-stats-btn" style="padding: 10px 20px; font-size: 18px; font-family: 'Fredoka One', cursive; cursor: pointer; border: 3px solid #000; border-radius: 12px; background: #00ff88; color: #000; font-weight: bold; box-shadow: 4px 4px 0 #000; text-shadow: none; margin-top: 10px;">关闭</button>
+        </div>
+        
         <div id="changelog-modal" class="hidden" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); color: white; padding: 30px 20px 20px 20px; border-radius: 16px; z-index: 3000; text-align: center; min-width: 320px; max-width: 90%; width: 400px; max-height: 85vh; border: 4px solid #ffcc00; box-shadow: 0 0 20px rgba(0,0,0,0.5); display: flex; flex-direction: column;">
           <button id="close-changelog-x" style="position: absolute; top: 10px; right: 10px; background: none; border: none; color: #ffcc00; font-size: 24px; cursor: pointer; box-shadow: none; text-shadow: none; padding: 0; line-height: 1; width: auto;">&times;</button>
           <h2 id="changelog-title" style="margin-top: 0; color: #ffcc00; text-shadow: 2px 2px 0 #000; font-size: 28px;">📜 版本列表</h2>

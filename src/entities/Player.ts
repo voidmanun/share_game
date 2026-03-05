@@ -201,6 +201,10 @@ export class Player extends Entity {
   public getShieldHits(): number {
     return this.shieldHits;
   }
+  
+  public getSpeed(): number {
+    return this.speed;
+  }
 
   public addWeapon(weapon: Weapon): void {
     this.weapons.push(weapon);

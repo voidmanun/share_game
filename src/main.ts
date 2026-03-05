@@ -1,6 +1,6 @@
 import './style.css'
 import { Game } from './Game'
-import { getLanguage, setLanguage, t, updateUI } from './i18n';
+import { getLanguage, setLanguage, t, tWeapon, tEnemy, updateUI } from './i18n';
 import { getLeaderboard } from './leaderboard';
 import { initPWA } from './pwa';
 import { SkillTreeManager, type SkillBranch } from './systems/SkillTree';
@@ -405,6 +405,118 @@ if (closeChangelogX) {
 
   closeSettingsBtn?.addEventListener('click', () => {
     if (settingsModal) settingsModal.classList.add('hidden');
+    game.resume();
+  });
+  
+  // Stats modal logic
+  const statsBtn = document.getElementById('stats-btn');
+  const statsModal = document.getElementById('stats-modal');
+  const closeStatsBtn = document.getElementById('close-stats-btn');
+  const closeStatsX = document.getElementById('close-stats-x');
+  const playerStatsContent = document.getElementById('player-stats-content');
+  const weaponsStatsContent = document.getElementById('weapons-stats-content');
+  const enemiesStatsContent = document.getElementById('enemies-stats-content');
+  
+  function updateStatsModal(): void {
+    if (!playerStatsContent || !weaponsStatsContent || !enemiesStatsContent) return;
+    
+    const lang = getLanguage();
+    const player = game.player;
+    
+    // Player Stats
+    const charNames: Record<string, {zh: string, en: string}> = {
+      knight: { zh: '骑士', en: 'Knight' },
+      warrior: { zh: '战士', en: 'Warrior' },
+      mage: { zh: '法师', en: 'Mage' }
+    };
+    const charName = charNames[player.characterClass] || { zh: '骑士', en: 'Knight' };
+    
+    let playerHTML = `
+      <div style="display: flex; justify-content: space-between; margin: 5px 0; padding: 5px; background: rgba(255,255,255,0.1); border-radius: 4px;">
+        <span style="color: #aaa;">${lang === 'zh' ? '职业' : 'Class'}</span>
+        <span style="color: #fff; font-weight: bold;">${lang === 'zh' ? charName.zh : charName.en}</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin: 5px 0; padding: 5px; background: rgba(255,255,255,0.1); border-radius: 4px;">
+        <span style="color: #aaa;">❤️ ${lang === 'zh' ? '生命值' : 'HP'}</span>
+        <span style="color: #90EE90; font-weight: bold;">${Math.floor(player.hp)} / ${player.maxHp}</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin: 5px 0; padding: 5px; background: rgba(255,255,255,0.1); border-radius: 4px;">
+        <span style="color: #aaa;">🏃 ${lang === 'zh' ? '移动速度' : 'Speed'}</span>
+        <span style="color: #87CEEB; font-weight: bold;">${player.getSpeed().toFixed(0)}</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin: 5px 0; padding: 5px; background: rgba(255,255,255,0.1); border-radius: 4px;">
+        <span style="color: #aaa;">⚡ ${lang === 'zh' ? '伤害倍率' : 'DMG Mult'}</span>
+        <span style="color: #FF6B6B; font-weight: bold;">x${player.damageMultiplier.toFixed(1)}</span>
+      </div>
+    `;
+    playerStatsContent.innerHTML = playerHTML;
+    
+    // Weapons Stats
+    let weaponsHTML = '';
+    if (player.weapons.length === 0) {
+      weaponsHTML = `<div style="color: #888; text-align: center; padding: 10px;">${lang === 'zh' ? '无武器' : 'No weapons'}</div>`;
+    } else {
+      player.weapons.forEach(w => {
+        const actualDamage = (w.damage * player.damageMultiplier).toFixed(1);
+        weaponsHTML += `
+          <div style="display: flex; justify-content: space-between; margin: 5px 0; padding: 8px; background: rgba(255,107,107,0.2); border-radius: 4px; border-left: 3px solid #FF6B6B;">
+            <span style="color: #fff;">${tWeapon(w.name)} Lv${w.level}</span>
+            <span style="color: #FF6B6B; font-weight: bold;">${actualDamage} ${lang === 'zh' ? '伤害' : 'DMG'}</span>
+          </div>
+        `;
+      });
+    }
+    weaponsStatsContent.innerHTML = weaponsHTML;
+    
+    // Enemies Stats
+    const hpMultiplier = 1 + (Math.floor(game.gameTime / 30) * 0.5);
+    const damageBonus = Math.floor(game.gameTime / 60);
+    
+    const enemyData = [
+      { name: 'Basic', hp: 6, dmg: 1, color: '#39FF14' },
+      { name: 'Scout', hp: 4, dmg: 1, color: '#00FFFF' },
+      { name: 'Swarm', hp: 2, dmg: 1, color: '#AA44AA' },
+      { name: 'Tank', hp: 30, dmg: 2, color: '#448844' },
+      { name: 'Splitter', hp: 8, dmg: 1, color: '#FF6666' },
+      { name: 'Charger', hp: 10, dmg: 2, color: '#CC3333' },
+      { name: 'Teleporter', hp: 4, dmg: 1, color: '#9933FF' },
+      { name: 'Star', hp: 4, dmg: 1, color: '#FFCC00' },
+      { name: 'Slime', hp: 30, dmg: 2, color: '#32CD32' },
+      { name: 'Boss', hp: 20, dmg: 3, color: '#880000' },
+      { name: 'Twin Elite', hp: 200, dmg: 4, color: '#4444FF' },
+      { name: 'Devourer', hp: 150, dmg: 3, color: '#8B008B' },
+      { name: 'Titan', hp: 500, dmg: 5, color: '#555555' },
+      { name: 'Necromancer', hp: 1500, dmg: 5, color: '#4B0082' },
+    ];
+    
+    let enemiesHTML = '';
+    enemyData.forEach(e => {
+      const currentHP = Math.floor(e.hp * hpMultiplier);
+      const currentDMG = e.dmg + damageBonus;
+      enemiesHTML += `
+        <div style="display: flex; justify-content: space-between; margin: 4px 0; padding: 6px; background: rgba(255,68,68,0.15); border-radius: 4px; border-left: 3px solid ${e.color};">
+          <span style="color: #fff; font-size: 13px;">${tEnemy(e.name)}</span>
+          <span style="color: #90EE90; font-size: 12px;">HP: ${currentHP}</span>
+          <span style="color: #FF6B6B; font-size: 12px;">ATK: ${currentDMG}</span>
+        </div>
+      `;
+    });
+    enemiesStatsContent.innerHTML = enemiesHTML;
+  }
+  
+  statsBtn?.addEventListener('click', () => {
+    updateStatsModal();
+    if (statsModal) statsModal.classList.remove('hidden');
+    game.pause();
+  });
+  
+  closeStatsBtn?.addEventListener('click', () => {
+    if (statsModal) statsModal.classList.add('hidden');
+    game.resume();
+  });
+  
+  closeStatsX?.addEventListener('click', () => {
+    if (statsModal) statsModal.classList.add('hidden');
     game.resume();
   });
 
