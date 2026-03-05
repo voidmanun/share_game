@@ -1,4 +1,5 @@
 import { Player } from './entities/Player';
+import type { CharacterClass } from './entities/Player';
 import { Input } from './systems/Input';
 import { Enemy } from './entities/Enemy';
 import { Necromancer } from './entities/Necromancer';
@@ -120,6 +121,9 @@ export class Game {
 
     private stars: { x: number; y: number; size: number; alpha: number }[] = [];
     private backgroundLeaderboard: {name: string, score: number}[] = [];
+    
+    // Selected character class
+    public selectedCharacterClass: CharacterClass = 'knight';
 
     private initializeGame(): void {
         this.enemies = [];
@@ -146,7 +150,8 @@ export class Game {
         });
 
         this.input = new Input();
-        this.player = new Player(this.WORLD_WIDTH / 2, this.WORLD_HEIGHT / 2, this.input, this.WORLD_WIDTH, this.WORLD_HEIGHT);
+        this.player = new Player(this.WORLD_WIDTH / 2, this.WORLD_HEIGHT / 2, this.input, this.WORLD_WIDTH, this.WORLD_HEIGHT, this.selectedCharacterClass);
+        this.player.setGame(this);
         this.player.addWeapon(new MagicWand(this, this.player));
 
         for (let i = 0; i < 1; i++) {
@@ -781,6 +786,40 @@ export class Game {
         } else {
             this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `没有目标!`, '#FF69B4'));
         }
+    }
+    
+    public castShockwave(x: number, y: number, damage: number): void {
+        // Shockwave damages all enemies within a radius, expanding outward
+        const maxRadius = 300;
+        const numWaves = 3;
+        
+        for (let wave = 0; wave < numWaves; wave++) {
+            const waveRadius = (maxRadius / numWaves) * (wave + 1);
+            
+            for (const enemy of this.enemies) {
+                const dx = enemy.x - x;
+                const dy = enemy.y - y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                if (dist <= waveRadius && dist > (wave * maxRadius / numWaves)) {
+                    enemy.takeDamage(damage);
+                    if (enemy.isDead) {
+                        this.handleEnemyDeath(enemy);
+                    }
+                }
+            }
+        }
+        
+        // Create visual particles for shockwave
+        for (let i = 0; i < 30; i++) {
+            const angle = (Math.PI * 2 / 30) * i;
+            const particle = new Particle(x + Math.cos(angle) * 20, y + Math.sin(angle) * 20, '#9932CC');
+            this.particles.push(particle);
+        }
+        
+        // Create floating text
+        this.floatingTexts.push(new FloatingText(x, y - 40, `SHOCKWAVE!`, '#9932CC'));
+        this.soundManager.playExplosionSound();
     }
 
     public createExplosion(x: number, y: number, color: string): void {

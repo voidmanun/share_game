@@ -5,6 +5,7 @@ import { getLeaderboard } from './leaderboard';
 import { initPWA } from './pwa';
 import { SkillTreeManager, type SkillBranch } from './systems/SkillTree';
 import { FloatingText } from './entities/FloatingText';
+import type { CharacterClass } from './entities/Player';
 
 // Initialize language UI immediately on load
 updateUI();
@@ -16,9 +17,95 @@ window.addEventListener('DOMContentLoaded', () => {
   const loadingScreen = document.getElementById('loading-screen');
   const loadingBar = document.getElementById('loading-bar');
   const startBtn = document.getElementById('start-btn');
+  const characterSelect = document.getElementById('character-select');
   const muteBtn = document.getElementById('mute-btn');
   const langBtn = document.getElementById('lang-btn');
   const loadingText = loadingScreen?.querySelector('h1');
+  
+  // Skill button elements
+  const skillBtn = document.getElementById('skill-btn');
+  const skillIcon = document.getElementById('skill-icon');
+  const skillCooldown = document.getElementById('skill-cooldown');
+  const skillName = document.getElementById('skill-name');
+  
+  // Character card elements
+  const characterCards = document.querySelectorAll('.character-card');
+  
+  // Handle character selection
+  characterCards.forEach(card => {
+    card.addEventListener('click', () => {
+      const character = card.getAttribute('data-character') as CharacterClass;
+      if (character) {
+        game.selectedCharacterClass = character;
+        
+        // Update skill button based on character
+        updateSkillButton(character);
+        
+        // Hide character select, show game
+        if (characterSelect) characterSelect.classList.add('hidden');
+        document.getElementById('game-canvas')?.classList.remove('hidden');
+        document.getElementById('ui-layer')?.classList.remove('hidden');
+        game.soundManager.playStartSound();
+        game.start();
+        
+        // Start skill update loop
+        startSkillUpdateLoop();
+      }
+    });
+    
+    // Hover effects
+    card.addEventListener('mouseenter', () => {
+      (card as HTMLElement).style.transform = 'translateY(-10px)';
+      (card as HTMLElement).style.boxShadow = '10px 10px 0 #000';
+    });
+    card.addEventListener('mouseleave', () => {
+      (card as HTMLElement).style.transform = 'translateY(0)';
+      (card as HTMLElement).style.boxShadow = '6px 6px 0 #000';
+    });
+  });
+  
+  function updateSkillButton(character: CharacterClass): void {
+    if (!skillIcon || !skillName || !skillBtn) return;
+    
+    const skillData: Record<CharacterClass, {icon: string, name: string, nameZh: string, color: string}> = {
+      knight: { icon: '🛡️', name: 'Invincibility', nameZh: '无敌', color: 'linear-gradient(145deg, #4169E1, #1E3A8A)' },
+      warrior: { icon: '⚔️', name: 'Rage', nameZh: '狂暴', color: 'linear-gradient(145deg, #DC143C, #8B0000)' },
+      mage: { icon: '✨', name: 'Shockwave', nameZh: '冲击波', color: 'linear-gradient(145deg, #9932CC, #4B0082)' }
+    };
+    
+    const data = skillData[character];
+    skillIcon.textContent = data.icon;
+    skillName.textContent = getLanguage() === 'zh' ? data.nameZh : data.name;
+    skillBtn.style.background = data.color;
+  }
+  
+  function startSkillUpdateLoop(): void {
+    const updateSkillUI = () => {
+      if (!game.player || !skillCooldown || !skillBtn) return;
+      
+      const skill = game.player.skill;
+      if (skill.currentCooldown > 0) {
+        skillCooldown.style.display = 'flex';
+        skillCooldown.textContent = Math.ceil(skill.currentCooldown).toString();
+        skillBtn.style.opacity = '0.6';
+        skillBtn.style.cursor = 'not-allowed';
+      } else {
+        skillCooldown.style.display = 'none';
+        skillBtn.style.opacity = '1';
+        skillBtn.style.cursor = 'pointer';
+      }
+      
+      requestAnimationFrame(updateSkillUI);
+    };
+    requestAnimationFrame(updateSkillUI);
+  }
+  
+  // Skill button click handler
+  skillBtn?.addEventListener('click', () => {
+    if (game.player && game.player.skill.currentCooldown <= 0) {
+      game.player.useSkill();
+    }
+  });
 
   muteBtn?.addEventListener('click', () => {
     game.soundManager.toggleMute();
@@ -738,28 +825,35 @@ if (leaderboardBtn) {
 
   startBtn?.addEventListener('click', () => {
     if (loadingScreen) loadingScreen.style.display = 'none';
-    document.getElementById('game-canvas')?.classList.remove('hidden');
-    document.getElementById('ui-layer')?.classList.remove('hidden');
-    game.soundManager.playStartSound(); // Play game start sound
-    game.start();
-
-    // Award skill points every 60 seconds
-    let lastSkillPointTime = 0;
-    const gameLoop = () => {
-      if (game.gameTime - lastSkillPointTime >= 60) {
-        lastSkillPointTime = game.gameTime;
-        skillTreeManager.addSkillPoints(1);
-        const lang = getLanguage();
-        const msg = lang === 'zh' ? '获得 1 技能点！' : 'Gained 1 skill point!';
-        game.addFloatingText(new FloatingText(
-          game.player.x,
-          game.player.y - 50,
-          msg,
-          '#9932CC'
-        ));
-      }
-      requestAnimationFrame(gameLoop);
-    };
-    requestAnimationFrame(gameLoop);
+    // Show character selection instead of starting directly
+    if (characterSelect) characterSelect.classList.remove('hidden');
   });
+  
+  // Auto-pause when game goes to background (tab switch, minimize, etc.)
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      game.pause();
+    } else {
+      game.resume();
+    }
+  });
+  
+  // Award skill points every 60 seconds
+  let lastSkillPointTime = 0;
+  const gameLoop = () => {
+    if (game.player && game.gameTime - lastSkillPointTime >= 60) {
+      lastSkillPointTime = game.gameTime;
+      skillTreeManager.addSkillPoints(1);
+      const lang = getLanguage();
+      const msg = lang === 'zh' ? '获得 1 技能点！' : 'Gained 1 skill point!';
+      game.addFloatingText(new FloatingText(
+        game.player.x,
+        game.player.y - 50,
+        msg,
+        '#9932CC'
+      ));
+    }
+    requestAnimationFrame(gameLoop);
+  };
+  requestAnimationFrame(gameLoop);
 });

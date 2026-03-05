@@ -62,6 +62,50 @@
       </div>
       <button id="start-btn" class="hidden">Start Game</button>
     </div>
+    
+    <!-- Character Selection Screen -->
+    <div id="character-select" class="hidden" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1500; color: white; font-family: 'Fredoka One', cursive;">
+      <h2 style="font-size: 36px; margin-bottom: 10px; text-shadow: 3px 3px 0 #000;">选择你的英雄</h2>
+      <p style="font-size: 16px; margin-bottom: 30px; color: #aaa;">Choose Your Hero</p>
+      <div style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; padding: 0 20px;">
+        <!-- Knight Card -->
+        <div class="character-card" data-character="knight" style="width: 220px; padding: 20px; background: linear-gradient(145deg, #4169E1, #1E3A8A); border-radius: 16px; border: 4px solid #FFD700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 6px 6px 0 #000;">
+          <div style="font-size: 60px; text-align: center; margin-bottom: 10px;">🛡️</div>
+          <h3 style="margin: 0 0 10px 0; font-size: 24px; text-align: center; text-shadow: 2px 2px 0 #000;">骑士</h3>
+          <h4 style="margin: 0 0 10px 0; font-size: 16px; text-align: center; color: #87CEEB;">Knight</h4>
+          <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; font-size: 12px;">
+            <p style="margin: 5px 0; color: #FFD700;">❤️ 生命值: 40</p>
+            <p style="margin: 5px 0; color: #FFD700;">⚡ 技能: 无敌</p>
+            <p style="margin: 5px 0; color: #aaa;">无敌2秒，CD 30秒</p>
+          </div>
+        </div>
+        
+        <!-- Warrior Card -->
+        <div class="character-card" data-character="warrior" style="width: 220px; padding: 20px; background: linear-gradient(145deg, #DC143C, #8B0000); border-radius: 16px; border: 4px solid #FFD700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 6px 6px 0 #000;">
+          <div style="font-size: 60px; text-align: center; margin-bottom: 10px;">⚔️</div>
+          <h3 style="margin: 0 0 10px 0; font-size: 24px; text-align: center; text-shadow: 2px 2px 0 #000;">战士</h3>
+          <h4 style="margin: 0 0 10px 0; font-size: 16px; text-align: center; color: #FFB6C1;">Warrior</h4>
+          <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; font-size: 12px;">
+            <p style="margin: 5px 0; color: #FFD700;">❤️ 生命值: 30</p>
+            <p style="margin: 5px 0; color: #FFD700;">⚡ 技能: 狂暴</p>
+            <p style="margin: 5px 0; color: #aaa;">伤害翻倍5秒，CD 30秒</p>
+          </div>
+        </div>
+        
+        <!-- Mage Card -->
+        <div class="character-card" data-character="mage" style="width: 220px; padding: 20px; background: linear-gradient(145deg, #9932CC, #4B0082); border-radius: 16px; border: 4px solid #FFD700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 6px 6px 0 #000;">
+          <div style="font-size: 60px; text-align: center; margin-bottom: 10px;">✨</div>
+          <h3 style="margin: 0 0 10px 0; font-size: 24px; text-align: center; text-shadow: 2px 2px 0 #000;">法师</h3>
+          <h4 style="margin: 0 0 10px 0; font-size: 16px; text-align: center; color: #DDA0DD;">Mage</h4>
+          <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; font-size: 12px;">
+            <p style="margin: 5px 0; color: #FFD700;">❤️ 生命值: 25</p>
+            <p style="margin: 5px 0; color: #FFD700;">⚡ 技能: 冲击波</p>
+            <p style="margin: 5px 0; color: #aaa;">范围伤害，CD 30秒</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <canvas id="game-canvas" class="hidden"></canvas>
     <div id="ui-layer" class="hidden">
       <div id="ui">
@@ -86,6 +130,16 @@
           </div>
           
         </div>
+        
+        <!-- Skill Button (Bottom Right) -->
+        <div id="skill-container" style="position: absolute; bottom: 20px; right: 20px; pointer-events: auto;">
+          <button id="skill-btn" style="width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(145deg, #9932CC, #4B0082); border: 4px solid #FFD700; color: white; font-size: 32px; cursor: pointer; box-shadow: 4px 4px 0 #000; display: flex; justify-content: center; align-items: center; position: relative;">
+            <span id="skill-icon">🛡️</span>
+            <div id="skill-cooldown" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; font-size: 18px; font-weight: bold;"></div>
+          </button>
+          <div id="skill-name" style="text-align: center; margin-top: 5px; font-size: 12px; color: #FFD700; text-shadow: 1px 1px 0 #000;">无敌</div>
+        </div>
+        
         <div id="joystick-zone" class="mobile-only">
           <div id="joystick-knob"></div>
         </div>
