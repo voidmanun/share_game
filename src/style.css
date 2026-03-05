@@ -434,6 +434,30 @@ button:disabled {
     font-size: 28px !important;
     margin-top: 20px !important;
   }
+
+  /* Skill tree branch tabs - fit 3 tabs on mobile */
+  #skilltree-branches {
+    gap: 4px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .skill-branch-tab {
+    padding: 6px 4px !important;
+    font-size: 12px !important;
+    border-radius: 6px !important;
+    border-width: 2px !important;
+  }
+
+  /* Encyclopedia tabs - fit 3 tabs on mobile */
+  #encyclopedia-tabs {
+    gap: 4px !important;
+    margin-bottom: 10px !important;
+  }
+
+  #encyclopedia-tabs button {
+    padding: 6px 8px !important;
+    font-size: 11px !important;
+  }
 }
 
 #leaderboard-section {
