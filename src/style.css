@@ -462,12 +462,19 @@ button:disabled {
   pointer-events: auto;
 }
 
-#changelog-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+#changelog-modal {
   touch-action: pan-y;
-  -webkit-overflow-scrolling: touch;
+  display: flex !important;
+  flex-direction: column !important;
+  max-height: 85vh !important;
+  overflow: hidden !important;
+}
+
+#changelog-list {
+  touch-action: pan-y !important;
+  -webkit-overflow-scrolling: touch !important;
+  overflow-y: auto !important;
+  min-height: 0 !important;
 }
 
 /* Custom scrollbar for changelog and other modals */
