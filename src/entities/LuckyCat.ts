@@ -8,7 +8,7 @@ export class LuckyCat extends Pet {
 
     constructor(player: Player, game: Game) {
         // Hover distance 45, Speed 160, Radius 8, Color Gold
-        super(player, game, 45, 160, 8, '#FFD700'); 
+        super(player, game, 45, 160, 8, '#FFD700');
     }
 
     public act(deltaTime: number): void {
@@ -32,12 +32,12 @@ export class LuckyCat extends Pet {
             const dist = Math.sqrt(dx * dx + dy * dy);
 
             if (dist <= attackRadius) {
-                enemy.takeDamage(damage);
+                enemy.takeDamage(damage * this.damageMultiplier);
                 this.game.createExplosion(enemy.x, enemy.y, '#FFD700');
-                
+
                 // Visual effect for cat swipe
                 for (let i = 0; i < 3; i++) {
-                    this.game.particles.push(new Particle(this.x + (Math.random() - 0.5) * 20, this.y + (Math.random() - 0.5) * 20, '#FFFFFF')); 
+                    this.game.particles.push(new Particle(this.x + (Math.random() - 0.5) * 20, this.y + (Math.random() - 0.5) * 20, '#FFFFFF'));
                 }
             }
         }

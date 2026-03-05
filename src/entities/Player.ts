@@ -4,7 +4,7 @@ import { Weapon } from '../weapons/Weapon';
 import type { SkillTreeManager } from '../systems/SkillTree';
 import type { Game } from '../Game';
 
-export type CharacterClass = 'knight' | 'warrior' | 'mage';
+export type CharacterClass = 'knight' | 'warrior' | 'mage' | 'hunter';
 
 export interface CharacterSkill {
   name: string;
@@ -47,6 +47,8 @@ export class Player extends Entity {
   private rageTimer: number = 0;
   public isHasting: boolean = false;
   private hasteTimer: number = 0;
+  public petDamageMultiplier: number = 1.0;
+  private petBuffTimer: number = 0;
 
   constructor(x: number, y: number, input: Input, worldWidth: number, worldHeight: number, characterClass: CharacterClass = 'knight') {
     super(x, y, 20, '#FFFFFF'); // Paladin
@@ -95,6 +97,16 @@ export class Player extends Entity {
           isActive: false,
           icon: '⚡'
         };
+      case 'hunter':
+        return {
+          name: 'Call of the Wild',
+          nameZh: '野性呼唤',
+          cooldown: 10,
+          currentCooldown: 0,
+          duration: 20,
+          isActive: false,
+          icon: '🏹'
+        };
     }
   }
 
@@ -119,6 +131,14 @@ export class Player extends Entity {
         this.baseSpeed = 100;
         this.speed = 100;
         this.color = '#9932CC'; // Purple
+        break;
+      case 'hunter':
+        // Hunter: balanced stats
+        this.maxHp = 30;
+        this.hp = 30;
+        this.baseSpeed = 90;
+        this.speed = 90;
+        this.color = '#2E8B57'; // Green
         break;
     }
   }
@@ -149,6 +169,14 @@ export class Player extends Entity {
         this.isHasting = true;
         this.attackSpeedMultiplier = 2.0;
         this.hasteTimer = this.skill.duration;
+        break;
+      case 'hunter':
+        // Hunter: Summon Pet & Buff Pets
+        if (this.game) {
+          this.game.hatchRandomPet(true, 20); // Summon a temporary pet for 20s
+        }
+        this.petDamageMultiplier = 2.0;
+        this.petBuffTimer = this.skill.duration;
         break;
     }
   }
@@ -273,6 +301,29 @@ export class Player extends Entity {
       }
     }
 
+    // Hunter pet buff timer
+    if (this.petBuffTimer > 0) {
+      this.petBuffTimer -= deltaTime;
+      if (this.petBuffTimer <= 0) {
+        this.petDamageMultiplier = 1.0;
+        this.skill.isActive = false;
+      }
+
+      // Update all pets damage multiplier during the buff
+      if (this.game) {
+        this.game.pets.forEach(pet => {
+          pet.damageMultiplier = this.petDamageMultiplier;
+        });
+      }
+    } else {
+      // Reset to normal if no buff is active (to handle new pets)
+      if (this.game) {
+        this.game.pets.forEach(pet => {
+          pet.damageMultiplier = 1.0;
+        });
+      }
+    }
+
     // Skill cooldown
     if (this.skill.currentCooldown > 0) {
       this.skill.currentCooldown -= deltaTime;
@@ -325,6 +376,9 @@ export class Player extends Entity {
         break;
       case 'mage':
         this.renderMage(ctx);
+        break;
+      case 'hunter':
+        this.renderHunter(ctx);
         break;
       default:
         this.renderKnight(ctx);
@@ -592,6 +646,79 @@ export class Player extends Entity {
     ctx.fillStyle = '#2E0854';
     ctx.fillRect(-8, 14, 5, 4 + legSwing);
     ctx.fillRect(3, 14, 5, 4 - legSwing);
+  }
+
+  private renderHunter(ctx: CanvasRenderingContext2D): void {
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#333';
+
+    // Body - Leather Armor
+    ctx.fillStyle = '#8B4513'; // Saddle Brown
+    ctx.beginPath();
+    ctx.rect(-10, -8, 20, 18);
+    ctx.fill();
+    ctx.stroke();
+
+    // Hood / Cloak (Green)
+    ctx.fillStyle = '#2E8B57'; // Sea Green
+    ctx.beginPath();
+    ctx.moveTo(-12, -8);
+    ctx.lineTo(12, -8);
+    ctx.lineTo(0, -22); // Pointy hood top
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Head
+    ctx.fillStyle = '#FFE4C4'; // Bisque skin tone
+    ctx.beginPath();
+    ctx.arc(0, -8, 7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Eyes (Focused)
+    ctx.fillStyle = 'black';
+    ctx.beginPath();
+    ctx.arc(-2, -8, 1, 0, Math.PI * 2);
+    ctx.arc(2, -8, 1, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Bow (Right side)
+    ctx.strokeStyle = '#DEB887'; // Wood color
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(15, 0, 12, -Math.PI / 2, Math.PI / 2);
+    ctx.stroke();
+    // Bow string
+    ctx.strokeStyle = '#EEE';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(15, -12);
+    ctx.lineTo(15, 12);
+    ctx.stroke();
+
+    // Quiver (Left side on back)
+    ctx.fillStyle = '#5D2E0E'; // Dark brown
+    ctx.beginPath();
+    ctx.rect(-15, -5, 6, 15);
+    ctx.fill();
+    ctx.stroke();
+    // Arrows sticking out
+    ctx.strokeStyle = '#333';
+    ctx.beginPath();
+    ctx.moveTo(-12, -5); ctx.lineTo(-12, -10);
+    ctx.moveTo(-14, -5); ctx.lineTo(-14, -8);
+    ctx.stroke();
+
+    // Walk animation
+    const { x, y } = this.input.getAxis();
+    const time = Date.now() / 150;
+    const legSwing = (x !== 0 || y !== 0) ? Math.sin(time) * 4 : 0;
+
+    // Legs
+    ctx.fillStyle = '#4D3627';
+    ctx.fillRect(-7, 10, 5, 8 + legSwing);
+    ctx.fillRect(2, 10, 5, 8 - legSwing);
   }
 
   public getFacingAngle(): number {

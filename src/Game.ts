@@ -66,30 +66,38 @@ export class Game {
 
     private enemies: Enemy[] = [];
 
-    public hatchRandomPet(): void {
+    public hatchRandomPet(isTemporary: boolean = false, duration: number = 20): void {
         const rand = Math.random();
+        let newPet: Pet;
+
         if (rand < 0.16) {
-            this.pets.push(new GreedyDog(this.player, this));
+            newPet = new GreedyDog(this.player, this);
             this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `Greedy Dog Hatched!`, '#8B4513'));
         } else if (rand < 0.32) {
-            this.pets.push(new MagicFairy(this.player, this));
+            newPet = new MagicFairy(this.player, this);
             this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `Magic Fairy Hatched!`, '#FFB6C1'));
         } else if (rand < 0.48) {
-            this.pets.push(new SpeedyTurtle(this.player, this));
+            newPet = new SpeedyTurtle(this.player, this);
             this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `Speedy Turtle Hatched!`, '#2E8B57'));
         } else if (rand < 0.64) {
-            this.pets.push(new GrumpyPorcupine(this.player, this));
+            newPet = new GrumpyPorcupine(this.player, this);
             this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `Grumpy Porcupine Hatched!`, '#A0522D'));
         } else if (rand < 0.80) {
-            this.pets.push(new BouncySlime(this.player, this));
+            newPet = new BouncySlime(this.player, this);
             this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `Bouncy Slime Hatched!`, '#32CD32'));
         } else if (rand < 0.90) {
-            this.pets.push(new HolyLightTurtle(this.player, this));
+            newPet = new HolyLightTurtle(this.player, this);
             this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `Holy Light Turtle Hatched!`, '#FFD700'));
         } else {
-            this.pets.push(new LuckyCat(this.player, this));
+            newPet = new LuckyCat(this.player, this);
             this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `Lucky Cat Hatched!`, '#FFD700'));
         }
+
+        if (isTemporary) {
+            newPet.isTemporary = true;
+            newPet.lifeTimer = duration;
+        }
+        this.pets.push(newPet);
     }
 
     public getEnemies(): Enemy[] { return this.enemies; }
@@ -401,6 +409,7 @@ export class Game {
 
         // Update pets
         this.pets.forEach(p => p.update(deltaTime));
+        this.pets = this.pets.filter(p => !p.isDead);
 
         this.updateHUD();
         this.updateStatsPanel();

@@ -11,7 +11,7 @@ export class BouncySlime extends Pet {
 
     constructor(player: Player, game: Game) {
         // Hover distance 40, Speed 120, Radius 8, Color Slime Green
-        super(player, game, 40, 120, 8, '#32CD32'); 
+        super(player, game, 40, 120, 8, '#32CD32');
     }
 
     public act(deltaTime: number): void {
@@ -21,7 +21,7 @@ export class BouncySlime extends Pet {
         if (!this.isJumping && this.jumpTimer > 1.5) {
             this.isJumping = true;
             this.jumpTimer = 0;
-            
+
             // Visual effect when jumping
             for (let i = 0; i < 3; i++) {
                 this.game.particles.push(new Particle(this.x, this.y, '#98FB98')); // Light green
@@ -39,7 +39,7 @@ export class BouncySlime extends Pet {
                 this.isJumping = false;
                 this.jumpHeight = 0;
                 this.jumpTimer = 0; // Reset timer for next cycle
-                
+
                 // Area of Effect damage when landing
                 this.dealLandingDamage();
             }
@@ -63,7 +63,7 @@ export class BouncySlime extends Pet {
             const dist = Math.sqrt(dx * dx + dy * dy);
 
             if (dist <= splashRadius) {
-                enemy.takeDamage(damage);
+                enemy.takeDamage(damage * this.damageMultiplier);
                 this.game.createExplosion(enemy.x, enemy.y, enemy.color);
             }
         }
@@ -71,7 +71,7 @@ export class BouncySlime extends Pet {
 
     public render(ctx: CanvasRenderingContext2D): void {
         ctx.save();
-        
+
         // Apply jump height offset for rendering
         const renderY = this.y - this.jumpHeight;
         ctx.translate(this.x, renderY);
@@ -102,7 +102,7 @@ export class BouncySlime extends Pet {
 
         ctx.beginPath();
         // Base of slime (flat bottom, rounded top)
-        ctx.ellipse(0, this.radius - (this.radius * stretch), this.radius * squash, this.radius * stretch, 0, Math.PI, 0); 
+        ctx.ellipse(0, this.radius - (this.radius * stretch), this.radius * squash, this.radius * stretch, 0, Math.PI, 0);
         ctx.closePath();
         ctx.fill();
         ctx.stroke();

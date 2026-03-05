@@ -71,7 +71,8 @@ window.addEventListener('DOMContentLoaded', () => {
     const skillData: Record<CharacterClass, { icon: string, name: string, nameZh: string, color: string }> = {
       knight: { icon: '🛡️', name: 'Invincibility', nameZh: '无敌', color: 'linear-gradient(145deg, #4169E1, #1E3A8A)' },
       warrior: { icon: '⚔️', name: 'Rage', nameZh: '狂暴', color: 'linear-gradient(145deg, #DC143C, #8B0000)' },
-      mage: { icon: '⚡', name: 'Haste', nameZh: '急速', color: 'linear-gradient(145deg, #FFD700, #9932CC)' }
+      mage: { icon: '⚡', name: 'Haste', nameZh: '急速', color: 'linear-gradient(145deg, #FFD700, #9932CC)' },
+      hunter: { icon: '🏹', name: 'Call of the Wild', nameZh: '野性呼唤', color: 'linear-gradient(145deg, #2E8B57, #006400)' }
     };
 
     const data = skillData[character];

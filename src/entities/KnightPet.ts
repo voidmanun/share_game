@@ -6,7 +6,7 @@ import { Projectile } from '../weapons/Projectile';
 export class KnightPet extends Pet {
     private attackTimer: number = 0;
     private skillTimer: number = 0;
-    
+
     constructor(player: Player, game: Game) {
         super(player, game, 60, 150, 15, '#C0C0C0'); // Silver color
         this.attackTimer = 1;
@@ -21,9 +21,9 @@ export class KnightPet extends Pet {
         // Calculate total player damage roughly (or just use a base if needed)
         let totalDmg = 0;
         if (this.player.weapons.length > 0) {
-             totalDmg = this.player.weapons.reduce((acc, w) => acc + w.damage, 0);
+            totalDmg = this.player.weapons.reduce((acc, w) => acc + w.damage, 0);
         } else {
-             totalDmg = 2; // Default
+            totalDmg = 2; // Default
         }
         return totalDmg / 2;
     }
@@ -55,9 +55,9 @@ export class KnightPet extends Pet {
             const speed = 400;
             const vx = (dx / distance) * speed;
             const vy = (dy / distance) * speed;
-            
+
             // Create a sword slash or projectile
-            const proj = new Projectile(this.x, this.y, vx, vy, this.damage);
+            const proj = new Projectile(this.x, this.y, vx, vy, this.damage * this.damageMultiplier);
             proj.color = '#C0C0C0';
             this.game.addProjectile(proj);
         }

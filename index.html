@@ -6,11 +6,12 @@
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" as="font" href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" type="text/css">
+  <link rel="preload" as="font" href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap"
+    type="text/css">
   <link rel="preload" as="script" href="/src/main.ts" type="module">
   <script>
     // Load font asynchronously after page load
-    window.addEventListener('load', function() {
+    window.addEventListener('load', function () {
       var link = document.createElement('link');
       link.href = 'https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap';
       link.rel = 'stylesheet';
@@ -62,14 +63,16 @@
       </div>
       <button id="start-btn" class="hidden">Start Game</button>
     </div>
-    
+
     <!-- Character Selection Screen -->
-    <div id="character-select" class="hidden" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1500; color: white; font-family: 'Fredoka One', cursive;">
+    <div id="character-select" class="hidden"
+      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1500; color: white; font-family: 'Fredoka One', cursive; overflow-y: auto; padding: 40px 0;">
       <h2 style="font-size: 36px; margin-bottom: 10px; text-shadow: 3px 3px 0 #000;">选择你的英雄</h2>
       <p style="font-size: 16px; margin-bottom: 30px; color: #aaa;">Choose Your Hero</p>
-      <div style="display: flex; gap: 20px; flex-direction: row; justify-content: center; align-items: stretch;">
+      <div class="character-cards-container">
         <!-- Knight Card -->
-        <div class="character-card" data-character="knight" style="width: 200px; padding: 20px; background: linear-gradient(145deg, #4169E1, #1E3A8A); border-radius: 16px; border: 4px solid #FFD700; cursor: pointer; transition: all 0.2s; box-shadow: 6px 6px 0 #000;">
+        <div class="character-card" data-character="knight"
+          style="width: 200px; padding: 20px; background: linear-gradient(145deg, #4169E1, #1E3A8A); border-radius: 16px; border: 4px solid #FFD700; cursor: pointer; transition: all 0.2s; box-shadow: 6px 6px 0 #000;">
           <div style="font-size: 50px; text-align: center; margin-bottom: 10px;">🛡️</div>
           <h3 style="margin: 0 0 5px 0; font-size: 22px; text-align: center; text-shadow: 2px 2px 0 #000;">骑士</h3>
           <h4 style="margin: 0 0 10px 0; font-size: 14px; text-align: center; color: #87CEEB;">Knight</h4>
@@ -79,9 +82,10 @@
             <p style="margin: 4px 0; color: #ccc; font-size: 10px;">无敌2秒 | CD 30秒</p>
           </div>
         </div>
-        
+
         <!-- Warrior Card -->
-        <div class="character-card" data-character="warrior" style="width: 200px; padding: 20px; background: linear-gradient(145deg, #DC143C, #8B0000); border-radius: 16px; border: 4px solid #FFD700; cursor: pointer; transition: all 0.2s; box-shadow: 6px 6px 0 #000;">
+        <div class="character-card" data-character="warrior"
+          style="width: 200px; padding: 20px; background: linear-gradient(145deg, #DC143C, #8B0000); border-radius: 16px; border: 4px solid #FFD700; cursor: pointer; transition: all 0.2s; box-shadow: 6px 6px 0 #000;">
           <div style="font-size: 50px; text-align: center; margin-bottom: 10px;">⚔️</div>
           <h3 style="margin: 0 0 5px 0; font-size: 22px; text-align: center; text-shadow: 2px 2px 0 #000;">战士</h3>
           <h4 style="margin: 0 0 10px 0; font-size: 14px; text-align: center; color: #FFB6C1;">Warrior</h4>
@@ -91,34 +95,51 @@
             <p style="margin: 4px 0; color: #ccc; font-size: 10px;">伤害x2 持续5秒 | CD 30秒</p>
           </div>
         </div>
-        
+
         <!-- Mage Card -->
-        <div class="character-card" data-character="mage" style="width: 200px; padding: 20px; background: linear-gradient(145deg, #9932CC, #4B0082); border-radius: 16px; border: 4px solid #FFD700; cursor: pointer; transition: all 0.2s; box-shadow: 6px 6px 0 #000;">
+        <div class="character-card" data-character="mage"
+          style="width: 200px; padding: 20px; background: linear-gradient(145deg, #9932CC, #4B0082); border-radius: 16px; border: 4px solid #FFD700; cursor: pointer; transition: all 0.2s; box-shadow: 6px 6px 0 #000;">
           <div style="font-size: 50px; text-align: center; margin-bottom: 10px;">✨</div>
           <h3 style="margin: 0 0 5px 0; font-size: 22px; text-align: center; text-shadow: 2px 2px 0 #000;">法师</h3>
           <h4 style="margin: 0 0 10px 0; font-size: 14px; text-align: center; color: #DDA0DD;">Mage</h4>
           <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; font-size: 11px;">
             <p style="margin: 4px 0; color: #90EE90;">❤️ HP: 25</p>
-            <p style="margin: 4px 0; color: #FFD700;">⚡ 技能: 冲击波</p>
-            <p style="margin: 4px 0; color: #ccc; font-size: 10px;">范围伤害 | CD 30秒</p>
+            <p style="margin: 4px 0; color: #FFD700;">⚡ 技能: 急速力量</p>
+            <p style="margin: 4px 0; color: #ccc; font-size: 10px;">攻速翻倍 持续5秒 | CD 15秒</p>
+          </div>
+        </div>
+
+        <!-- Hunter Card -->
+        <div class="character-card" data-character="hunter"
+          style="width: 200px; padding: 20px; background: linear-gradient(145deg, #2E8B57, #006400); border-radius: 16px; border: 4px solid #FFD700; cursor: pointer; transition: all 0.2s; box-shadow: 6px 6px 0 #000;">
+          <div style="font-size: 50px; text-align: center; margin-bottom: 10px;">🏹</div>
+          <h3 style="margin: 0 0 5px 0; font-size: 22px; text-align: center; text-shadow: 2px 2px 0 #000;">猎人</h3>
+          <h4 style="margin: 0 0 10px 0; font-size: 14px; text-align: center; color: #90EE90;">Hunter</h4>
+          <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; font-size: 11px;">
+            <p style="margin: 4px 0; color: #90EE90;">❤️ HP: 30</p>
+            <p style="margin: 4px 0; color: #FFD700;">⚡ 技能: 野性呼唤</p>
+            <p style="margin: 4px 0; color: #ccc; font-size: 10px;">召唤宠物 & 宠物伤害x2 | CD 10秒</p>
           </div>
         </div>
       </div>
     </div>
-    
+
     <canvas id="game-canvas" class="hidden"></canvas>
     <div id="ui-layer" class="hidden">
       <div id="ui">
         <div id="hud">
           <div style="margin-bottom: 8px; pointer-events: auto; display: flex; gap: 8px;">
-            <button id="settings-btn" style="padding: 8px; font-size: 18px; display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; background: rgba(0,0,0,0.6); color: white; border: 2px solid #fff; font-family: 'Fredoka One', cursive; cursor: pointer;">
-              ⚙️ 
+            <button id="settings-btn"
+              style="padding: 8px; font-size: 18px; display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; background: rgba(0,0,0,0.6); color: white; border: 2px solid #fff; font-family: 'Fredoka One', cursive; cursor: pointer;">
+              ⚙️
             </button>
-            <button id="stats-btn" style="padding: 8px; font-size: 18px; display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; background: rgba(0,0,0,0.6); color: white; border: 2px solid #fff; font-family: 'Fredoka One', cursive; cursor: pointer;">
-              📊 
+            <button id="stats-btn"
+              style="padding: 8px; font-size: 18px; display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; background: rgba(0,0,0,0.6); color: white; border: 2px solid #fff; font-family: 'Fredoka One', cursive; cursor: pointer;">
+              📊
             </button>
-            <button id="install-btn" style="padding: 8px; font-size: 18px; display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; background: rgba(0,0,0,0.6); color: white; border: 2px solid #fff; font-family: 'Fredoka One', cursive; cursor: pointer;">
-              ⬇️ 
+            <button id="install-btn"
+              style="padding: 8px; font-size: 18px; display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; background: rgba(0,0,0,0.6); color: white; border: 2px solid #fff; font-family: 'Fredoka One', cursive; cursor: pointer;">
+              ⬇️
             </button>
           </div>
           <div class="hud-item gold-container">
@@ -131,18 +152,23 @@
             </div>
             <span id="hp">20 / 20</span>
           </div>
-          
+
         </div>
-        
+
         <!-- Skill Button (Bottom Right) -->
         <div id="skill-container" style="position: absolute; bottom: 20px; right: 20px; pointer-events: auto;">
-          <button id="skill-btn" style="width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(145deg, #9932CC, #4B0082); border: 4px solid #FFD700; color: white; font-size: 32px; cursor: pointer; box-shadow: 4px 4px 0 #000; display: flex; justify-content: center; align-items: center; position: relative;">
+          <button id="skill-btn"
+            style="width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(145deg, #9932CC, #4B0082); border: 4px solid #FFD700; color: white; font-size: 32px; cursor: pointer; box-shadow: 4px 4px 0 #000; display: flex; justify-content: center; align-items: center; position: relative;">
             <span id="skill-icon">🛡️</span>
-            <div id="skill-cooldown" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; font-size: 18px; font-weight: bold;"></div>
+            <div id="skill-cooldown"
+              style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; font-size: 18px; font-weight: bold;">
+            </div>
           </button>
-          <div id="skill-name" style="text-align: center; margin-top: 5px; font-size: 12px; color: #FFD700; text-shadow: 1px 1px 0 #000;">无敌</div>
+          <div id="skill-name"
+            style="text-align: center; margin-top: 5px; font-size: 12px; color: #FFD700; text-shadow: 1px 1px 0 #000;">
+            无敌</div>
         </div>
-        
+
         <div id="joystick-zone" class="mobile-only">
           <div id="joystick-knob"></div>
         </div>
@@ -153,97 +179,158 @@
           <h3>Enemies</h3>
           <div id="enemy-stats"></div>
         </div>
-        
-        
-        <div id="settings-modal" class="hidden" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #00ccff; color: white; padding: 25px; border-radius: 20px; z-index: 2500; text-align: center; min-width: 350px; border: 6px solid #000; box-shadow: 10px 10px 0px rgba(0, 0, 0, 1); pointer-events: auto;">
+
+
+        <div id="settings-modal" class="hidden"
+          style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #00ccff; color: white; padding: 25px; border-radius: 20px; z-index: 2500; text-align: center; min-width: 350px; border: 6px solid #000; box-shadow: 10px 10px 0px rgba(0, 0, 0, 1); pointer-events: auto;">
           <h2 id="settings-title" style="margin-top: 0; margin-bottom: 20px; color: #fff; font-size: 32px;">⚙️ 设置</h2>
-          <div style="display: flex; flex-direction: column; gap: 12px; align-items: stretch; margin: 15px 0; padding: 15px; background: rgba(255, 255, 255, 0.2); border-radius: 12px; border: 3px solid #000;">
-            <button id="mobile-shop-btn" style="padding: 10px; font-size: 16px; border-radius: 8px; background: #ff9900; color: #000; font-family: 'Fredoka One', cursive; cursor: pointer; border: 3px solid #000; font-weight: bold; box-shadow: 3px 3px 0 #000; text-shadow: none;">🛒 商店</button>
-            <button id="mute-btn" style="padding: 10px; font-size: 16px; border-radius: 8px; background: #ff9900; color: #000; font-family: 'Fredoka One', cursive; cursor: pointer; border: 3px solid #000; font-weight: bold; box-shadow: 3px 3px 0 #000; text-shadow: none;">🔊 声音: 开</button>
-            <button id="lang-btn" style="padding: 10px; font-size: 16px; border-radius: 8px; background: #ff9900; color: #000; font-family: 'Fredoka One', cursive; cursor: pointer; border: 3px solid #000; font-weight: bold; box-shadow: 3px 3px 0 #000; text-shadow: none;">🌐 中文</button>
-            <button id="leaderboard-btn" style="padding: 10px; font-size: 16px; border-radius: 8px; background: #ff9900; color: #000; font-family: 'Fredoka One', cursive; cursor: pointer; border: 3px solid #000; font-weight: bold; box-shadow: 3px 3px 0 #000; text-shadow: none;">🏆 排行榜</button>
-<button id="encyclopedia-btn" style="padding: 10px; font-size: 16px; border-radius: 8px; background: #ff9900; color: #000; font-family: 'Fredoka One', cursive; cursor: pointer; border: 3px solid #000; font-weight: bold; box-shadow: 3px 3px 0 #000; text-shadow: none;">📖 图鉴</button>
-            <button id="skilltree-btn" style="padding: 10px; font-size: 16px; border-radius: 8px; background: #9932CC; color: #fff; font-family: 'Fredoka One', cursive; cursor: pointer; border: 3px solid #000; font-weight: bold; box-shadow: 3px 3px 0 #000; text-shadow: none;">🌟 技能树</button>
-                         <button id="changelog-btn" style="padding: 10px; font-size: 16px; border-radius: 8px; background: #ff9900; color: #000; font-family: 'Fredoka One', cursive; cursor: pointer; border: 3px solid #000; font-weight: bold; box-shadow: 3px 3px 0 #000; text-shadow: none;">📜 版本列表</button>
+          <div
+            style="display: flex; flex-direction: column; gap: 12px; align-items: stretch; margin: 15px 0; padding: 15px; background: rgba(255, 255, 255, 0.2); border-radius: 12px; border: 3px solid #000;">
+            <button id="mobile-shop-btn"
+              style="padding: 10px; font-size: 16px; border-radius: 8px; background: #ff9900; color: #000; font-family: 'Fredoka One', cursive; cursor: pointer; border: 3px solid #000; font-weight: bold; box-shadow: 3px 3px 0 #000; text-shadow: none;">🛒
+              商店</button>
+            <button id="mute-btn"
+              style="padding: 10px; font-size: 16px; border-radius: 8px; background: #ff9900; color: #000; font-family: 'Fredoka One', cursive; cursor: pointer; border: 3px solid #000; font-weight: bold; box-shadow: 3px 3px 0 #000; text-shadow: none;">🔊
+              声音: 开</button>
+            <button id="lang-btn"
+              style="padding: 10px; font-size: 16px; border-radius: 8px; background: #ff9900; color: #000; font-family: 'Fredoka One', cursive; cursor: pointer; border: 3px solid #000; font-weight: bold; box-shadow: 3px 3px 0 #000; text-shadow: none;">🌐
+              中文</button>
+            <button id="leaderboard-btn"
+              style="padding: 10px; font-size: 16px; border-radius: 8px; background: #ff9900; color: #000; font-family: 'Fredoka One', cursive; cursor: pointer; border: 3px solid #000; font-weight: bold; box-shadow: 3px 3px 0 #000; text-shadow: none;">🏆
+              排行榜</button>
+            <button id="encyclopedia-btn"
+              style="padding: 10px; font-size: 16px; border-radius: 8px; background: #ff9900; color: #000; font-family: 'Fredoka One', cursive; cursor: pointer; border: 3px solid #000; font-weight: bold; box-shadow: 3px 3px 0 #000; text-shadow: none;">📖
+              图鉴</button>
+            <button id="skilltree-btn"
+              style="padding: 10px; font-size: 16px; border-radius: 8px; background: #9932CC; color: #fff; font-family: 'Fredoka One', cursive; cursor: pointer; border: 3px solid #000; font-weight: bold; box-shadow: 3px 3px 0 #000; text-shadow: none;">🌟
+              技能树</button>
+            <button id="changelog-btn"
+              style="padding: 10px; font-size: 16px; border-radius: 8px; background: #ff9900; color: #000; font-family: 'Fredoka One', cursive; cursor: pointer; border: 3px solid #000; font-weight: bold; box-shadow: 3px 3px 0 #000; text-shadow: none;">📜
+              版本列表</button>
             <div style="margin-top: 10px; font-size: 12px; color: #000; font-weight: bold;">
               <span class="desktop-only" id="desktop-hint">WASD移动 | P键商店</span>
             </div>
           </div>
-          <button id="close-settings-btn" style="margin-top: 10px; padding: 10px 20px; font-size: 18px; font-family: 'Fredoka One', cursive; cursor: pointer; border: none; border-radius: 12px; background: #ffcc00; color: #000; width: 100%; font-weight: bold; border: 3px solid #000; box-shadow: 4px 4px 0px #000; text-shadow: none;">关闭</button>
+          <button id="close-settings-btn"
+            style="margin-top: 10px; padding: 10px 20px; font-size: 18px; font-family: 'Fredoka One', cursive; cursor: pointer; border: none; border-radius: 12px; background: #ffcc00; color: #000; width: 100%; font-weight: bold; border: 3px solid #000; box-shadow: 4px 4px 0px #000; text-shadow: none;">关闭</button>
         </div>
-        
+
         <!-- Stats Modal -->
-        <div id="stats-modal" class="hidden" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); color: white; padding: 25px 20px 20px 20px; border-radius: 16px; z-index: 3000; text-align: center; min-width: 320px; max-width: 90%; width: 450px; max-height: 85vh; border: 4px solid #00ff88; box-shadow: 0 0 20px rgba(0,255,136,0.3); display: flex; flex-direction: column;">
-          <button id="close-stats-x" style="position: absolute; top: 10px; right: 10px; background: none; border: none; color: #00ff88; font-size: 24px; cursor: pointer; box-shadow: none; text-shadow: none; padding: 0; line-height: 1; width: auto;">&times;</button>
-          <h2 id="stats-title" style="margin-top: 0; color: #00ff88; text-shadow: 2px 2px 0 #000; font-size: 28px;">📊 属性面板</h2>
-          <div id="stats-content" style="text-align: left; font-size: 14px; margin: 10px 0; padding: 10px; flex: 1; overflow-y: auto; background: rgba(255,255,255,0.05); border-radius: 8px; border: 2px solid rgba(0,255,136,0.3);">
+        <div id="stats-modal" class="hidden"
+          style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); color: white; padding: 25px 20px 20px 20px; border-radius: 16px; z-index: 3000; text-align: center; min-width: 320px; max-width: 90%; width: 450px; max-height: 85vh; border: 4px solid #00ff88; box-shadow: 0 0 20px rgba(0,255,136,0.3); display: flex; flex-direction: column;">
+          <button id="close-stats-x"
+            style="position: absolute; top: 10px; right: 10px; background: none; border: none; color: #00ff88; font-size: 24px; cursor: pointer; box-shadow: none; text-shadow: none; padding: 0; line-height: 1; width: auto;">&times;</button>
+          <h2 id="stats-title" style="margin-top: 0; color: #00ff88; text-shadow: 2px 2px 0 #000; font-size: 28px;">📊
+            属性面板</h2>
+          <div id="stats-content"
+            style="text-align: left; font-size: 14px; margin: 10px 0; padding: 10px; flex: 1; overflow-y: auto; background: rgba(255,255,255,0.05); border-radius: 8px; border: 2px solid rgba(0,255,136,0.3);">
             <!-- Player Stats Section -->
             <div style="margin-bottom: 15px;">
-              <h3 style="margin: 0 0 10px 0; color: #FFD700; font-size: 18px; border-bottom: 2px solid #FFD700; padding-bottom: 5px;">👤 玩家属性</h3>
+              <h3
+                style="margin: 0 0 10px 0; color: #FFD700; font-size: 18px; border-bottom: 2px solid #FFD700; padding-bottom: 5px;">
+                👤 玩家属性</h3>
               <div id="player-stats-content"></div>
             </div>
             <!-- Weapons Stats Section -->
             <div style="margin-bottom: 15px;">
-              <h3 style="margin: 0 0 10px 0; color: #FF6B6B; font-size: 18px; border-bottom: 2px solid #FF6B6B; padding-bottom: 5px;">⚔️ 武器伤害</h3>
+              <h3
+                style="margin: 0 0 10px 0; color: #FF6B6B; font-size: 18px; border-bottom: 2px solid #FF6B6B; padding-bottom: 5px;">
+                ⚔️ 武器伤害</h3>
               <div id="weapons-stats-content"></div>
             </div>
             <!-- Enemies Stats Section -->
             <div>
-              <h3 style="margin: 0 0 10px 0; color: #FF4444; font-size: 18px; border-bottom: 2px solid #FF4444; padding-bottom: 5px;">👾 怪物属性</h3>
+              <h3
+                style="margin: 0 0 10px 0; color: #FF4444; font-size: 18px; border-bottom: 2px solid #FF4444; padding-bottom: 5px;">
+                👾 怪物属性</h3>
               <div id="enemies-stats-content"></div>
             </div>
           </div>
-          <button id="close-stats-btn" style="padding: 10px 20px; font-size: 18px; font-family: 'Fredoka One', cursive; cursor: pointer; border: 3px solid #000; border-radius: 12px; background: #00ff88; color: #000; font-weight: bold; box-shadow: 4px 4px 0 #000; text-shadow: none; margin-top: 10px;">关闭</button>
-        </div>
-        
-        <div id="changelog-modal" class="hidden" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); color: white; padding: 30px 20px 20px 20px; border-radius: 16px; z-index: 3000; text-align: center; min-width: 320px; max-width: 90%; width: 400px; max-height: 85vh; border: 4px solid #ffcc00; box-shadow: 0 0 20px rgba(0,0,0,0.5); display: flex; flex-direction: column;">
-          <button id="close-changelog-x" style="position: absolute; top: 10px; right: 10px; background: none; border: none; color: #ffcc00; font-size: 24px; cursor: pointer; box-shadow: none; text-shadow: none; padding: 0; line-height: 1; width: auto;">&times;</button>
-          <h2 id="changelog-title" style="margin-top: 0; color: #ffcc00; text-shadow: 2px 2px 0 #000; font-size: 28px;">📜 版本列表</h2>
-          <div id="changelog-list" style="text-align: left; font-size: 14px; margin: 15px 0; padding: 10px; flex: 1; overflow-y: auto; background: rgba(255,255,255,0.05); border-radius: 8px; border: 2px solid rgba(255,204,0,0.3); scrollbar-width: thin; scrollbar-color: #ffcc00 rgba(0,0,0,0.2); min-height: 200px;"></div>
-          <div id="changelog-pagination" style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; gap: 10px;">
-            <button id="changelog-prev" style="padding: 8px 16px; font-size: 14px; font-family: 'Fredoka One', cursive; cursor: pointer; border: 2px solid #000; border-radius: 8px; background: #ff9900; color: #000; font-weight: bold; box-shadow: 2px 2px 0 #000;">◀ 上一页</button>
-            <span id="changelog-page-info" style="color: #fff; font-size: 14px;"></span>
-            <button id="changelog-next" style="padding: 8px 16px; font-size: 14px; font-family: 'Fredoka One', cursive; cursor: pointer; border: 2px solid #000; border-radius: 8px; background: #ff9900; color: #000; font-weight: bold; box-shadow: 2px 2px 0 #000;">下一页 ▶</button>
-          </div>
-          <button id="close-changelog-btn" style="padding: 10px 20px; font-size: 18px; font-family: 'Fredoka One', cursive; cursor: pointer; border: 3px solid #000; border-radius: 12px; background: #ffcc00; color: #000; font-weight: bold; box-shadow: 4px 4px 0 #000; text-shadow: none; margin-top: 10px;">关闭</button>
-        </div>
-        <div id="leaderboard-modal" class="hidden" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.85); color: white; padding: 20px; border-radius: 10px; z-index: 3000; text-align: center; min-width: 250px; border: 2px solid #ffcc00;">
-          <h2 style="margin-top: 0; color: #ffcc00; text-shadow: 1px 1px 0 #000;">🏆 Leaderboard</h2>
-          <ol id="modal-leaderboard-list" style="text-align: left; font-size: 18px; margin: 15px 0; padding-left: 20px;"></ol>
-          <button id="close-leaderboard-btn" style="padding: 8px; font-size: 16px; font-family: 'Fredoka One', cursive; cursor: pointer; border: none; border-radius: 5px; background: #ffcc00; color: #333;">Close</button>
+          <button id="close-stats-btn"
+            style="padding: 10px 20px; font-size: 18px; font-family: 'Fredoka One', cursive; cursor: pointer; border: 3px solid #000; border-radius: 12px; background: #00ff88; color: #000; font-weight: bold; box-shadow: 4px 4px 0 #000; text-shadow: none; margin-top: 10px;">关闭</button>
         </div>
 
-        <div id="encyclopedia-modal" class="hidden" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.9); color: white; padding: 20px; border-radius: 10px; z-index: 3000; text-align: center; min-width: 400px; max-width: 600px; max-height: 80vh; overflow-y: auto; border: 2px solid #00ccff;">
+        <div id="changelog-modal" class="hidden"
+          style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); color: white; padding: 30px 20px 20px 20px; border-radius: 16px; z-index: 3000; text-align: center; min-width: 320px; max-width: 90%; width: 400px; max-height: 85vh; border: 4px solid #ffcc00; box-shadow: 0 0 20px rgba(0,0,0,0.5); display: flex; flex-direction: column;">
+          <button id="close-changelog-x"
+            style="position: absolute; top: 10px; right: 10px; background: none; border: none; color: #ffcc00; font-size: 24px; cursor: pointer; box-shadow: none; text-shadow: none; padding: 0; line-height: 1; width: auto;">&times;</button>
+          <h2 id="changelog-title" style="margin-top: 0; color: #ffcc00; text-shadow: 2px 2px 0 #000; font-size: 28px;">
+            📜 版本列表</h2>
+          <div id="changelog-list"
+            style="text-align: left; font-size: 14px; margin: 15px 0; padding: 10px; flex: 1; overflow-y: auto; background: rgba(255,255,255,0.05); border-radius: 8px; border: 2px solid rgba(255,204,0,0.3); scrollbar-width: thin; scrollbar-color: #ffcc00 rgba(0,0,0,0.2); min-height: 200px;">
+          </div>
+          <div id="changelog-pagination"
+            style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; gap: 10px;">
+            <button id="changelog-prev"
+              style="padding: 8px 16px; font-size: 14px; font-family: 'Fredoka One', cursive; cursor: pointer; border: 2px solid #000; border-radius: 8px; background: #ff9900; color: #000; font-weight: bold; box-shadow: 2px 2px 0 #000;">◀
+              上一页</button>
+            <span id="changelog-page-info" style="color: #fff; font-size: 14px;"></span>
+            <button id="changelog-next"
+              style="padding: 8px 16px; font-size: 14px; font-family: 'Fredoka One', cursive; cursor: pointer; border: 2px solid #000; border-radius: 8px; background: #ff9900; color: #000; font-weight: bold; box-shadow: 2px 2px 0 #000;">下一页
+              ▶</button>
+          </div>
+          <button id="close-changelog-btn"
+            style="padding: 10px 20px; font-size: 18px; font-family: 'Fredoka One', cursive; cursor: pointer; border: 3px solid #000; border-radius: 12px; background: #ffcc00; color: #000; font-weight: bold; box-shadow: 4px 4px 0 #000; text-shadow: none; margin-top: 10px;">关闭</button>
+        </div>
+        <div id="leaderboard-modal" class="hidden"
+          style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.85); color: white; padding: 20px; border-radius: 10px; z-index: 3000; text-align: center; min-width: 250px; border: 2px solid #ffcc00;">
+          <h2 style="margin-top: 0; color: #ffcc00; text-shadow: 1px 1px 0 #000;">🏆 Leaderboard</h2>
+          <ol id="modal-leaderboard-list"
+            style="text-align: left; font-size: 18px; margin: 15px 0; padding-left: 20px;"></ol>
+          <button id="close-leaderboard-btn"
+            style="padding: 8px; font-size: 16px; font-family: 'Fredoka One', cursive; cursor: pointer; border: none; border-radius: 5px; background: #ffcc00; color: #333;">Close</button>
+        </div>
+
+        <div id="encyclopedia-modal" class="hidden"
+          style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.9); color: white; padding: 20px; border-radius: 10px; z-index: 3000; text-align: center; min-width: 400px; max-width: 600px; max-height: 80vh; overflow-y: auto; border: 2px solid #00ccff;">
           <h2 style="margin-top: 0; color: #00ccff; text-shadow: 1px 1px 0 #000;">📖 Encyclopedia</h2>
           <div id="encyclopedia-tabs" style="display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;">
             <button id="tab-weapons" style="padding: 6px 12px; font-size: 14px;">Weapons</button>
             <button id="tab-monsters" style="padding: 6px 12px; font-size: 14px;">Monsters</button>
             <button id="tab-pets" style="padding: 6px 12px; font-size: 14px;">Pets</button>
           </div>
-          <div id="encyclopedia-content" style="text-align: left; font-size: 14px; margin: 10px 0; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px; max-height: 400px; overflow-y: auto;"></div>
-<button id="close-encyclopedia-btn" style="padding: 8px; font-size: 16px; font-family: 'Fredoka One', cursive; cursor: pointer; border: none; border-radius: 5px; background: #00ccff; color: #333;">Close</button>
+          <div id="encyclopedia-content"
+            style="text-align: left; font-size: 14px; margin: 10px 0; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px; max-height: 400px; overflow-y: auto;">
+          </div>
+          <button id="close-encyclopedia-btn"
+            style="padding: 8px; font-size: 16px; font-family: 'Fredoka One', cursive; cursor: pointer; border: none; border-radius: 5px; background: #00ccff; color: #333;">Close</button>
         </div>
 
-        <div id="skilltree-modal" class="hidden" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 30px 20px 20px 20px; border-radius: 16px; z-index: 3000; text-align: center; min-width: 320px; max-width: 95%; width: 900px; max-height: 85vh; border: 4px solid #9932CC; box-shadow: 0 0 30px rgba(153, 50, 204, 0.5); display: flex; flex-direction: column;">
-          <button id="close-skilltree-x" style="position: absolute; top: 10px; right: 10px; background: none; border: none; color: #9932CC; font-size: 28px; cursor: pointer; box-shadow: none; text-shadow: none; padding: 0; line-height: 1; width: auto; z-index: 1;">&times;</button>
-          
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0;">
-            <h2 id="skilltree-title" style="margin: 0; color: #9932CC; text-shadow: 2px 2px 0 #000; font-size: 32px;">🌟 技能树</h2>
+        <div id="skilltree-modal" class="hidden"
+          style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 30px 20px 20px 20px; border-radius: 16px; z-index: 3000; text-align: center; min-width: 320px; max-width: 95%; width: 900px; max-height: 85vh; border: 4px solid #9932CC; box-shadow: 0 0 30px rgba(153, 50, 204, 0.5); display: flex; flex-direction: column;">
+          <button id="close-skilltree-x"
+            style="position: absolute; top: 10px; right: 10px; background: none; border: none; color: #9932CC; font-size: 28px; cursor: pointer; box-shadow: none; text-shadow: none; padding: 0; line-height: 1; width: auto; z-index: 1;">&times;</button>
+
+          <div
+            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0;">
+            <h2 id="skilltree-title" style="margin: 0; color: #9932CC; text-shadow: 2px 2px 0 #000; font-size: 32px;">🌟
+              技能树</h2>
             <div style="display: flex; gap: 15px; align-items: center;">
-              <span id="skill-points-display" style="font-size: 18px; color: #FFD700; font-weight: bold;">⭐ 技能点: <span id="skill-points">0</span></span>
-              <button id="reset-skills-btn" style="padding: 6px 12px; font-size: 14px; background: #ff4444; color: white; border: 2px solid #000; border-radius: 8px; cursor: pointer; font-weight: bold;">重置</button>
+              <span id="skill-points-display" style="font-size: 18px; color: #FFD700; font-weight: bold;">⭐ 技能点: <span
+                  id="skill-points">0</span></span>
+              <button id="reset-skills-btn"
+                style="padding: 6px 12px; font-size: 14px; background: #ff4444; color: white; border: 2px solid #000; border-radius: 8px; cursor: pointer; font-weight: bold;">重置</button>
             </div>
           </div>
 
           <div id="skilltree-branches" style="display: flex; gap: 10px; margin-bottom: 15px; flex-shrink: 0;">
-            <button id="branch-attack" class="skill-branch-tab active" style="flex: 1; padding: 10px; font-size: 16px; border-radius: 8px; border: 2px solid #ff4444; background: #ff4444; color: white; font-weight: bold; cursor: pointer;">⚔️ 攻击</button>
-            <button id="branch-defense" class="skill-branch-tab" style="flex: 1; padding: 10px; font-size: 16px; border-radius: 8px; border: 2px solid #4444ff; background: rgba(68, 68, 255, 0.3); color: white; font-weight: bold; cursor: pointer;">🛡️ 防御</button>
-            <button id="branch-support" class="skill-branch-tab" style="flex: 1; padding: 10px; font-size: 16px; border-radius: 8px; border: 2px solid #44ff44; background: rgba(68, 255, 68, 0.3); color: white; font-weight: bold; cursor: pointer;">💰 辅助</button>
+            <button id="branch-attack" class="skill-branch-tab active"
+              style="flex: 1; padding: 10px; font-size: 16px; border-radius: 8px; border: 2px solid #ff4444; background: #ff4444; color: white; font-weight: bold; cursor: pointer;">⚔️
+              攻击</button>
+            <button id="branch-defense" class="skill-branch-tab"
+              style="flex: 1; padding: 10px; font-size: 16px; border-radius: 8px; border: 2px solid #4444ff; background: rgba(68, 68, 255, 0.3); color: white; font-weight: bold; cursor: pointer;">🛡️
+              防御</button>
+            <button id="branch-support" class="skill-branch-tab"
+              style="flex: 1; padding: 10px; font-size: 16px; border-radius: 8px; border: 2px solid #44ff44; background: rgba(68, 255, 68, 0.3); color: white; font-weight: bold; cursor: pointer;">💰
+              辅助</button>
           </div>
 
-          <div id="skilltree-content" style="display: flex; flex-direction: column; gap: 15px; text-align: left; overflow-y: auto; flex: 1; min-height: 0; padding: 10px;"></div>
+          <div id="skilltree-content"
+            style="display: flex; flex-direction: column; gap: 15px; text-align: left; overflow-y: auto; flex: 1; min-height: 0; padding: 10px;">
+          </div>
 
-          <button id="close-skilltree-btn" style="margin-top: 15px; padding: 10px 20px; font-size: 18px; font-family: 'Fredoka One', cursive; cursor: pointer; border: 3px solid #000; border-radius: 12px; background: #9932CC; color: white; font-weight: bold; box-shadow: 4px 4px 0 #000; text-shadow: none; flex-shrink: 0;">关闭</button>
+          <button id="close-skilltree-btn"
+            style="margin-top: 15px; padding: 10px 20px; font-size: 18px; font-family: 'Fredoka One', cursive; cursor: pointer; border: 3px solid #000; border-radius: 12px; background: #9932CC; color: white; font-weight: bold; box-shadow: 4px 4px 0 #000; text-shadow: none; flex-shrink: 0;">关闭</button>
         </div>
 
         <div id="shop" class="hidden">

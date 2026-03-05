@@ -8,6 +8,10 @@ export abstract class Pet extends Entity {
     protected speed: number;
     protected hoverAngle: number = 0;
     protected hoverDistance: number;
+    public isTemporary: boolean = false;
+    public lifeTimer: number = 0;
+    public damageMultiplier: number = 1.0;
+    public isDead: boolean = false;
 
     constructor(player: Player, game: Game, hoverDistance: number, speed: number, radius: number, color: string) {
         // Init exactly on player
@@ -39,6 +43,14 @@ export abstract class Pet extends Entity {
         if (dist > 5) { // Deadzone to stop jittering
             this.x += (dx / dist) * this.speed * deltaTime;
             this.y += (dy / dist) * this.speed * deltaTime;
+        }
+
+        // Life timer for temporary pets
+        if (this.isTemporary) {
+            this.lifeTimer -= deltaTime;
+            if (this.lifeTimer <= 0) {
+                this.isDead = true;
+            }
         }
 
         // Perform specific pet actions

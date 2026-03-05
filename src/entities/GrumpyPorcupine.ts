@@ -32,7 +32,7 @@ export class GrumpyPorcupine extends Pet {
             // If enemy touches porcupine
             if (dist < this.radius + enemy.radius) {
                 // Deal damage
-                enemy.takeDamage(5); // High burst damage
+                enemy.takeDamage(5 * this.damageMultiplier); // High burst damage
 
                 // Visual feedback
                 for (let i = 0; i < 5; i++) {

@@ -412,7 +412,30 @@ button:disabled {
     font-size: 14px;
     padding: 8px;
   }
+
+  /* Character Selection Responsive */
+  .character-cards-container {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+    max-width: 500px !important;
+    margin: 10px auto !important;
+    justify-items: center !important;
+    align-items: center !important;
+  }
+
+  .character-card {
+    width: 100% !important;
+    max-width: 180px !important;
+    padding: 10px !important;
+  }
+
+  #character-select h2 {
+    font-size: 28px !important;
+    margin-top: 20px !important;
+  }
 }
+
 #leaderboard-section {
   background: rgba(0, 0, 0, 0.6);
   padding: 15px;
@@ -458,6 +481,7 @@ button:disabled {
   font-size: 16px;
   width: 150px;
 }
+
 #leaderboard-input-section input {
   pointer-events: auto;
 }
@@ -478,19 +502,26 @@ button:disabled {
 }
 
 /* Custom scrollbar for changelog and other modals */
-#changelog-list::-webkit-scrollbar, #encyclopedia-content::-webkit-scrollbar {
+#changelog-list::-webkit-scrollbar,
+#encyclopedia-content::-webkit-scrollbar {
   width: 12px;
 }
-#changelog-list::-webkit-scrollbar-track, #encyclopedia-content::-webkit-scrollbar-track {
+
+#changelog-list::-webkit-scrollbar-track,
+#encyclopedia-content::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.4);
   border-radius: 6px;
 }
-#changelog-list::-webkit-scrollbar-thumb, #encyclopedia-content::-webkit-scrollbar-thumb {
+
+#changelog-list::-webkit-scrollbar-thumb,
+#encyclopedia-content::-webkit-scrollbar-thumb {
   background: #ffcc00;
   border-radius: 6px;
   border: 3px solid #000;
 }
-#changelog-list::-webkit-scrollbar-thumb:hover, #encyclopedia-content::-webkit-scrollbar-thumb:hover {
+
+#changelog-list::-webkit-scrollbar-thumb:hover,
+#encyclopedia-content::-webkit-scrollbar-thumb:hover {
   background: #ffe680;
 }
 
