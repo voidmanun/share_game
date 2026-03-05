@@ -727,6 +727,15 @@ if (leaderboardBtn) {
     }
   }, 15);
 
+  // Auto-pause when game goes to background (tab switch, minimize, etc.)
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      game.pause();
+    } else {
+      game.resume();
+    }
+  });
+
   startBtn?.addEventListener('click', () => {
     if (loadingScreen) loadingScreen.style.display = 'none';
     document.getElementById('game-canvas')?.classList.remove('hidden');
