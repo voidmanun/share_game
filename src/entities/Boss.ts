@@ -7,7 +7,7 @@ export class Boss extends Enemy {
         this.color = '#FF0000'; // Red
         this.speed = 100;       // 2x speed
         this.damage = 2;        // 2x damage
-        this.hp = 20;           // More HP for boss feel
+        this.hp = 40;           // Doubled HP for boss feel
         this.radius = 20;       // Slightly larger
     }
 

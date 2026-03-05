@@ -47,6 +47,7 @@ import { GrumpyPorcupine } from './entities/GrumpyPorcupine';
 import { BouncySlime } from './entities/BouncySlime';
 import { LuckyCat } from './entities/LuckyCat';
 import { HolyLightTurtle } from './entities/HolyLightTurtle';
+import { Chest } from './entities/Chest';
 import { getLeaderboard, saveScore } from './leaderboard';
 
 export class Game {
@@ -103,6 +104,7 @@ export class Game {
     public getEnemies(): Enemy[] { return this.enemies; }
     private projectiles: Projectile[] = [];
     private pickups: (Pickup | WeaponPickup | HealthPickup | LollipopPickup | PetEggPickup | CharmPotionPickup)[] = [];
+    private chests: Chest[] = [];
     public particles: Particle[] = [];
     public floatingTexts: FloatingText[] = [];
 
@@ -137,6 +139,7 @@ export class Game {
         this.enemies = [];
         this.projectiles = [];
         this.pickups = [];
+        this.chests = [];
         this.particles = [];
         this.floatingTexts = [];
         this.pets = [];
@@ -398,6 +401,10 @@ export class Game {
         this.enemies = this.enemies.filter(e => !e.isDead);
         this.projectiles = this.projectiles.filter(p => !p.isDead);
         this.pickups = this.pickups.filter(p => !p.isDead);
+        this.chests = this.chests.filter(c => !c.isDead);
+
+        // Update chests
+        this.chests.forEach(c => c.update(deltaTime));
 
         // Update particles
         this.particles.forEach(p => p.update(deltaTime));
@@ -451,7 +458,28 @@ export class Game {
         const weaponTypes = ['Magic Wand', 'Laser', 'Missile Launcher', 'Shotgun', 'Orbit Shield', 'Bubble Gun', 'Boomerang', 'Splitter Gun', 'Poison Gun', 'Freeze Gun'];
         const bossWeaponTypes = ['Missile Launcher', 'Shotgun', 'Orbit Shield', 'Bubble Gun', 'Boomerang', 'Splitter Gun', 'Poison Gun', 'Freeze Gun'];
 
-        if (enemy instanceof Boss || enemy instanceof TitanEnemy || enemy instanceof FusionBoss) {
+        if (enemy instanceof Boss) {
+            // Boss drops treasure chest (pick 1 of 3)
+            const offset = 50;
+            const rewards: Array<{type: string, value: number | string}> = [
+                {type: 'health', value: 30},
+                {type: 'speed', value: 0.15},
+                {type: 'damage', value: 0.2},
+                {type: 'attackSpeed', value: 0.15},
+                {type: 'maxHp', value: 20},
+                {type: 'gold', value: 50},
+                {type: 'shield', value: 5}
+            ];
+            
+            // Pick 3 random rewards for the chests
+            const shuffled = rewards.sort(() => Math.random() - 0.5).slice(0, 3);
+            
+            this.chests.push(new Chest(enemy.x - offset, enemy.y, this, shuffled[0].type as any, shuffled[0].value as number));
+            this.chests.push(new Chest(enemy.x, enemy.y, this, shuffled[1].type as any, shuffled[1].value as number));
+            this.chests.push(new Chest(enemy.x + offset, enemy.y, this, shuffled[2].type as any, shuffled[2].value as number));
+            
+            this.floatingTexts.push(new FloatingText(enemy.x, enemy.y - 60, `宝箱掉落！三选一`, '#FFD700'));
+        } else if (enemy instanceof TitanEnemy || enemy instanceof FusionBoss) {
             const type = bossWeaponTypes[Math.floor(Math.random() * bossWeaponTypes.length)];
             this.pickups.push(new WeaponPickup(enemy.x, enemy.y, type));
             if (enemy instanceof TitanEnemy) {
@@ -682,7 +710,7 @@ export class Game {
             if (collected) {
                 if (pickup instanceof WeaponPickup) {
                     this.handleWeaponPickup(pickup);
-                    this.soundManager.playPickupSound(); // using same sound for now
+                    this.soundManager.playPickupSound();
                 } else if (pickup instanceof HealthPickup) {
                     const healed = this.player.heal(pickup.healAmount);
                     if (healed > 0) {
@@ -690,9 +718,9 @@ export class Game {
                     } else {
                         this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 20, `MAX HP`, '#00FF00'));
                     }
-                    this.soundManager.playPickupSound(); // Reusing coin sound for now
+                    this.soundManager.playPickupSound();
                 } else if (pickup instanceof LollipopPickup) {
-                    this.player.becomeInvincible(10); // 10 seconds of invincibility
+                    this.player.becomeInvincible(10);
                     this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `INVINCIBLE!`, '#FF00FF'));
                     this.soundManager.playPickupSound();
                 } else if (pickup instanceof PetEggPickup) {
@@ -706,6 +734,22 @@ export class Game {
                     this.soundManager.playPickupSound();
                 }
                 pickup.isDead = true;
+            }
+        }
+
+        // Handle chest selection - player picks one chest and all disappear
+        for (const chest of this.chests) {
+            const dx = this.player.x - chest.x;
+            const dy = this.player.y - chest.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < this.player.radius + chest.radius + 10) {
+                chest.select();
+                this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 50, `获得强化！`, '#FFD700'));
+                this.soundManager.playPickupSound();
+                // Remove all chests after selection
+                this.chests.forEach(c => c.isDead = true);
+                break;
             }
         }
     }
@@ -996,6 +1040,9 @@ export class Game {
 
         // Render pickups
         this.pickups.forEach(p => p.render(this.ctx));
+
+        // Render chests
+        this.chests.forEach(c => c.render(this.ctx));
 
         // Render enemies
         this.enemies.forEach(enemy => enemy.render(this.ctx));
