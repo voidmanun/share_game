@@ -202,7 +202,7 @@ export class EliteRewardSystem {
         this.cards.forEach((card, index) => {
             const cardEl = document.createElement('div');
             cardEl.style.cssText = `
-                width: 220px;
+                width: 200px;
                 padding: 25px 20px;
                 background: linear-gradient(145deg, ${card.color}22, ${card.color}44);
                 border: 4px solid ${card.color};
