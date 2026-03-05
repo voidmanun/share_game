@@ -33,6 +33,13 @@ const changelogModal = document.getElementById('changelog-modal') as HTMLElement
 const changelogList = document.getElementById('changelog-list') as HTMLElement;
 const closeChangelogBtn = document.getElementById('close-changelog-btn') as HTMLButtonElement;
 const closeChangelogX = document.getElementById('close-changelog-x') as HTMLButtonElement;
+const changelogPrevBtn = document.getElementById('changelog-prev') as HTMLButtonElement;
+const changelogNextBtn = document.getElementById('changelog-next') as HTMLButtonElement;
+const changelogPageInfo = document.getElementById('changelog-page-info') as HTMLElement;
+
+let changelogData: any[] = [];
+let changelogPage = 1;
+const changelogPerPage = 8;
 
 const leaderboardBtn = document.getElementById('leaderboard-btn');
   const leaderboardModal = document.getElementById('leaderboard-modal');
@@ -63,42 +70,89 @@ function timeAgo(dateString: string, lang: string = 'zh'): string {
   return lang === 'zh' ? `${years}年前` : `${years} yrs ago`;
 }
 
+function renderChangelogPage() {
+  const totalPages = Math.ceil(changelogData.length / changelogPerPage);
+  const start = (changelogPage - 1) * changelogPerPage;
+  const end = start + changelogPerPage;
+  const pageData = changelogData.slice(start, end);
+
+  changelogList.innerHTML = '';
+  if (pageData.length > 0) {
+    pageData.forEach((log: any) => {
+      const div = document.createElement('div');
+      div.style.padding = '8px';
+      div.style.background = 'rgba(255, 255, 255, 0.1)';
+      div.style.borderRadius = '6px';
+      div.style.borderLeft = '4px solid #ffcc00';
+      div.style.marginBottom = '8px';
+
+      const timeSpan = document.createElement('div');
+      timeSpan.style.fontSize = '12px';
+      timeSpan.style.color = '#ccc';
+      timeSpan.style.marginBottom = '4px';
+      timeSpan.textContent = timeAgo(log.time, getLanguage());
+
+      const msgSpan = document.createElement('div');
+      msgSpan.style.fontSize = '14px';
+      msgSpan.style.color = '#fff';
+      msgSpan.textContent = log.msg;
+
+      div.appendChild(timeSpan);
+      div.appendChild(msgSpan);
+      changelogList.appendChild(div);
+    });
+  } else {
+    changelogList.innerHTML = '<div style="text-align: center; color: #ccc;">暂无中文版本记录</div>';
+  }
+
+  if (changelogPageInfo) {
+    changelogPageInfo.textContent = getLanguage() === 'zh' 
+      ? `第 ${changelogPage} / ${totalPages || 1} 页` 
+      : `Page ${changelogPage} / ${totalPages || 1}`;
+  }
+
+  if (changelogPrevBtn) {
+    changelogPrevBtn.disabled = changelogPage <= 1;
+    changelogPrevBtn.style.opacity = changelogPage <= 1 ? '0.5' : '1';
+    changelogPrevBtn.style.cursor = changelogPage <= 1 ? 'not-allowed' : 'pointer';
+  }
+  if (changelogNextBtn) {
+    changelogNextBtn.disabled = changelogPage >= totalPages;
+    changelogNextBtn.style.opacity = changelogPage >= totalPages ? '0.5' : '1';
+    changelogNextBtn.style.cursor = changelogPage >= totalPages ? 'not-allowed' : 'pointer';
+  }
+}
+
 if (changelogBtn) {
   changelogBtn.addEventListener('click', async () => {
     try {
       const res = await fetch('/api/changelog');
-      const data = await res.json();
-      changelogList.innerHTML = '';
-      if (data && data.length > 0) {
-        data.forEach((log: any) => {
-          const div = document.createElement('div');
-          div.style.padding = '8px';
-          div.style.background = 'rgba(255, 255, 255, 0.1)';
-          div.style.borderRadius = '6px';
-          div.style.borderLeft = '4px solid #ffcc00';
-          
-          const timeSpan = document.createElement('div');
-          timeSpan.style.fontSize = '12px';
-          timeSpan.style.color = '#ccc';
-          timeSpan.style.marginBottom = '4px';
-          timeSpan.textContent = timeAgo(log.time, getLanguage());
-          
-          const msgSpan = document.createElement('div');
-          msgSpan.style.fontSize = '14px';
-          msgSpan.style.color = '#fff';
-          msgSpan.textContent = log.msg;
-          
-          div.appendChild(timeSpan);
-          div.appendChild(msgSpan);
-          changelogList.appendChild(div);
-        });
-      } else {
-        changelogList.innerHTML = '<div style="text-align: center; color: #ccc;">暂无中文版本记录</div>';
-      }
+      changelogData = await res.json();
+      changelogPage = 1;
+      renderChangelogPage();
       if (settingsModal) settingsModal.classList.add('hidden');
       changelogModal.classList.remove('hidden');
     } catch (e) {
       console.error('Failed to load changelog', e);
+    }
+  });
+}
+
+if (changelogPrevBtn) {
+  changelogPrevBtn.addEventListener('click', () => {
+    if (changelogPage > 1) {
+      changelogPage--;
+      renderChangelogPage();
+    }
+  });
+}
+
+if (changelogNextBtn) {
+  changelogNextBtn.addEventListener('click', () => {
+    const totalPages = Math.ceil(changelogData.length / changelogPerPage);
+    if (changelogPage < totalPages) {
+      changelogPage++;
+      renderChangelogPage();
     }
   });
 }
@@ -486,6 +540,13 @@ if (leaderboardBtn) {
     if (closeChangelogBtnElem) {
       closeChangelogBtnElem.innerHTML = newLang === 'zh' ? '关闭' : 'Close';
     }
+    if (changelogPrevBtn) {
+      changelogPrevBtn.innerHTML = newLang === 'zh' ? '◀ 上一页' : '◀ Prev';
+    }
+    if (changelogNextBtn) {
+      changelogNextBtn.innerHTML = newLang === 'zh' ? '下一页 ▶' : 'Next ▶';
+    }
+    renderChangelogPage();
     if (langBtn) {
       langBtn.innerHTML = newLang === 'zh' ? '🌐 中文' : '🌐 English';
     }

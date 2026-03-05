@@ -462,7 +462,7 @@ button:disabled {
   pointer-events: auto;
 }
 
-#changelog-modal {
+#changelog-modal:not(.hidden) {
   touch-action: pan-y;
   display: flex !important;
   flex-direction: column !important;
