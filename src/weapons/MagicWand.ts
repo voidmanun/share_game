@@ -17,15 +17,9 @@ export class MagicWand extends Weapon {
         const baseAngle = Math.atan2(dy, dx);
         
         const speed = 600;
-        const spreadAngle = 0.2; // small spread between the two bullets
-        
-        const angles = [baseAngle - spreadAngle/2, baseAngle + spreadAngle/2];
-        
-        for (const angle of angles) {
-            const vx = Math.cos(angle) * speed;
-            const vy = Math.sin(angle) * speed;
-            this.game.addProjectile(new Projectile(this.owner.x, this.owner.y, vx, vy, this.damage));
-        }
+        const vx = Math.cos(baseAngle) * speed;
+        const vy = Math.sin(baseAngle) * speed;
+        this.game.addProjectile(new Projectile(this.owner.x, this.owner.y, vx, vy, this.damage));
 
         this.game.soundManager.playShootSound();
     }

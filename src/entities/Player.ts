@@ -5,8 +5,8 @@ import type { SkillTreeManager } from '../systems/SkillTree';
 
 export class Player extends Entity {
   private input: Input;
-  private baseSpeed: number = 200; // pixels per second
-  private speed: number = 200;
+  private baseSpeed: number = 100; // pixels per second
+  private speed: number = 100;
   public weapons: Weapon[] = [];
   public hp: number = 30; // Increased base HP to survive scaling
   public maxHp: number = 30;
