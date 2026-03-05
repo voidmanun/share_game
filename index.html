@@ -142,10 +142,10 @@
 <button id="close-encyclopedia-btn" style="padding: 8px; font-size: 16px; font-family: 'Fredoka One', cursive; cursor: pointer; border: none; border-radius: 5px; background: #00ccff; color: #333;">Close</button>
         </div>
 
-        <div id="skilltree-modal" class="hidden" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 30px 20px 20px 20px; border-radius: 16px; z-index: 3000; text-align: center; min-width: 320px; max-width: 95%; width: 900px; max-height: 90vh; border: 4px solid #9932CC; box-shadow: 0 0 30px rgba(153, 50, 204, 0.5);">
-          <button id="close-skilltree-x" style="position: absolute; top: 10px; right: 10px; background: none; border: none; color: #9932CC; font-size: 28px; cursor: pointer; box-shadow: none; text-shadow: none; padding: 0; line-height: 1; width: auto;">&times;</button>
+        <div id="skilltree-modal" class="hidden" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 30px 20px 20px 20px; border-radius: 16px; z-index: 3000; text-align: center; min-width: 320px; max-width: 95%; width: 900px; max-height: 85vh; border: 4px solid #9932CC; box-shadow: 0 0 30px rgba(153, 50, 204, 0.5); display: flex; flex-direction: column;">
+          <button id="close-skilltree-x" style="position: absolute; top: 10px; right: 10px; background: none; border: none; color: #9932CC; font-size: 28px; cursor: pointer; box-shadow: none; text-shadow: none; padding: 0; line-height: 1; width: auto; z-index: 1;">&times;</button>
           
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0;">
             <h2 id="skilltree-title" style="margin: 0; color: #9932CC; text-shadow: 2px 2px 0 #000; font-size: 32px;">🌟 技能树</h2>
             <div style="display: flex; gap: 15px; align-items: center;">
               <span id="skill-points-display" style="font-size: 18px; color: #FFD700; font-weight: bold;">⭐ 技能点: <span id="skill-points">0</span></span>
@@ -153,15 +153,15 @@
             </div>
           </div>
 
-          <div id="skilltree-branches" style="display: flex; gap: 10px; margin-bottom: 15px;">
+          <div id="skilltree-branches" style="display: flex; gap: 10px; margin-bottom: 15px; flex-shrink: 0;">
             <button id="branch-attack" class="skill-branch-tab active" style="flex: 1; padding: 10px; font-size: 16px; border-radius: 8px; border: 2px solid #ff4444; background: #ff4444; color: white; font-weight: bold; cursor: pointer;">⚔️ 攻击</button>
             <button id="branch-defense" class="skill-branch-tab" style="flex: 1; padding: 10px; font-size: 16px; border-radius: 8px; border: 2px solid #4444ff; background: rgba(68, 68, 255, 0.3); color: white; font-weight: bold; cursor: pointer;">🛡️ 防御</button>
             <button id="branch-support" class="skill-branch-tab" style="flex: 1; padding: 10px; font-size: 16px; border-radius: 8px; border: 2px solid #44ff44; background: rgba(68, 255, 68, 0.3); color: white; font-weight: bold; cursor: pointer;">💰 辅助</button>
           </div>
 
-          <div id="skilltree-content" style="display: flex; flex-direction: column; gap: 15px; text-align: left; overflow-y: auto; max-height: 60vh; padding: 10px;"></div>
+          <div id="skilltree-content" style="display: flex; flex-direction: column; gap: 15px; text-align: left; overflow-y: auto; flex: 1; min-height: 0; padding: 10px;"></div>
 
-          <button id="close-skilltree-btn" style="margin-top: 15px; padding: 10px 20px; font-size: 18px; font-family: 'Fredoka One', cursive; cursor: pointer; border: 3px solid #000; border-radius: 12px; background: #9932CC; color: white; font-weight: bold; box-shadow: 4px 4px 0 #000; text-shadow: none;">关闭</button>
+          <button id="close-skilltree-btn" style="margin-top: 15px; padding: 10px 20px; font-size: 18px; font-family: 'Fredoka One', cursive; cursor: pointer; border: 3px solid #000; border-radius: 12px; background: #9932CC; color: white; font-weight: bold; box-shadow: 4px 4px 0 #000; text-shadow: none; flex-shrink: 0;">关闭</button>
         </div>
 
         <div id="shop" class="hidden">
