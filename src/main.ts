@@ -3,6 +3,8 @@ import { Game } from './Game'
 import { getLanguage, setLanguage, t, updateUI } from './i18n';
 import { getLeaderboard } from './leaderboard';
 import { initPWA } from './pwa';
+import { SkillTreeManager, type SkillBranch } from './systems/SkillTree';
+import { FloatingText } from './entities/FloatingText';
 
 // Initialize language UI immediately on load
 updateUI();
@@ -51,6 +53,143 @@ const leaderboardBtn = document.getElementById('leaderboard-btn');
   const settingsModal = document.getElementById('settings-modal');
   const closeSettingsBtn = document.getElementById('close-settings-btn');
   const mobileShopBtn = document.getElementById('mobile-shop-btn'); // the shop btn in settings
+
+  // Skill Tree
+  const skillTreeManager = new SkillTreeManager();
+  const skilltreeBtn = document.getElementById('skilltree-btn') as HTMLButtonElement;
+  const skilltreeModal = document.getElementById('skilltree-modal') as HTMLElement;
+  const closeSkilltreeBtn = document.getElementById('close-skilltree-btn') as HTMLButtonElement;
+  const closeSkilltreeX = document.getElementById('close-skilltree-x') as HTMLButtonElement;
+  const skilltreeContent = document.getElementById('skilltree-content') as HTMLElement;
+  const skillPointsEl = document.getElementById('skill-points') as HTMLElement;
+  const resetSkillsBtn = document.getElementById('reset-skills-btn') as HTMLButtonElement;
+  const branchAttackBtn = document.getElementById('branch-attack') as HTMLButtonElement;
+  const branchDefenseBtn = document.getElementById('branch-defense') as HTMLButtonElement;
+  const branchSupportBtn = document.getElementById('branch-support') as HTMLButtonElement;
+
+  let currentBranch: SkillBranch = 'attack';
+
+  function renderSkillTree(branch: SkillBranch) {
+    const skills = skillTreeManager.getSkillsByBranch(branch);
+    const lang = getLanguage();
+
+    skilltreeContent.innerHTML = '';
+    skillPointsEl.textContent = skillTreeManager.getSkillPoints().toString();
+
+    const tierGroups: Map<number, typeof skills> = new Map();
+    skills.forEach(skill => {
+      if (!tierGroups.has(skill.tier)) {
+        tierGroups.set(skill.tier, []);
+      }
+      tierGroups.get(skill.tier)!.push(skill);
+    });
+
+    for (let tier = 0; tier <= 3; tier++) {
+      const tierSkills = tierGroups.get(tier) || [];
+      if (tierSkills.length === 0) continue;
+
+      const tierDiv = document.createElement('div');
+      tierDiv.style.marginBottom = '20px';
+
+      const tierLabel = document.createElement('div');
+      tierLabel.style.fontSize = '14px';
+      tierLabel.style.color = '#999';
+      tierLabel.style.marginBottom = '10px';
+      tierLabel.style.paddingLeft = '5px';
+      tierLabel.textContent = lang === 'zh' ? `第 ${tier + 1} 层` : `Tier ${tier + 1}`;
+      tierDiv.appendChild(tierLabel);
+
+      tierSkills.forEach(skill => {
+        const check = skillTreeManager.canUnlockSkill(skill.id);
+        const isMaxed = skill.currentLevel >= skill.maxLevel;
+        const hasLevels = skill.currentLevel > 0;
+
+        const skillDiv = document.createElement('div');
+        skillDiv.className = `skill-node ${hasLevels ? 'unlocked' : ''} ${isMaxed ? 'maxed' : ''} ${!check.canUnlock && skill.currentLevel === 0 ? 'locked' : ''}`;
+
+        skillDiv.innerHTML = `
+          <div class="skill-icon">${skill.icon}</div>
+          <div class="skill-info">
+            <div class="skill-name">${lang === 'zh' ? skill.nameZh : skill.name}</div>
+            <div class="skill-description">${lang === 'zh' ? skill.descriptionZh : skill.description}</div>
+            <div class="skill-level">${lang === 'zh' ? `等级: ${skill.currentLevel}/${skill.maxLevel}` : `Level: ${skill.currentLevel}/${skill.maxLevel}`}</div>
+            ${skill.requires && skill.currentLevel === 0 ? `<div class="skill-requirements">${lang === 'zh' ? '需要前置技能' : 'Requires prerequisites'}</div>` : ''}
+          </div>
+          <div class="skill-actions">
+            <button class="skill-upgrade-btn" data-skill-id="${skill.id}" ${!check.canUnlock || isMaxed ? 'disabled' : ''}>
+              ${lang === 'zh' ? '升级' : 'Upgrade'}
+            </button>
+            <div class="skill-cost">${lang === 'zh' ? `消耗: ${skill.cost}` : `Cost: ${skill.cost}`}</div>
+          </div>
+        `;
+
+        tierDiv.appendChild(skillDiv);
+      });
+
+      skilltreeContent.appendChild(tierDiv);
+    }
+
+    skilltreeContent.querySelectorAll('.skill-upgrade-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const skillId = (e.target as HTMLElement).getAttribute('data-skill-id');
+        if (skillId && skillTreeManager.unlockSkill(skillId)) {
+          renderSkillTree(currentBranch);
+        }
+      });
+    });
+  }
+
+  if (skilltreeBtn) {
+    skilltreeBtn.addEventListener('click', () => {
+      if (settingsModal) settingsModal.classList.add('hidden');
+      skilltreeModal.classList.remove('hidden');
+      renderSkillTree(currentBranch);
+    });
+  }
+
+  if (closeSkilltreeBtn) {
+    closeSkilltreeBtn.addEventListener('click', () => {
+      skilltreeModal.classList.add('hidden');
+      if (settingsModal) settingsModal.classList.remove('hidden');
+    });
+  }
+
+  if (closeSkilltreeX) {
+    closeSkilltreeX.addEventListener('click', () => {
+      skilltreeModal.classList.add('hidden');
+      if (settingsModal) settingsModal.classList.remove('hidden');
+    });
+  }
+
+  if (resetSkillsBtn) {
+    resetSkillsBtn.addEventListener('click', () => {
+      if (confirm(getLanguage() === 'zh' ? '确定要重置所有技能吗？' : 'Reset all skills?')) {
+        skillTreeManager.resetSkills();
+        renderSkillTree(currentBranch);
+      }
+    });
+  }
+
+  function setActiveBranch(branch: SkillBranch) {
+    currentBranch = branch;
+    
+    [branchAttackBtn, branchDefenseBtn, branchSupportBtn].forEach(btn => {
+      if (btn) {
+        btn.style.background = 'rgba(255, 255, 255, 0.1)';
+      }
+    });
+
+    const activeBtn = branch === 'attack' ? branchAttackBtn : branch === 'defense' ? branchDefenseBtn : branchSupportBtn;
+    if (activeBtn) {
+      activeBtn.style.background = branch === 'attack' ? '#ff4444' : branch === 'defense' ? '#4444ff' : '#44ff44';
+    }
+
+    renderSkillTree(branch);
+  }
+
+  branchAttackBtn?.addEventListener('click', () => setActiveBranch('attack'));
+  branchDefenseBtn?.addEventListener('click', () => setActiveBranch('defense'));
+  branchSupportBtn?.addEventListener('click', () => setActiveBranch('support'));
 
 function timeAgo(dateString: string, lang: string = 'zh'): string {
   const date = new Date(dateString);
@@ -594,5 +733,24 @@ if (leaderboardBtn) {
     document.getElementById('ui-layer')?.classList.remove('hidden');
     game.soundManager.playStartSound(); // Play game start sound
     game.start();
+
+    // Award skill points every 60 seconds
+    let lastSkillPointTime = 0;
+    const gameLoop = () => {
+      if (game.gameTime - lastSkillPointTime >= 60) {
+        lastSkillPointTime = game.gameTime;
+        skillTreeManager.addSkillPoints(1);
+        const lang = getLanguage();
+        const msg = lang === 'zh' ? '获得 1 技能点！' : 'Gained 1 skill point!';
+        game.addFloatingText(new FloatingText(
+          game.player.x,
+          game.player.y - 50,
+          msg,
+          '#9932CC'
+        ));
+      }
+      requestAnimationFrame(gameLoop);
+    };
+    requestAnimationFrame(gameLoop);
   });
 });

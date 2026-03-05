@@ -1,10 +1,12 @@
 import { Entity } from './Entity';
 import { Input } from '../systems/Input';
 import { Weapon } from '../weapons/Weapon';
+import type { SkillTreeManager } from '../systems/SkillTree';
 
 export class Player extends Entity {
   private input: Input;
-  private speed: number = 200; // pixels per second
+  private baseSpeed: number = 200; // pixels per second
+  private speed: number = 200;
   public weapons: Weapon[] = [];
   public hp: number = 30; // Increased base HP to survive scaling
   public maxHp: number = 30;
@@ -18,6 +20,7 @@ export class Player extends Entity {
   public shieldHits: number = 0; // Shield can block X attacks
   private maxShieldHits: number = 3;
   private mercyTimer: number = 0;
+  private skillTreeManager: SkillTreeManager | null = null;
 
   constructor(x: number, y: number, input: Input, worldWidth: number, worldHeight: number) {
     super(x, y, 20, '#FFFFFF'); // Paladin
@@ -25,6 +28,33 @@ export class Player extends Entity {
     this.worldWidth = worldWidth;
     this.worldHeight = worldHeight;
     // Removed sprite loading to enforce geometric shape
+  }
+
+  public setSkillTreeManager(manager: SkillTreeManager) {
+    this.skillTreeManager = manager;
+    this.applySkillBonuses();
+    manager.onChange(() => this.applySkillBonuses());
+  }
+
+  private applySkillBonuses() {
+    if (!this.skillTreeManager) return;
+
+    const bonuses = this.skillTreeManager.getSkillBonuses();
+    
+    const speedBonus = bonuses.get('speed') || 0;
+    this.speed = this.baseSpeed * (1 + speedBonus / 100);
+    
+    const healthBonus = bonuses.get('health') || 0;
+    const oldMaxHp = this.maxHp;
+    this.maxHp = 30 + Math.floor(healthBonus);
+    if (this.maxHp > oldMaxHp) {
+      this.hp += this.maxHp - oldMaxHp;
+    }
+  }
+
+  public getSkillBonuses() {
+    if (!this.skillTreeManager) return new Map<string, number>();
+    return this.skillTreeManager.getSkillBonuses();
   }
 
   public takeDamage(amount: number): void {

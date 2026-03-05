@@ -493,3 +493,132 @@ button:disabled {
 #changelog-list::-webkit-scrollbar-thumb:hover, #encyclopedia-content::-webkit-scrollbar-thumb:hover {
   background: #ffe680;
 }
+
+/* Skill Tree Styles */
+.skill-branch-tab {
+  transition: all 0.2s ease;
+}
+
+.skill-branch-tab:hover {
+  transform: translateY(-2px);
+}
+
+.skill-node {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 15px;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+
+.skill-node:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.skill-node.unlocked {
+  border-color: #FFD700;
+  background: rgba(255, 215, 0, 0.15);
+}
+
+.skill-node.maxed {
+  border-color: #00FF00;
+  background: rgba(0, 255, 0, 0.2);
+}
+
+.skill-node.locked {
+  opacity: 0.6;
+}
+
+.skill-icon {
+  font-size: 36px;
+  min-width: 50px;
+  text-align: center;
+}
+
+.skill-info {
+  flex: 1;
+}
+
+.skill-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 5px;
+}
+
+.skill-description {
+  font-size: 14px;
+  color: #ccc;
+  margin-bottom: 8px;
+}
+
+.skill-level {
+  font-size: 12px;
+  color: #FFD700;
+}
+
+.skill-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  min-width: 100px;
+}
+
+.skill-upgrade-btn {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 8px;
+  border: 2px solid #000;
+  cursor: pointer;
+  background: #44ff44;
+  color: #000;
+  transition: all 0.2s ease;
+  font-family: 'Fredoka One', cursive;
+}
+
+.skill-upgrade-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 0 #000;
+}
+
+.skill-upgrade-btn:disabled {
+  background: #666;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.skill-cost {
+  font-size: 12px;
+  color: #FFD700;
+}
+
+.skill-requirements {
+  font-size: 11px;
+  color: #ff6666;
+  margin-top: 5px;
+}
+
+#skilltree-content::-webkit-scrollbar {
+  width: 10px;
+}
+
+#skilltree-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 5px;
+}
+
+#skilltree-content::-webkit-scrollbar-thumb {
+  background: #9932CC;
+  border-radius: 5px;
+}
+
+#skilltree-content::-webkit-scrollbar-thumb:hover {
+  background: #aa44dd;
+}
