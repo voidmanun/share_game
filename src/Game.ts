@@ -140,6 +140,8 @@ export class Game {
     public gold: number = 0;
     public gameTime: number = 0; // In seconds
     public hasSavedScore: boolean = false;
+    public eliteDropCount: number = 0; // 精英掉落次数
+    public eliteRewardUseCount: number = 0; // 强化卡使用次数
 
     public shop!: Shop;
     public eliteRewardSystem!: EliteRewardSystem;
@@ -177,6 +179,8 @@ export class Game {
         this.gameTime = 0;
         this.hasSavedScore = false;
         this.isPaused = false;
+        this.eliteDropCount = 0;
+        this.eliteRewardUseCount = 0;
 
         this.backgroundLeaderboard = [];
         getLeaderboard().then(board => {
@@ -535,33 +539,50 @@ export class Game {
                 this.particles.push(new Particle(enemy.x, enemy.y, '#FFD700'));
             }
             
-            this.pause();
-            this.eliteRewardSystem.show();
-
-            let deathMsg = "精英强化！三选一";
-            if (enemy instanceof Boss) deathMsg = "👑 Boss 陨落！强化三选一";
-            else if (enemy instanceof TitanEnemy) deathMsg = "💀 泰坦陨落！强化三选一";
-            else if (enemy instanceof FusionBoss) deathMsg = "🧬 融合体陨落！强化三选一";
-
-            this.floatingTexts.push(new FloatingText(enemy.x, enemy.y - 80, deathMsg, '#FFD700', 'level'));
+            // 检查是否已达到精英掉落上限
+            if (this.eliteDropCount < 10) {
+                this.eliteDropCount++;
+                this.pause();
+                this.eliteRewardSystem.show();
+            } else {
+                this.floatingTexts.push(new FloatingText(enemy.x, enemy.y - 80, `强化已满！获得金币`, '#FFD700', 'level'));
+                this.gold += 100;
+                this.createExplosion(enemy.x, enemy.y, '#FFD700');
+            }
         } else if (enemy instanceof TwinElite) {
             const twin = enemy as TwinElite;
             const siblingAlive = twin.sibling && !twin.sibling.isDead;
             if (!siblingAlive) {
                 this.triggerShake(12);
                 this.createExplosion(enemy.x, enemy.y, '#FF4500');
+            // 检查是否已达到精英掉落上限
+            if (this.eliteDropCount < 10) {
+                this.eliteDropCount++;
                 this.pause();
                 this.eliteRewardSystem.show();
                 this.floatingTexts.push(new FloatingText(enemy.x, enemy.y - 80, `⚔️ 双子陨落！强化三选一`, '#FF4500', 'level'));
+            } else {
+                this.floatingTexts.push(new FloatingText(enemy.x, enemy.y - 80, `强化已满！获得金币`, '#FFD700', 'level'));
+                this.gold += 100;
+                this.createExplosion(enemy.x, enemy.y, '#FFD700');
+            }
             } else {
                 this.floatingTexts.push(new FloatingText(enemy.x, enemy.y - 60, `一个双子逃走了！`, '#FF69B4'));
             }
         } else if (enemy instanceof DevourerElite) {
             this.triggerShake(10);
             this.createExplosion(enemy.x, enemy.y, '#FF4500');
-            this.pause();
-            this.eliteRewardSystem.show();
-            this.floatingTexts.push(new FloatingText(enemy.x, enemy.y - 80, `👹 精英强化！三选一`, '#FF4500', 'level'));
+            // 检查是否已达到精英掉落上限
+            if (this.eliteDropCount < 10) {
+                this.eliteDropCount++;
+                this.pause();
+                this.eliteRewardSystem.show();
+                this.floatingTexts.push(new FloatingText(enemy.x, enemy.y - 80, `👹 精英强化！三选一`, '#FF4500', 'level'));
+            } else {
+                this.floatingTexts.push(new FloatingText(enemy.x, enemy.y - 80, `强化已满！获得金币`, '#FFD700', 'level'));
+                this.gold += 100;
+                this.createExplosion(enemy.x, enemy.y, '#FFD700');
+            }
         } else {
             const weaponTypes = ['Magic Wand', 'Laser', 'Missile Launcher', 'Shotgun', 'Orbit Shield', 'Bubble Gun', 'Boomerang', 'Splitter Gun', 'Poison Gun', 'Freeze Gun'];
             const dropRand = Math.random();

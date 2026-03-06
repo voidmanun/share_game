@@ -170,6 +170,12 @@ export class PetNurtureSystem {
                     healthMultiplier: 1.0,
                 },
             });
+            // 同步 petData 引用和基础属性到宠物实体
+            const data = this.petDataMap.get(petId)!;
+            pet.petData = data;
+            pet.level = data.level;
+            pet.experience = data.experience;
+            pet.maxExperience = data.maxExperience;
             console.log(`[PetNurture] Registered pet: ${pet.constructor.name} with ID: ${petId}`);
         }
     }
@@ -207,6 +213,11 @@ export class PetNurtureSystem {
         }
 
         data.experience += amount;
+        
+        // 同步经验值到宠物实体，让 UI 能正确显示
+        pet.experience = data.experience;
+        pet.maxExperience = data.maxExperience;
+        pet.level = data.level;
 
         // 检查升级
         while (data.experience >= data.maxExperience && data.level < 50) {
@@ -222,8 +233,16 @@ export class PetNurtureSystem {
 
             // 检查进化条件
             this.checkEvolutionCondition(data);
+            
+            // 同步等级和最大值到宠物实体
+            pet.experience = data.experience;
+            pet.maxExperience = data.maxExperience;
+            pet.level = data.level;
         }
 
+        // 同步 petData 引用到宠物实体
+        pet.petData = data;
+        
         // 更新宠物实际属性
         this.applyPetStats(pet, data);
     }
@@ -255,6 +274,14 @@ export class PetNurtureSystem {
         data.experience = 0;
         data.maxExperience = this.expTable[1];
 
+        // 同步到宠物实体
+        pet.level = 1;
+        pet.experience = 0;
+        pet.maxExperience = this.expTable[1];
+
+        // 同步 petData 引用到宠物实体
+        pet.petData = data;
+
         this.applyPetStats(pet, data);
         return true;
     }
@@ -273,6 +300,9 @@ export class PetNurtureSystem {
         data.stats.damageMultiplier += intimacyBonus;
         data.stats.speedMultiplier += intimacyBonus * 0.5;
         
+        // 同步 petData 引用到宠物实体
+        pet.petData = data;
+        
         this.applyPetStats(pet, data);
     }
 
@@ -288,6 +318,10 @@ export class PetNurtureSystem {
         // 装备到对应槽位
         data.equipment[equipment.slot] = equipment;
         this.recalculateStats(data);
+        
+        // 同步 petData 引用到宠物实体
+        pet.petData = data;
+        
         this.applyPetStats(pet, data);
 
         return true;
@@ -301,6 +335,10 @@ export class PetNurtureSystem {
 
         data.equipment[slot] = null;
         this.recalculateStats(data);
+        
+        // 同步 petData 引用到宠物实体
+        pet.petData = data;
+        
         this.applyPetStats(pet, data);
 
         return true;
@@ -368,7 +406,7 @@ export class PetNurtureSystem {
     // 应用属性到宠物实体
     private applyPetStats(pet: Pet, data: PetData): void {
         pet.damageMultiplier = data.stats.damageMultiplier;
-        // 速度和生命需要在具体宠物类中应用
+        // 速度和生命已在 Pet.update() 中通过 petData.stats 应用
     }
 
     // 获取装备数据库

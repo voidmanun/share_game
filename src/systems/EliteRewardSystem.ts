@@ -39,6 +39,8 @@ export class EliteRewardSystem {
     private cards: RewardOption[] = [];
     private overlayEl: HTMLElement | null = null;
     private cardsEl: HTMLElement | null = null;
+    private rewardUseCount: Map<RewardType, number> = new Map(); // 追踪每种强化的使用次数
+    private readonly MAX_USE_COUNT = 10; // 每种强化最多使用 10 次
 
     private readonly allRewards: Omit<RewardOption, 'value'>[] = [
         { type: 'health', name: '生命恢复', description: '恢复生命值', icon: '❤️', color: '#00FF00' },
@@ -147,6 +149,16 @@ export class EliteRewardSystem {
         this.isShowing = true;
         this.selectedCardIndex = -1;
         this.cards = this.generateThreeRewards();
+        
+        // 如果没有可用强化，给予金币奖励并关闭
+        if (this.cards.length === 0) {
+            this.game.gold += 50;
+            this.game.floatingTexts.push(new FloatingText(this.game.player.x, this.game.player.y - 40, `强化已满！获得 50 金币`, '#FFD700'));
+            this.hide();
+            this.game.resume();
+            return;
+        }
+        
         this.renderCards();
         
         if (this.overlayEl) {
@@ -162,7 +174,18 @@ export class EliteRewardSystem {
     }
 
     private generateThreeRewards(): RewardOption[] {
-        const shuffled = [...this.allRewards].sort(() => Math.random() - 0.5);
+        // 过滤掉已达到使用上限的强化类型
+        const availableRewards = this.allRewards.filter(reward => {
+            const count = this.rewardUseCount.get(reward.type) || 0;
+            return count < this.MAX_USE_COUNT;
+        });
+        
+        // 如果所有强化都已达到上限，返回空数组
+        if (availableRewards.length === 0) {
+            return [];
+        }
+        
+        const shuffled = [...availableRewards].sort(() => Math.random() - 0.5);
         const selected = shuffled.slice(0, 3);
         
         return selected.map(reward => ({
@@ -333,8 +356,17 @@ export class EliteRewardSystem {
     }
 
     private applyReward(reward: RewardOption): void {
+        // 增加使用计数
+        const currentCount = this.rewardUseCount.get(reward.type) || 0;
+        this.rewardUseCount.set(reward.type, currentCount + 1);
+        this.game.eliteRewardUseCount++;
+        
         const player = this.game.player;
         const floatingTexts = this.game.floatingTexts;
+
+        // 显示剩余次数
+        const remaining = this.MAX_USE_COUNT - (currentCount + 1);
+        floatingTexts.push(new FloatingText(player.x, player.y - 60, `剩余：${remaining}次`, '#FFFFFF', 'level'));
 
         switch (reward.type) {
             case 'health':

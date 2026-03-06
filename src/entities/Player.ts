@@ -18,8 +18,8 @@ export interface CharacterSkill {
 
 export class Player extends Entity {
   private input: Input;
-  private baseSpeed: number = 80; // pixels per second
-  private speed: number = 80;
+  private baseSpeed: number = 100; // pixels per second
+  private speed: number = 100;
   public weapons: Weapon[] = [];
   public hp: number = 30; // Increased base HP to survive scaling
   public maxHp: number = 30;
