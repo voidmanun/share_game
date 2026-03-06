@@ -2,6 +2,7 @@ import { Entity } from './Entity';
 import { Player } from './Player';
 import { Game } from '../Game';
 import type { PetData } from '../systems/PetNurtureSystem';
+import { PetProjectile } from './PetProjectile';
 
 export abstract class Pet extends Entity {
     protected player: Player;
@@ -24,6 +25,18 @@ export abstract class Pet extends Entity {
     public canEvolve: boolean = false;
     public skillPoints: number = 0;
     public petData: PetData | null = null;
+    
+    // 攻击系统属性
+    protected attackCooldown: number = 0;
+    protected attackInterval: number = 2; // 默认2秒攻击一次
+    protected attackDamage: number = 5;
+    protected attackRange: number = 200;
+    protected projectileColor: string = '#FFD700';
+    
+    // 技能系统
+    protected skillCooldown: number = 0;
+    protected skillMaxCooldown: number = 30; // 主动技能30秒冷却
+    protected hasSkill: boolean = false;
 
     constructor(player: Player, game: Game, hoverDistance: number, speed: number, radius: number, color: string) {
         super(player.x, player.y, radius, color);
@@ -118,6 +131,75 @@ export abstract class Pet extends Entity {
             }
         }
         return false;
+    }
+
+    // 宠物自动攻击最近的敌人
+    protected performAttack(targetX: number, targetY: number): void {
+        if (this.attackCooldown > 0) return;
+        
+        const projectile = new PetProjectile(
+            this.x, 
+            this.y, 
+            targetX, 
+            targetY, 
+            this.attackDamage * this.damageMultiplier, 
+            this.constructor.name,
+            this.game,
+            this.projectileColor
+        );
+        
+        this.game.addPetProjectile(projectile);
+        this.attackCooldown = this.attackInterval;
+    }
+
+    // 查找最近的敌人
+    protected findNearestEnemy(): { x: number; y: number; dist: number } | null {
+        const enemies = this.game.getEnemies();
+        let nearest: { x: number; y: number; dist: number } | null = null;
+        let minDist = this.attackRange * this.attackRange;
+
+        for (const enemy of enemies) {
+            if (enemy.isDead) continue;
+            
+            const dx = enemy.x - this.x;
+            const dy = enemy.y - this.y;
+            const distSquared = dx * dx + dy * dy;
+
+            if (distSquared < minDist) {
+                minDist = distSquared;
+                nearest = { x: enemy.x, y: enemy.y, dist: Math.sqrt(distSquared) };
+            }
+        }
+
+        return nearest;
+    }
+
+    // 更新攻击冷却
+    protected updateAttackCooldown(deltaTime: number): void {
+        if (this.attackCooldown > 0) {
+            this.attackCooldown -= deltaTime;
+        }
+    }
+
+    // 技能冷却更新
+    protected updateSkillCooldown(deltaTime: number): void {
+        if (this.skillCooldown > 0) {
+            this.skillCooldown -= deltaTime;
+        }
+    }
+
+    // 释放主动技能（子类可重写）
+    public useSkill(): boolean {
+        if (this.skillCooldown > 0 || !this.hasSkill) return false;
+        
+        this.skillCooldown = this.skillMaxCooldown;
+        return true;
+    }
+
+    // 获取技能冷却百分比
+    public getSkillCooldownPercent(): number {
+        if (!this.hasSkill) return 0;
+        return Math.max(0, this.skillCooldown / this.skillMaxCooldown);
     }
 
     // 渲染等级和亲密度 UI（由子类调用）

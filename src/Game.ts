@@ -112,6 +112,7 @@ export class Game {
 
     public getEnemies(): Enemy[] { return this.enemies; }
     private projectiles: Projectile[] = [];
+    private petProjectiles: PetProjectile[] = []; // 宠物发射的投射物
     private pickups: (Pickup | WeaponPickup | HealthPickup | LollipopPickup | PetEggPickup | CharmPotionPickup | PetEquipmentPickup)[] = [];
     public particles: Particle[] = [];
     public floatingTexts: FloatingText[] = [];
@@ -124,6 +125,7 @@ export class Game {
     public obstacles: Obstacle[] = [];
     private spawnTimer: number = 0;
     private spawnInterval: number = 1.2; // Start slightly slower
+    private petLevelUpTimer: number = 0; // 宠物升级计时器
     private bossSpawnTimer: number = 0;
     private fusionBossSpawnTimer: number = 0;
     private titanSpawnTimer: number = 0;
@@ -170,6 +172,7 @@ export class Game {
         this.obstacles = [];
         this.spawnTimer = 0;
         this.spawnInterval = 1.2;
+        this.petLevelUpTimer = 0;
         this.bossSpawnTimer = 0;
         this.titanSpawnTimer = 0;
         this.twinEliteSpawnTimer = 0;
@@ -374,6 +377,18 @@ export class Game {
 
     private update(deltaTime: number): void {
         this.gameTime += deltaTime;
+
+        // 宠物每30秒自动升级并随机获取技能
+        this.petLevelUpTimer += deltaTime;
+        if (this.petLevelUpTimer >= 30 && this.pets.length > 0) {
+            this.petLevelUpTimer = 0;
+            this.pets.forEach(pet => {
+                // 给予大量经验确保升级
+                pet.addExperience(500);
+                // 随机获取另一种宠物的技能
+                this.grantRandomPetSkill(pet);
+            });
+        }
 
         // Difficulty scaling: decrease spawn interval over time (min 0.6s)
         this.spawnInterval = Math.max(0.6, 1.2 * Math.pow(0.9, Math.floor(this.gameTime / 30)));
@@ -824,6 +839,41 @@ export class Game {
         if (randomEquip) {
             this.pickups.push(new PetEquipmentPickup(x, y, randomEquip));
         }
+    }
+
+    // 宠物随机获取其他宠物的技能
+    private grantRandomPetSkill(pet: Pet): void {
+        // 定义所有宠物的技能列表
+        const petSkills = [
+            { name: 'GreedyDog', skill: '快速收集', icon: '💰' },
+            { name: 'MagicFairy', skill: '魔法攻击', icon: '✨' },
+            { name: 'SpeedyTurtle', skill: '极速冲刺', icon: '⚡' },
+            { name: 'GrumpyPorcupine', skill: '反击尖刺', icon: '🦔' },
+            { name: 'BouncySlime', skill: '弹跳攻击', icon: '🟢' },
+            { name: 'LuckyCat', skill: '幸运加成', icon: '🐱' },
+            { name: 'HolyLightTurtle', skill: '圣光治疗', icon: '🐢' },
+            { name: 'KnightPet', skill: '护盾保护', icon: '🛡️' },
+        ];
+        
+        // 获取当前宠物的技能
+        const currentSkill = petSkills.find(s => s.name === pet.constructor.name);
+        if (!currentSkill) return;
+        
+        // 随机获取另一个宠物的技能（排除当前）
+        const otherSkills = petSkills.filter(s => s.name !== pet.constructor.name);
+        const randomSkill = otherSkills[Math.floor(Math.random() * otherSkills.length)];
+        
+        // 显示浮动文字
+        this.floatingTexts.push(new FloatingText(
+            pet.x, 
+            pet.y - 30, 
+            `${randomSkill.icon} 获得新技能: ${randomSkill.skill}`, 
+            '#FFD700'
+        ));
+        
+        // 提升宠物属性作为技能加成
+        pet.damageMultiplier += 0.1;
+        pet.addIntimacy(10);
     }
 
     private handlePetEquipmentPickup(pickup: PetEquipmentPickup): void {
