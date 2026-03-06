@@ -372,21 +372,21 @@ export class Game {
             }
         }
 
-        // Spawn bosses
+        // Spawn bosses - reduced frequency
         this.bossSpawnTimer += deltaTime;
-        if (this.bossSpawnTimer >= 15) {
+        if (this.bossSpawnTimer >= 25) {
             this.bossSpawnTimer = 0;
             this.spawnBoss();
         }
 
         this.titanSpawnTimer += deltaTime;
-        if (this.titanSpawnTimer >= 45 && this.gameTime > 60) {
+        if (this.titanSpawnTimer >= 90 && this.gameTime > 90) {
             this.titanSpawnTimer = 0;
             this.spawnTitan();
         }
 
         this.fusionBossSpawnTimer += deltaTime;
-        if (this.fusionBossSpawnTimer >= 50 && this.gameTime > 80) {
+        if (this.fusionBossSpawnTimer >= 120 && this.gameTime > 120) {
             this.fusionBossSpawnTimer = 0;
             this.spawnFusionBoss();
         }
@@ -818,14 +818,14 @@ export class Game {
     }
 
     private generateObstacles(): void {
-        const obstacleCount = 40;
-        const types: ObstacleType[] = ['grass', 'tree', 'rock', 'bush'];
-        const typeWeights = [0.5, 0.2, 0.15, 0.15];
+        const obstacleCount = 80; // Increased density
+        const types: ObstacleType[] = ['grass', 'tree', 'rock', 'bush', 'forest'];
+        const typeWeights = [0.35, 0.20, 0.15, 0.15, 0.15]; // 15% chance for large forests
 
         for (let i = 0; i < obstacleCount; i++) {
             let x: number, y: number;
             let attempts = 0;
-            const minDistanceFromPlayer = 150;
+            const minDistanceFromPlayer = 200; // Increased safe zone
 
             do {
                 x = Math.random() * this.WORLD_WIDTH;
