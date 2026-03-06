@@ -70,6 +70,8 @@ export abstract class Pet extends Entity {
     public addExperience(amount: number): void {
         const nurtureSystem = this.game.petNurtureSystem;
         if (nurtureSystem) {
+            // 先注册宠物
+            nurtureSystem.registerPet(this);
             nurtureSystem.addExperience(this, amount);
         } else {
             // 简化版本（无系统时）
@@ -92,6 +94,7 @@ export abstract class Pet extends Entity {
     public addIntimacy(amount: number): void {
         const nurtureSystem = this.game.petNurtureSystem;
         if (nurtureSystem) {
+            nurtureSystem.registerPet(this);
             nurtureSystem.addIntimacy(this, amount);
         } else {
             this.intimacy = Math.min(100, this.intimacy + amount);

@@ -3,6 +3,13 @@
 
 import type { Pet } from '../entities/Pet';
 
+// 为 Pet 类添加唯一 ID 属性
+declare module '../entities/Pet' {
+    interface Pet {
+        _petNurtureId?: string;
+    }
+}
+
 export interface PetEquipment {
     id: string;
     name: string;
@@ -126,9 +133,18 @@ export class PetNurtureSystem {
         });
     }
 
+    // 生成宠物唯一 ID（使用宠物对象引用作为键）
+    private getPetId(pet: Pet): string {
+        // 使用 pet 对象本身作为弱键，避免 ID 变化
+        if (!pet._petNurtureId) {
+            pet._petNurtureId = `${pet.constructor.name}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        }
+        return pet._petNurtureId;
+    }
+
     // 注册宠物
     public registerPet(pet: Pet): void {
-        const petId = this.generatePetId(pet);
+        const petId = this.getPetId(pet);
         if (!this.petDataMap.has(petId)) {
             this.petDataMap.set(petId, {
                 id: petId,
@@ -154,17 +170,13 @@ export class PetNurtureSystem {
                     healthMultiplier: 1.0,
                 },
             });
+            console.log(`[PetNurture] Registered pet: ${pet.constructor.name} with ID: ${petId}`);
         }
-    }
-
-    // 生成宠物唯一 ID
-    private generatePetId(pet: Pet): string {
-        return `${pet.constructor.name}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     }
 
     // 获取宠物数据
     public getPetData(pet: Pet): PetData | null {
-        const petId = this.generatePetId(pet);
+        const petId = this.getPetId(pet);
         return this.petDataMap.get(petId) || null;
     }
 
@@ -185,9 +197,13 @@ export class PetNurtureSystem {
 
     // 添加经验
     public addExperience(pet: Pet, amount: number): void {
-        const petId = this.generatePetId(pet);
+        const petId = this.getPetId(pet);
         const data = this.petDataMap.get(petId);
-        if (!data) return;
+        if (!data) {
+            console.warn(`[PetNurture] Pet data not found for ${pet.constructor.name}, registering...`);
+            this.registerPet(pet);
+            return;
+        }
 
         data.experience += amount;
 
@@ -221,7 +237,7 @@ export class PetNurtureSystem {
 
     // 执行进化
     public evolvePet(pet: Pet): boolean {
-        const petId = this.generatePetId(pet);
+        const petId = this.getPetId(pet);
         const data = this.petDataMap.get(petId);
         if (!data || !data.canEvolve) return false;
 
@@ -244,7 +260,7 @@ export class PetNurtureSystem {
 
     // 增加亲密度
     public addIntimacy(pet: Pet, amount: number): void {
-        const petId = this.generatePetId(pet);
+        const petId = this.getPetId(pet);
         const data = this.petDataMap.get(petId);
         if (!data) return;
 
@@ -255,11 +271,13 @@ export class PetNurtureSystem {
         const intimacyBonus = data.intimacy / 500; // 100 亲密度 = 20% 加成
         data.stats.damageMultiplier += intimacyBonus;
         data.stats.speedMultiplier += intimacyBonus * 0.5;
+        
+        this.applyPetStats(pet, data);
     }
 
     // 装备物品
     public equipItem(pet: Pet, equipmentId: string): boolean {
-        const petId = this.generatePetId(pet);
+        const petId = this.getPetId(pet);
         const data = this.petDataMap.get(petId);
         if (!data) return false;
 
@@ -276,7 +294,7 @@ export class PetNurtureSystem {
 
     // 卸下装备
     public unequipItem(pet: Pet, slot: 'collar' | 'accessory' | 'badge'): boolean {
-        const petId = this.generatePetId(pet);
+        const petId = this.getPetId(pet);
         const data = this.petDataMap.get(petId);
         if (!data) return false;
 

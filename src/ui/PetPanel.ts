@@ -2,7 +2,7 @@
 // 宠物管理面板：查看属性、装备、进化
 
 import { Game } from '../Game';
-import type { PetData, PetEquipment } from '../systems/PetNurtureSystem';
+import type { PetEquipment } from '../systems/PetNurtureSystem';
 import { FloatingText } from '../entities/FloatingText';
 
 export class PetPanel {
@@ -63,7 +63,12 @@ export class PetPanel {
 
     private updateUI(): void {
         const pets = this.game.pets;
-        if (pets.length === 0) return;
+        if (pets.length === 0) {
+            console.log('No pets to display');
+            return;
+        }
+
+        console.log('Updating UI for pet', this.selectedPetIndex, 'of', pets.length);
 
         // 确保选中的索引有效
         if (this.selectedPetIndex >= pets.length) {
@@ -71,18 +76,27 @@ export class PetPanel {
         }
 
         const pet = pets[this.selectedPetIndex];
-        const petData = this.game.petNurtureSystem?.getPetData(pet) || this.getSimplePetData(pet);
+        const petData = this.game.petNurtureSystem?.getPetData(pet);
+        
+        console.log('Pet data:', petData ? 'found' : 'null', 'pet level:', pet.level);
 
         // 更新宠物信息
-        this.updateElement('pet-name', petData?.nameZh || pet.constructor.name);
+        this.updateElement('pet-name', petData?.nameZh || this.getPetChineseName(pet.constructor.name));
         this.updateElement('pet-level', `Lv.${pet.level}`);
         this.updateElement('pet-exp', `${pet.experience}/${pet.maxExperience}`);
         this.updateElement('pet-intimacy', `${pet.intimacy}/100 ♥`);
         this.updateElement('pet-stage', this.getEvolutionStageText(pet.evolutionStage));
 
-        // 更新属性显示
-        this.updateElement('pet-damage', `${((pet.damageMultiplier - 1) * 100).toFixed(0)}%`);
-        this.updateElement('pet-speed', `${((petData?.stats.speedMultiplier || 1) - 1) * 100 | 0}%`);
+        // 更新属性显示 - 从 petData 或 pet 对象获取
+        const damageBonus = petData 
+            ? (petData.stats.damageMultiplier - 1) * 100 
+            : (pet.damageMultiplier - 1) * 100;
+        const speedBonus = petData 
+            ? (petData.stats.speedMultiplier - 1) * 100 
+            : 0;
+            
+        this.updateElement('pet-damage', `+${damageBonus.toFixed(0)}%`);
+        this.updateElement('pet-speed', `+${speedBonus.toFixed(0)}%`);
 
         // 更新经验条
         const expBar = document.getElementById('pet-exp-bar') as HTMLElement;
@@ -105,40 +119,31 @@ export class PetPanel {
         }
 
         // 更新装备槽位
-        this.updateEquipmentSlot('collar', petData?.equipment.collar);
-        this.updateEquipmentSlot('accessory', petData?.equipment.accessory);
-        this.updateEquipmentSlot('badge', petData?.equipment.badge);
+        this.updateEquipmentSlot('collar', petData?.equipment.collar ?? null);
+        this.updateEquipmentSlot('accessory', petData?.equipment.accessory ?? null);
+        this.updateEquipmentSlot('badge', petData?.equipment.badge ?? null);
 
         // 更新技能点
         this.updateElement('pet-skill-points', `${pet.skillPoints}`);
     }
 
-    private getSimplePetData(pet: any): PetData {
-        return {
-            id: '',
-            name: pet.constructor.name,
-            nameZh: pet.constructor.name,
-            level: pet.level,
-            experience: pet.experience,
-            maxExperience: pet.maxExperience,
-            intimacy: pet.intimacy,
-            intimacyLevel: pet.intimacyLevel,
-            evolutionStage: pet.evolutionStage,
-            canEvolve: pet.canEvolve,
-            skillPoints: pet.skillPoints,
-            unlockedSkills: [],
-            equipment: { collar: null, accessory: null, badge: null },
-            stats: {
-                damageMultiplier: pet.damageMultiplier,
-                speedMultiplier: 1.0,
-                healthMultiplier: 1.0,
-            },
-        };
-    }
-
     private updateElement(id: string, text: string): void {
         const el = document.getElementById(id);
         if (el) el.textContent = text;
+    }
+
+    private getPetChineseName(englishName: string): string {
+        const nameMap: Record<string, string> = {
+            'GreedyDog': '贪财狗',
+            'MagicFairy': '魔法精灵',
+            'SpeedyTurtle': '极速龟',
+            'GrumpyPorcupine': '暴躁豪猪',
+            'BouncySlime': '弹跳史莱姆',
+            'LuckyCat': '幸运猫',
+            'HolyLightTurtle': '圣光龟',
+            'KnightPet': '骑士宠物',
+        };
+        return nameMap[englishName] || englishName;
     }
 
     private updateEquipmentSlot(slot: string, equipment: PetEquipment | null): void {

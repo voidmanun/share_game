@@ -99,6 +99,9 @@ export class Game {
             this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 40, `Lucky Cat Hatched!`, '#FFD700'));
         }
 
+        // 注册到养成系统
+        this.petNurtureSystem.registerPet(newPet);
+
         if (isTemporary) {
             newPet.isTemporary = true;
             newPet.lifeTimer = duration;
@@ -193,19 +196,33 @@ export class Game {
         for (let i = 0; i < 1; i++) {
             const rand = Math.random();
             if (rand < 0.16) {
-                this.pets.push(new GreedyDog(this.player, this));
+                const pet = new GreedyDog(this.player, this);
+                this.pets.push(pet);
+                this.petNurtureSystem.registerPet(pet);
             } else if (rand < 0.32) {
-                this.pets.push(new MagicFairy(this.player, this));
+                const pet = new MagicFairy(this.player, this);
+                this.pets.push(pet);
+                this.petNurtureSystem.registerPet(pet);
             } else if (rand < 0.48) {
-                this.pets.push(new SpeedyTurtle(this.player, this));
+                const pet = new SpeedyTurtle(this.player, this);
+                this.pets.push(pet);
+                this.petNurtureSystem.registerPet(pet);
             } else if (rand < 0.64) {
-                this.pets.push(new GrumpyPorcupine(this.player, this));
+                const pet = new GrumpyPorcupine(this.player, this);
+                this.pets.push(pet);
+                this.petNurtureSystem.registerPet(pet);
             } else if (rand < 0.80) {
-                this.pets.push(new BouncySlime(this.player, this));
+                const pet = new BouncySlime(this.player, this);
+                this.pets.push(pet);
+                this.petNurtureSystem.registerPet(pet);
             } else if (rand < 0.90) {
-                this.pets.push(new HolyLightTurtle(this.player, this));
+                const pet = new HolyLightTurtle(this.player, this);
+                this.pets.push(pet);
+                this.petNurtureSystem.registerPet(pet);
             } else {
-                this.pets.push(new LuckyCat(this.player, this));
+                const pet = new LuckyCat(this.player, this);
+                this.pets.push(pet);
+                this.petNurtureSystem.registerPet(pet);
             }
         }
 
