@@ -22,6 +22,7 @@ import { Laser } from './weapons/Laser';
 import { Pickup } from './entities/Pickup';
 import { Particle } from './entities/Particle';
 import { Shop } from './ui/Shop';
+import { PetPanel } from './ui/PetPanel';
 import { SoundManager } from './systems/SoundManager';
 import { WeaponPickup } from './entities/WeaponPickup';
 import { HealthPickup } from './entities/HealthPickup';
@@ -50,6 +51,7 @@ import { HolyLightTurtle } from './entities/HolyLightTurtle';
 import { Spirit } from './entities/Spirit';
 import { Obstacle, type ObstacleType } from './entities/Obstacle';
 import { EliteRewardSystem } from './systems/EliteRewardSystem';
+import { PetNurtureSystem } from './systems/PetNurtureSystem';
 import { getLeaderboard, saveScore } from './leaderboard';
 import type { SkillTreeManager } from './systems/SkillTree';
 
@@ -137,6 +139,8 @@ export class Game {
 
     public shop!: Shop;
     public eliteRewardSystem!: EliteRewardSystem;
+    public petPanel!: PetPanel;
+    public petNurtureSystem!: PetNurtureSystem;
     private skillTreeManager: SkillTreeManager | null = null;
     private isPaused: boolean = false;
 
@@ -249,6 +253,8 @@ export class Game {
 
         this.shop = new Shop(this);
         this.eliteRewardSystem = new EliteRewardSystem(this);
+        this.petNurtureSystem = new PetNurtureSystem();
+        this.petPanel = new PetPanel(this);
         this.initializeGame();
 
         this.resize();
@@ -479,6 +485,13 @@ export class Game {
 
     public handleEnemyDeath(enemy: Enemy): void {
         const hpMult = 1 + (Math.floor(this.gameTime / 30) * 0.5);
+
+        // 宠物获取经验（击杀敌人分享经验）
+        const expGained = Math.max(1, Math.floor(enemy.hp / 5));
+        this.pets.forEach(pet => {
+            pet.addExperience(expGained);
+            pet.addIntimacy(0.5); // 每次击杀增加少量亲密度
+        });
 
         if (enemy instanceof Splitter && !enemy.isSplitterling && !(enemy as any).isEvolved) {
             const numSpawns = 5;
@@ -805,7 +818,7 @@ export class Game {
         this.shakeIntensity = Math.max(this.shakeIntensity, intensity);
     }
 
-    private updateShake(deltaTime: number): void {
+    private updateShake(_deltaTime: number): void {
         if (this.shakeIntensity > 0.1) {
             this.shakeX = (Math.random() - 0.5) * this.shakeIntensity * 2;
             this.shakeY = (Math.random() - 0.5) * this.shakeIntensity * 2;

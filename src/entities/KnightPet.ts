@@ -106,5 +106,8 @@ export class KnightPet extends Pet {
         ctx.stroke();
 
         ctx.restore();
+
+        // 渲染等级和亲密度信息
+        this.renderLevelInfo(ctx);
     }
 }

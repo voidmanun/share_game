@@ -204,6 +204,9 @@
             <button id="skilltree-btn"
               style="padding: 10px; font-size: 16px; border-radius: 8px; background: #9932CC; color: #fff; font-family: 'Fredoka One', cursive; cursor: pointer; border: 3px solid #000; font-weight: bold; box-shadow: 3px 3px 0 #000; text-shadow: none;">🌟
               技能树</button>
+            <button id="pet-panel-btn"
+              style="padding: 10px; font-size: 16px; border-radius: 8px; background: #FF69B4; color: #fff; font-family: 'Fredoka One', cursive; cursor: pointer; border: 3px solid #000; font-weight: bold; box-shadow: 3px 3px 0 #000; text-shadow: none;">🐾
+              宠物</button>
             <button id="changelog-btn"
               style="padding: 10px; font-size: 16px; border-radius: 8px; background: #ff9900; color: #000; font-family: 'Fredoka One', cursive; cursor: pointer; border: 3px solid #000; font-weight: bold; box-shadow: 3px 3px 0 #000; text-shadow: none;">📜
               版本列表</button>
@@ -343,6 +346,75 @@
           </div>
           <button id="close-shop">Close (P)</button>
         </div>
+
+        <!-- Pet Panel -->
+        <div id="pet-panel" class="hidden"
+          style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #2d1b4e 0%, #1a1a2e 100%); color: white; padding: 25px; border-radius: 20px; z-index: 3000; min-width: 400px; max-width: 600px; border: 5px solid #FFD700; box-shadow: 8px 8px 0 #000;">
+          <button id="close-pet-panel"
+            style="position: absolute; top: 10px; right: 10px; background: none; border: none; color: #FFD700; font-size: 28px; cursor: pointer;">&times;</button>
+          <h2 style="margin: 0 0 20px 0; color: #FFD700; text-align: center; text-shadow: 2px 2px 0 #000;">🐾 宠物养成</h2>
+          
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <button id="prev-pet-btn" style="padding: 8px 15px; background: #9932CC; color: white; border: 2px solid #000; border-radius: 8px; cursor: pointer; font-weight: bold;">◀</button>
+            <div style="text-align: center;">
+              <h3 id="pet-name" style="margin: 0; color: #FF69B4; font-size: 24px;">宠物名</h3>
+              <span id="pet-stage" style="color: #aaa; font-size: 14px;">基础形态</span>
+            </div>
+            <button id="next-pet-btn" style="padding: 8px 15px; background: #9932CC; color: white; border: 2px solid #000; border-radius: 8px; cursor: pointer; font-weight: bold;">▶</button>
+          </div>
+
+          <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+              <span id="pet-level" style="color: #FFD700; font-weight: bold;">Lv.1</span>
+              <span id="pet-skill-points" style="color: #9932CC;">技能点：0</span>
+            </div>
+            <div style="margin-bottom: 8px;">
+              <div style="font-size: 12px; color: #aaa;">经验值</div>
+              <div style="background: #333; border-radius: 5px; height: 12px; overflow: hidden;">
+                <div id="pet-exp-bar" style="background: linear-gradient(90deg, #00ff88, #00ccff); width: 0%; height: 100%; transition: width 0.3s;"></div>
+              </div>
+              <div style="font-size: 11px; color: #aaa; margin-top: 3px;" id="pet-exp">0/100</div>
+            </div>
+            <div>
+              <div style="font-size: 12px; color: #aaa;">亲密度</div>
+              <div style="background: #333; border-radius: 5px; height: 12px; overflow: hidden;">
+                <div id="pet-intimacy-bar" style="background: linear-gradient(90deg, #FF69B4, #FF1493); width: 0%; height: 100%; transition: width 0.3s;"></div>
+              </div>
+              <div style="font-size: 11px; color: #aaa; margin-top: 3px;" id="pet-intimacy">0/100 ♥</div>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+            <div style="background: rgba(255,100,100,0.2); padding: 10px; border-radius: 8px; border: 2px solid #ff6666;">
+              <div style="color: #ff6666; font-size: 12px;">攻击力</div>
+              <div id="pet-damage" style="color: #fff; font-size: 18px; font-weight: bold;">0%</div>
+            </div>
+            <div style="background: rgba(100,255,100,0.2); padding: 10px; border-radius: 8px; border: 2px solid #66ff66;">
+              <div style="color: #66ff66; font-size: 12px;">速度</div>
+              <div id="pet-speed" style="color: #fff; font-size: 18px; font-weight: bold;">0%</div>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 15px;">
+            <h4 style="color: #FFD700; margin: 0 0 10px 0; font-size: 16px;">🎒 装备</h4>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+              <button id="equip-collar" style="padding: 10px; background: rgba(0,0,0,0.3); border: 2px solid #888; border-radius: 8px; color: white; cursor: pointer; min-height: 60px;">
+                <div class="equip-empty" style="color: #666;">项圈</div>
+              </button>
+              <button id="equip-accessory" style="padding: 10px; background: rgba(0,0,0,0.3); border: 2px solid #888; border-radius: 8px; color: white; cursor: pointer; min-height: 60px;">
+                <div class="equip-empty" style="color: #666;">饰品</div>
+              </button>
+              <button id="equip-badge" style="padding: 10px; background: rgba(0,0,0,0.3); border: 2px solid #888; border-radius: 8px; color: white; cursor: pointer; min-height: 60px;">
+                <div class="equip-empty" style="color: #666;">徽章</div>
+              </button>
+            </div>
+          </div>
+
+          <button id="evolve-pet-btn"
+            style="width: 100%; padding: 12px; background: linear-gradient(145deg, #FFD700, #FFA500); color: #000; border: 3px solid #000; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 4px 4px 0 #000;"
+            disabled>进化 (Lv.15)</button>
+        </div>
+
         <div id="game-over" class="hidden">
           <h2>Game Over</h2>
           <p>Score: <span id="final-score">0</span> Seconds</p>
