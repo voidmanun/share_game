@@ -15,35 +15,38 @@ export class PetPanel {
         this.game = game;
         this.element = document.getElementById('pet-panel')!;
 
-        // 绑定事件
+        // 等待 DOM 加载完成后绑定事件
+        setTimeout(() => this.bindEvents(), 100);
+    }
+
+    private bindEvents(): void {
+        console.log('Binding pet panel events...');
+        
         document.getElementById('close-pet-panel')?.addEventListener('click', () => this.toggle());
         document.getElementById('prev-pet-btn')?.addEventListener('click', () => this.selectPrevPet());
         document.getElementById('next-pet-btn')?.addEventListener('click', () => this.selectNextPet());
         document.getElementById('evolve-pet-btn')?.addEventListener('click', () => this.evolvePet());
 
-        // 装备槽位点击事件
         ['collar', 'accessory', 'badge'].forEach(slot => {
             document.getElementById(`equip-${slot}`)?.addEventListener('click', () => this.openEquipmentSelector(slot as 'collar' | 'accessory' | 'badge'));
         });
 
-        // 快捷键 P 打开
         window.addEventListener('keydown', (e) => {
-            if (e.code === 'KeyO') { // O for Pet
+            if (e.code === 'KeyO') {
                 this.toggle();
             }
         });
 
-        // 移动端按钮
         document.getElementById('mobile-pet-btn')?.addEventListener('click', () => {
             this.toggle();
         });
 
-        // Settings 面板中的宠物按钮
         document.getElementById('pet-panel-btn')?.addEventListener('click', () => {
             this.toggle();
-            // 关闭 settings 面板
             document.getElementById('settings-modal')?.classList.add('hidden');
         });
+
+        console.log('Pet panel events bound successfully');
     }
 
     public toggle(): void {
@@ -173,17 +176,23 @@ export class PetPanel {
     }
 
     private selectPrevPet(): void {
-        if (this.selectedPetIndex > 0) {
-            this.selectedPetIndex--;
-            this.updateUI();
-        }
+        const pets = this.game.pets;
+        console.log('selectPrevPet called, pets length:', pets.length, 'current index:', this.selectedPetIndex);
+        if (pets.length === 0) return;
+        
+        this.selectedPetIndex = (this.selectedPetIndex - 1 + pets.length) % pets.length;
+        console.log('new index:', this.selectedPetIndex);
+        this.updateUI();
     }
 
     private selectNextPet(): void {
-        if (this.selectedPetIndex < this.game.pets.length - 1) {
-            this.selectedPetIndex++;
-            this.updateUI();
-        }
+        const pets = this.game.pets;
+        console.log('selectNextPet called, pets length:', pets.length, 'current index:', this.selectedPetIndex);
+        if (pets.length === 0) return;
+        
+        this.selectedPetIndex = (this.selectedPetIndex + 1) % pets.length;
+        console.log('new index:', this.selectedPetIndex);
+        this.updateUI();
     }
 
     private evolvePet(): void {
