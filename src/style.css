@@ -475,6 +475,38 @@ button:disabled {
     font-size: 12px !important;
   }
 
+  /* Elite reward cards - mobile */
+  #elite-reward-cards {
+    gap: 10px !important;
+    max-width: 95vw !important;
+  }
+
+  #elite-reward-cards > div {
+    width: 110px !important;
+    padding: 10px 6px !important;
+    border-width: 2px !important;
+    box-shadow: 3px 3px 0 #000 !important;
+  }
+
+  #elite-reward-cards > div > div:first-child {
+    font-size: 28px !important;
+    margin-bottom: 5px !important;
+  }
+
+  #elite-reward-cards > div > h3 {
+    font-size: 12px !important;
+    margin-bottom: 3px !important;
+  }
+
+  #elite-reward-cards > div > div:nth-child(3) {
+    font-size: 14px !important;
+    margin-bottom: 3px !important;
+  }
+
+  #elite-reward-cards > div > p {
+    font-size: 9px !important;
+  }
+
   /* Encyclopedia tabs - fit 3 tabs on mobile */
   #encyclopedia-tabs {
     gap: 4px !important;

@@ -94,18 +94,21 @@ export class EliteRewardSystem {
         const title = document.createElement('h2');
         title.textContent = '🎁 精英掉落 - 选择强化';
         title.style.cssText = `
-            font-size: 36px;
-            margin-bottom: 30px;
+            font-size: 24px;
+            margin-bottom: 20px;
             text-shadow: 3px 3px 0 #000, 0 0 20px #FFD700;
             color: #FFD700;
+            padding: 0 10px;
         `;
 
         const cardsContainer = document.createElement('div');
         cardsContainer.id = 'elite-reward-cards';
         cardsContainer.style.cssText = `
             display: flex;
-            gap: 30px;
+            gap: 15px;
             justify-content: center;
+            flex-wrap: wrap;
+            max-width: 90vw;
         `;
 
         container.appendChild(title);
@@ -202,16 +205,17 @@ export class EliteRewardSystem {
         this.cards.forEach((card, index) => {
             const cardEl = document.createElement('div');
             cardEl.style.cssText = `
-                width: 200px;
-                padding: 25px 20px;
+                width: 140px;
+                padding: 15px 10px;
                 background: linear-gradient(145deg, ${card.color}22, ${card.color}44);
-                border: 4px solid ${card.color};
-                border-radius: 16px;
+                border: 3px solid ${card.color};
+                border-radius: 12px;
                 cursor: pointer;
                 transition: all 0.2s;
-                box-shadow: 6px 6px 0 #000, 0 0 20px ${card.color}66;
+                box-shadow: 4px 4px 0 #000, 0 0 15px ${card.color}66;
                 position: relative;
                 overflow: hidden;
+                flex-shrink: 0;
             `;
 
             cardEl.onmouseenter = () => {
@@ -231,37 +235,43 @@ export class EliteRewardSystem {
             const icon = document.createElement('div');
             icon.textContent = card.icon;
             icon.style.cssText = `
-                font-size: 56px;
-                margin-bottom: 15px;
+                font-size: 36px;
+                margin-bottom: 8px;
                 filter: drop-shadow(2px 2px 0 #000);
             `;
 
             const name = document.createElement('h3');
             name.textContent = card.name;
             name.style.cssText = `
-                font-size: 20px;
-                margin: 0 0 10px 0;
+                font-size: 14px;
+                margin: 0 0 5px 0;
                 color: ${card.color};
                 text-shadow: 2px 2px 0 #000;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             `;
 
             const value = document.createElement('div');
             value.textContent = this.formatValue(card.type, card.value);
             value.style.cssText = `
-                font-size: 28px;
+                font-size: 18px;
                 font-weight: bold;
                 color: #FFD700;
                 text-shadow: 2px 2px 0 #000;
-                margin-bottom: 10px;
+                margin-bottom: 5px;
             `;
 
             const desc = document.createElement('p');
             desc.textContent = card.description;
             desc.style.cssText = `
-                font-size: 14px;
+                font-size: 11px;
                 color: #ccc;
                 margin: 0;
                 text-shadow: 1px 1px 0 #000;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             `;
 
             cardEl.appendChild(icon);
