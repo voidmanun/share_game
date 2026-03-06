@@ -37,6 +37,7 @@ window.addEventListener('DOMContentLoaded', () => {
       const character = card.getAttribute('data-character') as CharacterClass;
       if (character) {
         game.selectedCharacterClass = character;
+        skillTreeManager.setCharacterClass(character);
         (game as any).initializeGame(); // Re-initialize to apply character class
 
         // Update skill button based on character
@@ -145,6 +146,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // Skill Tree
   const skillTreeManager = new SkillTreeManager();
+  game.setSkillTreeManager(skillTreeManager);
   const skilltreeBtn = document.getElementById('skilltree-btn') as HTMLButtonElement;
   const skilltreeModal = document.getElementById('skilltree-modal') as HTMLElement;
   const closeSkilltreeBtn = document.getElementById('close-skilltree-btn') as HTMLButtonElement;

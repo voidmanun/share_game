@@ -51,6 +51,7 @@ import { Spirit } from './entities/Spirit';
 import { Obstacle, type ObstacleType } from './entities/Obstacle';
 import { EliteRewardSystem } from './systems/EliteRewardSystem';
 import { getLeaderboard, saveScore } from './leaderboard';
+import type { SkillTreeManager } from './systems/SkillTree';
 
 export class Game {
     private canvas: HTMLCanvasElement;
@@ -129,6 +130,7 @@ export class Game {
 
     public shop!: Shop;
     public eliteRewardSystem!: EliteRewardSystem;
+    private skillTreeManager: SkillTreeManager | null = null;
     private isPaused: boolean = false;
 
     private stars: { x: number; y: number; size: number; alpha: number }[] = [];
@@ -136,6 +138,10 @@ export class Game {
 
     // Selected character class
     public selectedCharacterClass: CharacterClass = 'knight';
+
+    public setSkillTreeManager(manager: SkillTreeManager) {
+        this.skillTreeManager = manager;
+    }
 
     private initializeGame(): void {
         this.enemies = [];
@@ -168,6 +174,9 @@ export class Game {
         // Generate obstacles for the scene
         this.generateObstacles();
         this.player.setGame(this);
+        if (this.skillTreeManager) {
+            this.player.setSkillTreeManager(this.skillTreeManager);
+        }
         this.player.addWeapon(new MagicWand(this, this.player));
 
         for (let i = 0; i < 1; i++) {

@@ -40,6 +40,8 @@ export class Player extends Entity {
   public skill: CharacterSkill;
   public damageMultiplier: number = 1.0;
   public attackSpeedMultiplier: number = 1.0;
+  public skillCooldownMultiplier: number = 1.0;
+  public armor: number = 0; // Damage reduction percentage (0-1)
   public game: Game | null = null;
 
   // Skill states
@@ -151,7 +153,7 @@ export class Player extends Entity {
     if (this.skill.currentCooldown > 0 || this.skill.isActive) return;
 
     this.skill.isActive = true;
-    this.skill.currentCooldown = this.skill.cooldown;
+    this.skill.currentCooldown = this.skill.cooldown * this.skillCooldownMultiplier;
 
     switch (this.characterClass) {
       case 'knight':
@@ -192,15 +194,33 @@ export class Player extends Entity {
 
     const bonuses = this.skillTreeManager.getSkillBonuses();
 
+    // Movement speed
     const speedBonus = bonuses.get('speed') || 0;
     this.speed = this.baseSpeed * (1 + speedBonus / 100);
 
+    // Health
     const healthBonus = bonuses.get('health') || 0;
     const oldMaxHp = this.maxHp;
     this.maxHp = 30 + Math.floor(healthBonus);
     if (this.maxHp > oldMaxHp) {
       this.hp += this.maxHp - oldMaxHp;
     }
+
+    // Skill cooldown reduction (stored as negative percentage)
+    const cooldownBonus = bonuses.get('skillCooldown') || 0;
+    this.skillCooldownMultiplier = 1 + (cooldownBonus / 100);
+
+    // Armor (damage reduction)
+    const armorBonus = bonuses.get('armor') || 0;
+    this.armor = armorBonus / 100;
+
+    // Damage multiplier (from class bonuses)
+    const damageBonus = bonuses.get('damage') || 0;
+    this.damageMultiplier *= (1 + damageBonus / 100);
+
+    // Attack speed
+    const attackSpeedBonus = bonuses.get('attackSpeed') || 0;
+    this.attackSpeedMultiplier *= (1 + attackSpeedBonus / 100);
   }
 
   public getSkillBonuses() {

@@ -1,7 +1,9 @@
 // Skill Tree System
 // Three branches: Attack, Defense, Support
+// With class-specific bonuses for Knight, Warrior, Mage, Hunter
 
 export type SkillBranch = 'attack' | 'defense' | 'support';
+export type CharacterClass = 'knight' | 'warrior' | 'mage' | 'hunter';
 
 export interface Skill {
   id: string;
@@ -10,18 +12,19 @@ export interface Skill {
   description: string;
   descriptionZh: string;
   branch: SkillBranch;
-  tier: number; // 0-4, higher tiers require previous tier
+  tier: number;
   maxLevel: number;
   currentLevel: number;
-  cost: number; // skill points required per level
+  cost: number;
   icon: string;
-  requires?: string[]; // prerequisite skill IDs
+  requires?: string[];
   effects: SkillEffect[];
+  classSpecific?: CharacterClass[];
 }
 
 export interface SkillEffect {
-  type: 'damage' | 'speed' | 'health' | 'gold' | 'critChance' | 'critDamage' | 'lifesteal' | 'armor' | 'pickupRange' | 'attackSpeed';
-  value: number; // percentage or flat value
+  type: 'damage' | 'speed' | 'health' | 'gold' | 'critChance' | 'critDamage' | 'lifesteal' | 'armor' | 'pickupRange' | 'attackSpeed' | 'skillCooldown' | 'skillDuration' | 'invincibility' | 'rage' | 'haste' | 'petLuck' | 'petDamage' | 'petSpeed';
+  value: number;
   isPercentage: boolean;
 }
 
@@ -29,19 +32,23 @@ export interface SkillTreeState {
   skillPoints: number;
   totalSkillPointsEarned: number;
   skills: Map<string, Skill>;
-  branchLevels: Map<SkillBranch, number>; // total points invested in each branch
+  branchLevels: Map<SkillBranch, number>;
+  characterClass: CharacterClass;
 }
 
 export class SkillTreeManager {
   private state: SkillTreeState;
   private onChangeCallbacks: (() => void)[] = [];
+  private classBonuses: Map<CharacterClass, Map<string, number>>;
 
-  constructor() {
+  constructor(characterClass: CharacterClass = 'knight') {
+    this.classBonuses = this.initializeClassBonuses();
     this.state = {
       skillPoints: 0,
       totalSkillPointsEarned: 0,
       skills: new Map(),
-      branchLevels: new Map([['attack', 0], ['defense', 0], ['support', 0]])
+      branchLevels: new Map([['attack', 0], ['defense', 0], ['support', 0]]),
+      characterClass: characterClass
     };
     this.initializeSkills();
   }
@@ -457,14 +464,11 @@ export class SkillTreeManager {
   }
 
   resetSkills() {
-    // Refund all skill points
-    let totalRefunded = 0;
     this.state.skills.forEach(skill => {
-      totalRefunded += skill.currentLevel * skill.cost;
+      this.state.skillPoints += skill.currentLevel * skill.cost;
       skill.currentLevel = 0;
     });
     
-    this.state.skillPoints += totalRefunded;
     this.state.branchLevels.set('attack', 0);
     this.state.branchLevels.set('defense', 0);
     this.state.branchLevels.set('support', 0);
@@ -472,12 +476,73 @@ export class SkillTreeManager {
     this.notifyChange();
   }
 
-  // Calculate total bonuses from skills
+  setCharacterClass(characterClass: CharacterClass) {
+    this.state.characterClass = characterClass;
+    this.notifyChange();
+  }
+
+  private initializeClassBonuses(): Map<CharacterClass, Map<string, number>> {
+    const bonuses = new Map<CharacterClass, Map<string, number>>();
+
+    // Knight: 防御型，侧重生存和护盾
+    const knightBonuses = new Map<string, number>([
+      ['invincibility', 15],    // 无敌持续时间 +15%
+      ['armor', 20],            // 护甲 +20%
+      ['health', 25],           // 生命 +25%
+      ['skillCooldown', -10]    // 技能冷却 -10%
+    ]);
+    bonuses.set('knight', knightBonuses);
+
+    // Warrior: 攻击型，侧重伤害和攻速
+    const warriorBonuses = new Map<string, number>([
+      ['damage', 20],           // 伤害 +20%
+      ['attackSpeed', 15],      // 攻速 +15%
+      ['critDamage', 25],       // 暴击伤害 +25%
+      ['rage', 20]              // 狂暴效果 +20%
+    ]);
+    bonuses.set('warrior', warriorBonuses);
+
+    // Mage: 技能型，侧重冷却缩减和技能效果
+    const mageBonuses = new Map<string, number>([
+      ['skillCooldown', -25],   // 技能冷却 -25%
+      ['skillDuration', 20],    // 技能持续时间 +20%
+      ['haste', 25],            // 急速效果 +25%
+      ['damage', 15]            // 伤害 +15%
+    ]);
+    bonuses.set('mage', mageBonuses);
+
+    // Hunter: 宠物型，侧重宠物强化和幸运
+    const hunterBonuses = new Map<string, number>([
+      ['petDamage', 30],        // 宠物伤害 +30%
+      ['petSpeed', 20],         // 宠物速度 +20%
+      ['petLuck', 25],          // 宠物幸运 +25%
+      ['gold', 20]              // 金币 +20%
+    ]);
+    bonuses.set('hunter', hunterBonuses);
+
+    return bonuses;
+  }
+
+  // Calculate total bonuses from skills including class-specific bonuses
   getSkillBonuses(): Map<string, number> {
     const bonuses = new Map<string, number>();
     
+    // Add class-specific base bonuses
+    const classBonus = this.classBonuses.get(this.state.characterClass);
+    if (classBonus) {
+      classBonus.forEach((value, key) => {
+        bonuses.set(key, value);
+      });
+    }
+    
+    // Add skill bonuses
     this.state.skills.forEach(skill => {
       if (skill.currentLevel > 0) {
+        // Skip class-specific skills that don't match current class
+        if (skill.classSpecific && !skill.classSpecific.includes(this.state.characterClass)) {
+          return;
+        }
+        
         skill.effects.forEach(effect => {
           const current = bonuses.get(effect.type) || 0;
           const bonus = effect.value * skill.currentLevel;
