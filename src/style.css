@@ -439,13 +439,23 @@ button:disabled {
   #skilltree-branches {
     gap: 4px !important;
     margin-bottom: 10px !important;
+    justify-content: center !important;
   }
 
   .skill-branch-tab {
+    width: 100px !important;
     padding: 6px 4px !important;
     font-size: 12px !important;
     border-radius: 6px !important;
     border-width: 2px !important;
+  }
+
+  /* Skill tree modal - smaller on mobile */
+  #skilltree-modal {
+    width: 95% !important;
+    max-width: 400px !important;
+    min-width: auto !important;
+    padding: 15px !important;
   }
 
   /* Encyclopedia tabs - fit 3 tabs on mobile */
