@@ -224,6 +224,12 @@ window.addEventListener('DOMContentLoaded', () => {
       btn.addEventListener('click', (e) => {
         const skillId = (e.target as HTMLElement).getAttribute('data-skill-id');
         if (skillId && skillTreeManager.unlockSkill(skillId)) {
+          // Visual feedback for skill upgrade
+          if (game.player) {
+            game.floatingTexts.push(new FloatingText(game.player.x, game.player.y - 60, '✨ 技能升级!', '#FFD700', 'level'));
+            game.triggerShake(8);
+            game.createExplosion(game.player.x, game.player.y, '#FFD700');
+          }
           renderSkillTree(currentBranch);
         }
       });
