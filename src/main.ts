@@ -104,7 +104,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // Skill button click handler
   skillBtn?.addEventListener('click', () => {
-    if (game.player && game.player.skill.currentCooldown <= 0) {
+    if (game.player && game.player.skill.currentCooldown <= 0 && !game.player.skill.isActive) {
       game.player.useSkill();
     }
   });

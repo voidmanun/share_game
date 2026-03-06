@@ -325,9 +325,9 @@ export class Player extends Entity {
     }
 
     // Skill cooldown
-    if (this.skill.currentCooldown > 0) {
+    if (this.skill.currentCooldown !== 0) {
       this.skill.currentCooldown -= deltaTime;
-      if (this.skill.currentCooldown < 0) {
+      if (this.skill.currentCooldown <= 0) {
         this.skill.currentCooldown = 0;
       }
     }
