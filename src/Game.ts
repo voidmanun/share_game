@@ -47,6 +47,7 @@ import { GrumpyPorcupine } from './entities/GrumpyPorcupine';
 import { BouncySlime } from './entities/BouncySlime';
 import { LuckyCat } from './entities/LuckyCat';
 import { HolyLightTurtle } from './entities/HolyLightTurtle';
+import { Spirit } from './entities/Spirit';
 import { Obstacle, type ObstacleType } from './entities/Obstacle';
 import { EliteRewardSystem } from './systems/EliteRewardSystem';
 import { getLeaderboard, saveScore } from './leaderboard';
@@ -416,6 +417,27 @@ export class Game {
                 this.player.x += pushX * pushAmount;
                 this.player.y += pushY * pushAmount;
             }
+        });
+
+        // Check enemy collision with obstacles (except Spirit which phases through)
+        this.obstacles.forEach(obstacle => {
+            this.enemies.forEach(enemy => {
+                // Spirit enemies can phase through obstacles
+                if (enemy instanceof Spirit) return;
+
+                const dx = enemy.x - obstacle.x;
+                const dy = enemy.y - obstacle.y;
+                const distance = Math.hypot(dx, dy);
+                const minDist = enemy.radius + obstacle.radius;
+
+                if (distance < minDist) {
+                    const pushX = dx / distance;
+                    const pushY = dy / distance;
+                    const pushAmount = minDist - distance;
+                    enemy.x += pushX * pushAmount;
+                    enemy.y += pushY * pushAmount;
+                }
+            });
         });
 
         this.updateHUD();
