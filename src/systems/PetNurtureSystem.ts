@@ -198,11 +198,12 @@ export class PetNurtureSystem {
     // 添加经验
     public addExperience(pet: Pet, amount: number): void {
         const petId = this.getPetId(pet);
-        const data = this.petDataMap.get(petId);
+        let data = this.petDataMap.get(petId);
         if (!data) {
             console.warn(`[PetNurture] Pet data not found for ${pet.constructor.name}, registering...`);
             this.registerPet(pet);
-            return;
+            data = this.petDataMap.get(petId);
+            if (!data) return;
         }
 
         data.experience += amount;
