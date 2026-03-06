@@ -61,7 +61,7 @@ export class PetPanel {
         }
     }
 
-    private updateUI(): void {
+    public updateUI(): void {
         const pets = this.game.pets;
         if (pets.length === 0) {
             console.log('No pets to display');

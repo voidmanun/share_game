@@ -40,6 +40,7 @@ import { FloatingText } from './entities/FloatingText';
 import { LollipopPickup } from './entities/LollipopPickup';
 import { PetEggPickup } from './entities/PetEggPickup';
 import { CharmPotionPickup } from './entities/CharmPotionPickup';
+import { PetEquipmentPickup } from './entities/PetEquipmentPickup';
 import { Pet } from './entities/Pet';
 import { GreedyDog } from './entities/GreedyDog';
 import { MagicFairy } from './entities/MagicFairy';
@@ -111,7 +112,7 @@ export class Game {
 
     public getEnemies(): Enemy[] { return this.enemies; }
     private projectiles: Projectile[] = [];
-    private pickups: (Pickup | WeaponPickup | HealthPickup | LollipopPickup | PetEggPickup | CharmPotionPickup)[] = [];
+    private pickups: (Pickup | WeaponPickup | HealthPickup | LollipopPickup | PetEggPickup | CharmPotionPickup | PetEquipmentPickup)[] = [];
     public particles: Particle[] = [];
     public floatingTexts: FloatingText[] = [];
 
@@ -564,7 +565,10 @@ export class Game {
         } else {
             const weaponTypes = ['Magic Wand', 'Laser', 'Missile Launcher', 'Shotgun', 'Orbit Shield', 'Bubble Gun', 'Boomerang', 'Splitter Gun', 'Poison Gun', 'Freeze Gun'];
             const dropRand = Math.random();
-            if (dropRand < 0.001) {
+            // 1% 宠物装备掉落
+            if (dropRand < 0.01) {
+                this.spawnPetEquipment(enemy.x, enemy.y);
+            } else if (dropRand < 0.001) {
                 this.pickups.push(new LollipopPickup(enemy.x, enemy.y));
             } else if (dropRand < 0.06) {
                 const type = weaponTypes[Math.floor(Math.random() * weaponTypes.length)];
@@ -751,6 +755,9 @@ export class Game {
                 } else if (pickup instanceof CharmPotionPickup) {
                     this.applyCharmPotion();
                     this.soundManager.playPickupSound();
+                } else if (pickup instanceof PetEquipmentPickup) {
+                    this.handlePetEquipmentPickup(pickup);
+                    this.soundManager.playPickupSound();
                 } else if (pickup instanceof Pickup) {
                     this.gold += pickup.value;
                     this.soundManager.playPickupSound();
@@ -785,6 +792,29 @@ export class Game {
         } else {
             this.player.addWeapon(newWeapon);
             this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 20, `New: ${type}!`, '#00FFFF'));
+        }
+    }
+
+    private spawnPetEquipment(x: number, y: number): void {
+        if (this.pets.length === 0) return;
+        
+        const equipments = Array.from(this.petNurtureSystem.getEquipmentDatabase().values());
+        const randomEquip = equipments[Math.floor(Math.random() * equipments.length)];
+        if (randomEquip) {
+            this.pickups.push(new PetEquipmentPickup(x, y, randomEquip));
+        }
+    }
+
+    private handlePetEquipmentPickup(pickup: PetEquipmentPickup): void {
+        if (this.pets.length === 0) return;
+        
+        // 装备到第一个宠物（或当前选中的宠物）
+        const pet = this.pets[0];
+        const success = this.petNurtureSystem.equipItem(pet, pickup.equipment.id);
+        
+        if (success) {
+            this.floatingTexts.push(new FloatingText(pet.x, pet.y - 40, `装备！${pickup.equipment.nameZh}`, '#FFD700'));
+            this.petPanel.updateUI();
         }
     }
 

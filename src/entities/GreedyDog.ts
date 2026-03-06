@@ -24,15 +24,13 @@ export class GreedyDog extends Pet {
             let minDist = Infinity;
 
             for (const p of pickups) {
-                // Ignore egg pickups to avoid recursion or confusing behaviors
-                if (p.constructor.name === 'PetEggPickup') continue;
-
+                // Now collects ALL pickup types including pet eggs
                 const dx = p.x - this.x;
                 const dy = p.y - this.y;
                 const distSquared = dx * dx + dy * dy;
 
-                // Only go for pickups reasonably close (e.g. 500 pixels)
-                if (distSquared < 500 * 500 && distSquared < minDist) {
+                // Increased collection range from 500 to 800 pixels
+                if (distSquared < 800 * 800 && distSquared < minDist) {
                     minDist = distSquared;
                     this.targetPickup = p;
                 }
@@ -46,8 +44,9 @@ export class GreedyDog extends Pet {
             const dist = Math.sqrt(dx * dx + dy * dy);
 
             if (dist > 5) {
-                this.x += (dx / dist) * (this.speed * 1.5) * deltaTime; // Sprint to pickup
-                this.y += (dy / dist) * (this.speed * 1.5) * deltaTime;
+                // Increased sprint multiplier from 1.5 to 2.5 for faster collection
+                this.x += (dx / dist) * (this.speed * 2.5) * deltaTime;
+                this.y += (dy / dist) * (this.speed * 2.5) * deltaTime;
             }
         }
     }

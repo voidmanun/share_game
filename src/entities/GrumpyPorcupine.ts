@@ -14,16 +14,43 @@ export class GrumpyPorcupine extends Pet {
 
     public act(deltaTime: number): void {
         this.damageTimer -= deltaTime;
+        const enemies = this.game.getEnemies();
+
+        // Find nearest enemy to chase
+        let nearestEnemy = null;
+        let minDist = Infinity;
+
+        for (const enemy of enemies) {
+            if (enemy.isDead || enemy instanceof Boss) continue;
+
+            const dx = enemy.x - this.x;
+            const dy = enemy.y - this.y;
+            const distSquared = dx * dx + dy * dy;
+
+            if (distSquared < minDist) {
+                minDist = distSquared;
+                nearestEnemy = enemy;
+            }
+        }
+
+        // Chase nearest enemy if within 400 pixels
+        if (nearestEnemy && minDist < 400 * 400) {
+            const dx = nearestEnemy.x - this.x;
+            const dy = nearestEnemy.y - this.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist > this.radius + nearestEnemy.radius) {
+                // Move towards enemy
+                this.x += (dx / dist) * (this.speed * 0.8) * deltaTime;
+                this.y += (dy / dist) * (this.speed * 0.8) * deltaTime;
+            }
+        }
 
         // Cooldown for dealing damage
         if (this.damageTimer > 0) return;
 
-        const enemies = this.game.getEnemies();
         for (const enemy of enemies) {
-            if (enemy.isDead || enemy instanceof Boss) {
-                // Ignore bosses to not make it overpowered
-                continue;
-            }
+            if (enemy.isDead || enemy instanceof Boss) continue;
 
             const dx = enemy.x - this.x;
             const dy = enemy.y - this.y;
@@ -32,11 +59,11 @@ export class GrumpyPorcupine extends Pet {
             // If enemy touches porcupine
             if (dist < this.radius + enemy.radius) {
                 // Deal damage
-                enemy.takeDamage(5 * this.damageMultiplier); // High burst damage
+                enemy.takeDamage(5 * this.damageMultiplier);
 
                 // Visual feedback
                 for (let i = 0; i < 5; i++) {
-                    this.game.particles.push(new Particle(this.x, this.y, '#FF4500')); // OrangeRed sparks
+                    this.game.particles.push(new Particle(this.x, this.y, '#FF4500'));
                 }
 
                 // Knockback
@@ -46,8 +73,8 @@ export class GrumpyPorcupine extends Pet {
                     enemy.y += Math.sin(angle) * 30;
                 }
 
-                this.damageTimer = 0.5; // 0.5s cooldown before it can do damage again
-                break; // Only hurt one enemy per frame
+                this.damageTimer = 0.5;
+                break;
             }
         }
     }
