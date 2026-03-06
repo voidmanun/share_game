@@ -124,6 +124,13 @@ export class Game {
     private twinEliteSpawnTimer: number = 0;
     private devourerSpawnTimer: number = 0;
     private damageFlashTimer: number = 0;
+    
+    // Screen shake
+    private shakeIntensity: number = 0;
+    private shakeDecay: number = 0.9;
+    private shakeX: number = 0;
+    private shakeY: number = 0;
+    
     public gold: number = 0;
     public gameTime: number = 0; // In seconds
     public hasSavedScore: boolean = false;
@@ -346,6 +353,9 @@ export class Game {
         if (this.damageFlashTimer > 0) {
             this.damageFlashTimer -= deltaTime;
         }
+
+        // Update screen shake
+        this.updateShake(deltaTime);
 
         this.player.update(deltaTime);
 
@@ -779,6 +789,22 @@ export class Game {
         for (let i = 0; i < 8; i++) this.particles.push(new Particle(x, y, color));
     }
 
+    public triggerShake(intensity: number): void {
+        this.shakeIntensity = Math.max(this.shakeIntensity, intensity);
+    }
+
+    private updateShake(deltaTime: number): void {
+        if (this.shakeIntensity > 0.1) {
+            this.shakeX = (Math.random() - 0.5) * this.shakeIntensity * 2;
+            this.shakeY = (Math.random() - 0.5) * this.shakeIntensity * 2;
+            this.shakeIntensity *= this.shakeDecay;
+        } else {
+            this.shakeIntensity = 0;
+            this.shakeX = 0;
+            this.shakeY = 0;
+        }
+    }
+
     private generateObstacles(): void {
         const obstacleCount = 40;
         const types: ObstacleType[] = ['grass', 'tree', 'rock', 'bush'];
@@ -916,6 +942,8 @@ export class Game {
         const camX = this.player.x - this.canvas.width / 2;
         const camY = this.player.y - this.canvas.height / 2;
         this.ctx.save();
+        // Apply screen shake
+        this.ctx.translate(this.shakeX, this.shakeY);
         this.ctx.translate(-camX, -camY);
         this.drawGrid(camX, camY);
 
