@@ -47,8 +47,9 @@ import { GrumpyPorcupine } from './entities/GrumpyPorcupine';
 import { BouncySlime } from './entities/BouncySlime';
 import { LuckyCat } from './entities/LuckyCat';
 import { HolyLightTurtle } from './entities/HolyLightTurtle';
-import { getLeaderboard, saveScore } from './leaderboard';
+import { Obstacle, type ObstacleType } from './entities/Obstacle';
 import { EliteRewardSystem } from './systems/EliteRewardSystem';
+import { getLeaderboard, saveScore } from './leaderboard';
 
 export class Game {
     private canvas: HTMLCanvasElement;
@@ -112,6 +113,7 @@ export class Game {
     }
 
     public pets: Pet[] = [];
+    public obstacles: Obstacle[] = [];
     private spawnTimer: number = 0;
     private spawnInterval: number = 1.2; // Start slightly slower
     private bossSpawnTimer: number = 0;
@@ -141,6 +143,7 @@ export class Game {
         this.particles = [];
         this.floatingTexts = [];
         this.pets = [];
+        this.obstacles = [];
         this.spawnTimer = 0;
         this.spawnInterval = 1.2;
         this.bossSpawnTimer = 0;
@@ -160,6 +163,9 @@ export class Game {
 
         this.input = new Input();
         this.player = new Player(this.WORLD_WIDTH / 2, this.WORLD_HEIGHT / 2, this.input, this.WORLD_WIDTH, this.WORLD_HEIGHT, this.selectedCharacterClass);
+
+        // Generate obstacles for the scene
+        this.generateObstacles();
         this.player.setGame(this);
         this.player.addWeapon(new MagicWand(this, this.player));
 
@@ -333,6 +339,9 @@ export class Game {
 
         this.player.update(deltaTime);
 
+        // Update obstacles
+        this.obstacles.forEach(o => o.update(deltaTime));
+
         // Spawn enemies
         this.spawnTimer += deltaTime;
         if (this.spawnTimer >= this.spawnInterval) {
@@ -392,6 +401,22 @@ export class Game {
 
         this.pets.forEach(p => p.update(deltaTime));
         this.pets = this.pets.filter(p => !p.isDead);
+
+        // Check player collision with obstacles
+        this.obstacles.forEach(obstacle => {
+            const dx = this.player.x - obstacle.x;
+            const dy = this.player.y - obstacle.y;
+            const distance = Math.hypot(dx, dy);
+            const minDist = this.player.radius + obstacle.radius;
+
+            if (distance < minDist) {
+                const pushX = dx / distance;
+                const pushY = dy / distance;
+                const pushAmount = minDist - distance;
+                this.player.x += pushX * pushAmount;
+                this.player.y += pushY * pushAmount;
+            }
+        });
 
         this.updateHUD();
         this.updateStatsPanel();
@@ -723,6 +748,40 @@ export class Game {
         for (let i = 0; i < 8; i++) this.particles.push(new Particle(x, y, color));
     }
 
+    private generateObstacles(): void {
+        const obstacleCount = 40;
+        const types: ObstacleType[] = ['grass', 'tree', 'rock', 'bush'];
+        const typeWeights = [0.5, 0.2, 0.15, 0.15];
+
+        for (let i = 0; i < obstacleCount; i++) {
+            let x: number, y: number;
+            let attempts = 0;
+            const minDistanceFromPlayer = 150;
+
+            do {
+                x = Math.random() * this.WORLD_WIDTH;
+                y = Math.random() * this.WORLD_HEIGHT;
+                attempts++;
+            } while (
+                attempts < 10 &&
+                Math.hypot(x - this.WORLD_WIDTH / 2, y - this.WORLD_HEIGHT / 2) < minDistanceFromPlayer
+            );
+
+            const rand = Math.random();
+            let typeIndex = 0;
+            let weightSum = 0;
+            for (let j = 0; j < typeWeights.length; j++) {
+                weightSum += typeWeights[j];
+                if (rand < weightSum) {
+                    typeIndex = j;
+                    break;
+                }
+            }
+
+            this.obstacles.push(new Obstacle(x, y, types[typeIndex]));
+        }
+    }
+
     private spawnEnemy(): void {
         const angle = Math.random() * Math.PI * 2;
         const radius = Math.max(this.canvas.width, this.canvas.height) / 2 + 50;
@@ -844,6 +903,7 @@ export class Game {
         }
 
         this.pickups.forEach(p => p.render(this.ctx));
+        this.obstacles.forEach(o => o.render(this.ctx));
         this.enemies.forEach(enemy => enemy.render(this.ctx));
         this.projectiles.forEach(p => p.render(this.ctx));
         this.particles.forEach(p => p.render(this.ctx));
