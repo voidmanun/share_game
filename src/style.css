@@ -569,7 +569,18 @@ button:disabled {
   pointer-events: auto;
 }
 
-#changelog-modal:not(.hidden) {
+#character-select:not(.hidden) {
+  touch-action: pan-y !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+#settings-modal:not(.hidden),
+#stats-modal:not(.hidden),
+#changelog-modal:not(.hidden),
+#encyclopedia-modal:not(.hidden),
+#skilltree-modal:not(.hidden),
+#leaderboard-modal:not(.hidden),
+#pet-panel:not(.hidden) {
   touch-action: pan-y;
   display: flex !important;
   flex-direction: column !important;
@@ -577,7 +588,13 @@ button:disabled {
   overflow: hidden !important;
 }
 
-#changelog-list {
+#modal-leaderboard-list,
+#settings-content,
+#stats-content,
+#changelog-list,
+#encyclopedia-content,
+#skilltree-content,
+#pet-panel-content {
   touch-action: pan-y !important;
   -webkit-overflow-scrolling: touch !important;
   overflow-y: auto !important;
