@@ -16,18 +16,17 @@ export class SplitterProjectile extends Projectile {
         this.maxLife = 3;
     }
 
-    public onKill(enemy: Enemy): void {
-        // Explode into 3 smaller projectiles
+    public onHit(enemy: Enemy): void {
+        // Split into 2 smaller projectiles on hit
         const speed = 400;
         const baseAngle = Math.random() * Math.PI * 2;
-        const numSplits = 3;
+        const numSplits = 2;
 
         for (let i = 0; i < numSplits; i++) {
             const angle = baseAngle + (Math.PI * 2 / numSplits) * i;
             const vx = Math.cos(angle) * speed;
             const vy = Math.sin(angle) * speed;
 
-            // Smaller projectiles don't split again (or do they? User said "每杀死一个怪物 ... 爆炸分裂出3枚子弹" - if these sub-bullets kill, do they split? I'll make them normal projectiles or a non-splitting variant to avoid infinite loops, though if it's based on kill maybe it's fine. But let's be safe and use regular Projectile).
             const subProj = new Projectile(enemy.x, enemy.y, vx, vy, this.damage);
             subProj.color = '#FF88FF'; // Lighter magenta
             subProj.maxLife = 1.5;
