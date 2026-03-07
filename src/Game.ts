@@ -560,8 +560,7 @@ export class Game {
                 this.particles.push(new Particle(enemy.x, enemy.y, '#FFD700'));
             }
             
-            // 检查是否已达到精英掉落上限
-            if (this.eliteDropCount < 10) {
+            if (Math.random() < 0.2 && this.eliteDropCount < 10) {
                 this.eliteDropCount++;
                 this.pause();
                 this.eliteRewardSystem.show();
