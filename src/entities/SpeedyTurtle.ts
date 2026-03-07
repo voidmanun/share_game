@@ -1,37 +1,58 @@
 import { Pet } from './Pet';
 import { Player } from './Player';
 import { Game } from '../Game';
+import { PetProjectile } from './PetProjectile';
 
 export class SpeedyTurtle extends Pet {
     private buffActive: boolean = false;
     private buffTimer: number = 0;
 
     constructor(player: Player, game: Game) {
-        // Very slow pet, green color
-        super(player, game, 60, 80, 12, '#2E8B57'); // SeaGreen
-        this.buffTimer = 5 + Math.random() * 5; // Starts buff in 5-10s
+        super(player, game, 60, 80, 12, '#2E8B57');
+        this.buffTimer = 5 + Math.random() * 5;
+        this.attackInterval = 1.0;
+        this.attackRange = 300;
+        this.attackDamage = 2;
+        this.projectileColor = '#00BFFF';
     }
 
     public act(deltaTime: number): void {
         this.buffTimer -= deltaTime;
+        this.updateAttackCooldown(deltaTime);
 
         if (this.buffTimer <= 0) {
             if (!this.buffActive) {
-                // Activate buff
                 this.buffActive = true;
-                this.buffTimer = 5; // Buff lasts 5 seconds
-                this.player.speedMultiplier = 1.5; // Let's add this property to Player
-
-                // Visual feedback on player
-                this.player.color = '#00FF7F'; // SpringGreen temporarily
+                this.buffTimer = 5;
+                this.player.speedMultiplier = 1.5;
+                this.player.color = '#00FF7F';
             } else {
-                // Deactivate buff
                 this.buffActive = false;
-                this.buffTimer = 15 + Math.random() * 10; // 15-25s cooldown
+                this.buffTimer = 15 + Math.random() * 10;
                 this.player.speedMultiplier = 1.0;
-                this.player.color = '#006994'; // Revert to Sea Blue
+                this.player.color = '#006994';
             }
         }
+        
+        const target = this.findNearestEnemy();
+        if (target) {
+            this.performAttack(target.x, target.y);
+        }
+    }
+    
+    protected performAttack(targetX: number, targetY: number): void {
+        if (this.attackCooldown > 0) return;
+        
+        const projectile = new PetProjectile(
+            this.x, this.y, targetX, targetY,
+            this.attackDamage * this.damageMultiplier,
+            this.constructor.name, this.game, this.projectileColor, 'piercing'
+        );
+        projectile.radius = 6;
+        projectile.speedBoostDuration = 2;
+        
+        this.game.addPetProjectile(projectile);
+        this.attackCooldown = this.attackInterval;
     }
 
     public render(ctx: CanvasRenderingContext2D): void {
@@ -42,14 +63,12 @@ export class SpeedyTurtle extends Pet {
         ctx.strokeStyle = '#000';
         ctx.lineWidth = 3;
 
-        // Shell
         ctx.beginPath();
         ctx.ellipse(0, 0, this.radius + 4, this.radius, this.hoverAngle, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
 
-        // Shell pattern
-        ctx.strokeStyle = '#006400'; // DarkGreen
+        ctx.strokeStyle = '#006400';
         ctx.lineWidth = 2;
         ctx.save();
         ctx.rotate(this.hoverAngle);
@@ -61,8 +80,7 @@ export class SpeedyTurtle extends Pet {
         ctx.stroke();
         ctx.restore();
 
-        // Head
-        ctx.fillStyle = '#3CB371'; // MediumSeaGreen
+        ctx.fillStyle = '#3CB371';
         ctx.strokeStyle = '#000';
         ctx.lineWidth = 3;
         ctx.beginPath();
@@ -72,9 +90,8 @@ export class SpeedyTurtle extends Pet {
         ctx.fill();
         ctx.stroke();
 
-        // Buff indicator
         if (this.buffActive) {
-            ctx.strokeStyle = 'rgba(0, 255, 127, 0.8)'; // Glowing SpringGreen
+            ctx.strokeStyle = 'rgba(0, 255, 127, 0.8)';
             ctx.lineWidth = 4;
             ctx.beginPath();
             ctx.arc(0, 0, this.radius + 10, 0, Math.PI * 2);
@@ -82,5 +99,6 @@ export class SpeedyTurtle extends Pet {
         }
 
         ctx.restore();
+        this.renderLevelInfo(ctx);
     }
 }

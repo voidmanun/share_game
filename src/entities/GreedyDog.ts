@@ -7,19 +7,25 @@ import { WeaponPickup } from './WeaponPickup';
 import { HealthPickup } from './HealthPickup';
 import { LollipopPickup } from './LollipopPickup';
 import { PetEggPickup } from './PetEggPickup';
+import { PetProjectile } from './PetProjectile';
+import { Particle } from './Particle';
 
 export class GreedyDog extends Pet {
     private targetPickup: Pickup | WeaponPickup | HealthPickup | LollipopPickup | PetEggPickup | null = null;
     private teleportCooldown: number = 0;
 
     constructor(player: Player, game: Game) {
-        super(player, game, 40, 250, 8, '#8B4513'); // Fast, small, SaddleBrown
+        super(player, game, 40, 250, 8, '#8B4513');
+        this.attackInterval = 0.8;
+        this.attackRange = 200;
+        this.attackDamage = 1.5;
+        this.projectileColor = '#FFD700';
     }
 
     public act(deltaTime: number): void {
         this.teleportCooldown -= deltaTime;
+        this.updateAttackCooldown(deltaTime);
 
-        // Stage 2: Auto-teleport to player when far away
         if (this.evolutionStage >= 2 && this.teleportCooldown <= 0) {
             const distToPlayer = Math.sqrt(
                 (this.x - this.player.x) ** 2 + (this.y - this.player.y) ** 2
@@ -45,7 +51,6 @@ export class GreedyDog extends Pet {
 
                 const range = 800 + this.evolutionStage * 200;
                 if (distSquared < range * range && distSquared < minDist) {
-                    // Stage 1+: Prioritize rare pickups
                     if (this.evolutionStage >= 1 && p instanceof PetEggPickup) {
                         minDist = 0;
                         this.targetPickup = p;
@@ -68,6 +73,31 @@ export class GreedyDog extends Pet {
                 this.y += (dy / dist) * (this.speed * speedMult) * deltaTime;
             }
         }
+        
+        const target = this.findNearestEnemy();
+        if (target) {
+            this.performAttack(target.x, target.y);
+        }
+    }
+    
+    protected performAttack(targetX: number, targetY: number): void {
+        if (this.attackCooldown > 0) return;
+        
+        const projectile = new PetProjectile(
+            this.x, this.y, targetX, targetY,
+            this.attackDamage * this.damageMultiplier,
+            this.constructor.name, this.game, this.projectileColor, 'crit'
+        );
+        
+        this.game.addPetProjectile(projectile);
+        
+        if (projectile.isCrit) {
+            for (let i = 0; i < 5; i++) {
+                this.game.particles.push(new Particle(this.x, this.y, '#FFD700'));
+            }
+        }
+        
+        this.attackCooldown = this.attackInterval;
     }
 
     public render(ctx: CanvasRenderingContext2D): void {
@@ -79,13 +109,11 @@ export class GreedyDog extends Pet {
         ctx.lineWidth = 3;
 
         ctx.beginPath();
-        // Dog head (simple)
         ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
 
-        // Ears
-        ctx.fillStyle = '#654321'; // Darker brown
+        ctx.fillStyle = '#654321';
         ctx.beginPath();
         ctx.ellipse(-5, -6, 3, 6, -Math.PI / 4, 0, Math.PI * 2);
         ctx.fill();
@@ -96,7 +124,6 @@ export class GreedyDog extends Pet {
         ctx.fill();
         ctx.stroke();
 
-        // Eyes
         ctx.fillStyle = 'white';
         ctx.beginPath();
         ctx.arc(-3, -2, 2, 0, Math.PI * 2);
@@ -109,11 +136,11 @@ export class GreedyDog extends Pet {
         ctx.arc(3, -2, 1, 0, Math.PI * 2);
         ctx.fill();
 
-        // Nose
         ctx.beginPath();
         ctx.arc(0, 2, 2, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.restore();
+        this.renderLevelInfo(ctx);
     }
 }

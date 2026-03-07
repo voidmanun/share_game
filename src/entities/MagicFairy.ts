@@ -5,6 +5,7 @@ import { HealthPickup } from './HealthPickup';
 import { Pickup } from './Pickup';
 import { Particle } from './Particle';
 import { PetEggPickup } from './PetEggPickup';
+import { PetProjectile } from './PetProjectile';
 
 export class MagicFairy extends Pet {
     private spawnTimer: number = 0;
@@ -13,6 +14,10 @@ export class MagicFairy extends Pet {
     constructor(player: Player, game: Game) {
         super(player, game, 50, 150, 6, '#FFB6C1');
         this.spawnTimer = 10 + Math.random() * 5;
+        this.attackInterval = 1.0;
+        this.attackRange = 200;
+        this.attackDamage = 2;
+        this.projectileColor = '#FF69B4';
     }
 
     public setDropType(type: 'health' | 'coin'): void {
@@ -21,6 +26,7 @@ export class MagicFairy extends Pet {
 
     public act(deltaTime: number): void {
         this.spawnTimer -= deltaTime;
+        this.updateAttackCooldown(deltaTime);
 
         if (Math.random() < 0.1) {
             this.game.particles.push(new Particle(this.x, this.y, '#FFD700'));
@@ -31,13 +37,36 @@ export class MagicFairy extends Pet {
             this.spawnAbility();
             this.spawnTimer = spawnInterval + Math.random() * 5;
         }
+        
+        const target = this.findNearestEnemy();
+        if (target) {
+            this.performAttack(target.x, target.y);
+        }
+    }
+    
+    protected performAttack(targetX: number, targetY: number): void {
+        if (this.attackCooldown > 0) return;
+        
+        const projectile = new PetProjectile(
+            this.x, this.y, targetX, targetY,
+            this.attackDamage * this.damageMultiplier,
+            this.constructor.name, this.game, this.projectileColor, 'homing'
+        );
+        projectile.radius = 6;
+        
+        this.game.addPetProjectile(projectile);
+        
+        for (let i = 0; i < 2; i++) {
+            this.game.particles.push(new Particle(this.x, this.y, '#FF69B4'));
+        }
+        
+        this.attackCooldown = this.attackInterval;
     }
 
     private spawnAbility(): void {
         const dropX = this.x;
         const dropY = this.y;
 
-        // Stage 1+: Player can choose drop type, Stage 2: Double drops
         const dropCount = this.evolutionStage >= 2 ? 2 : 1;
 
         for (let i = 0; i < dropCount; i++) {
@@ -52,7 +81,6 @@ export class MagicFairy extends Pet {
             }
         }
 
-        // Stage 2: Rare chance for pet egg
         if (this.evolutionStage >= 2 && Math.random() < 0.1) {
             this.game.addPickup(new PetEggPickup(dropX, dropY));
         }
@@ -68,7 +96,6 @@ export class MagicFairy extends Pet {
         ctx.strokeStyle = '#000';
         ctx.lineWidth = 3;
 
-        // Fairy body (diamond/starish)
         ctx.beginPath();
         ctx.moveTo(0, -this.radius);
         ctx.lineTo(this.radius, 0);
@@ -78,8 +105,7 @@ export class MagicFairy extends Pet {
         ctx.fill();
         ctx.stroke();
 
-        // Wings
-        const wingFlap = Math.sin(Date.now() / 50) * Math.PI / 8; // fast flapping
+        const wingFlap = Math.sin(Date.now() / 50) * Math.PI / 8;
         ctx.fillStyle = 'white';
 
         ctx.beginPath();
@@ -90,7 +116,6 @@ export class MagicFairy extends Pet {
         ctx.ellipse(6, -4, 6, 3, Math.PI / 6 - wingFlap, 0, Math.PI * 2);
         ctx.fill(); ctx.stroke();
 
-        // Simple Face
         ctx.fillStyle = 'black';
         ctx.beginPath();
         ctx.arc(-2, 0, 1, 0, Math.PI * 2);
@@ -98,5 +123,6 @@ export class MagicFairy extends Pet {
         ctx.fill();
 
         ctx.restore();
+        this.renderLevelInfo(ctx);
     }
 }

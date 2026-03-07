@@ -3,20 +3,25 @@ import { Player } from './Player';
 import { Game } from '../Game';
 import { Particle } from './Particle';
 import { Boss } from './Boss';
+import { PetProjectile } from './PetProjectile';
 
 export class GrumpyPorcupine extends Pet {
     private damageTimer: number = 0;
 
     constructor(player: Player, game: Game) {
-        // Slowest pet, brown color
-        super(player, game, 45, 120, 10, '#A0522D'); // Sienna
+        super(player, game, 45, 120, 10, '#A0522D');
+        this.attackInterval = 1.2;
+        this.attackRange = 180;
+        this.attackDamage = 2;
+        this.projectileColor = '#8B4513';
     }
 
     public act(deltaTime: number): void {
         this.damageTimer -= deltaTime;
+        this.updateAttackCooldown(deltaTime);
+        
         const enemies = this.game.getEnemies();
 
-        // Find nearest enemy to chase
         let nearestEnemy = null;
         let minDist = Infinity;
 
@@ -33,20 +38,21 @@ export class GrumpyPorcupine extends Pet {
             }
         }
 
-        // Chase nearest enemy if within 400 pixels
         if (nearestEnemy && minDist < 400 * 400) {
             const dx = nearestEnemy.x - this.x;
             const dy = nearestEnemy.y - this.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
 
             if (dist > this.radius + nearestEnemy.radius) {
-                // Move towards enemy
                 this.x += (dx / dist) * (this.speed * 0.8) * deltaTime;
                 this.y += (dy / dist) * (this.speed * 0.8) * deltaTime;
             }
+            
+            if (dist <= this.attackRange) {
+                this.performSpikeAttack(nearestEnemy.x, nearestEnemy.y);
+            }
         }
 
-        // Cooldown for dealing damage
         if (this.damageTimer > 0) return;
 
         for (const enemy of enemies) {
@@ -56,17 +62,13 @@ export class GrumpyPorcupine extends Pet {
             const dy = enemy.y - this.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
 
-            // If enemy touches porcupine
             if (dist < this.radius + enemy.radius) {
-                // Deal damage
                 enemy.takeDamage(5 * this.damageMultiplier);
 
-                // Visual feedback
                 for (let i = 0; i < 5; i++) {
                     this.game.particles.push(new Particle(this.x, this.y, '#FF4500'));
                 }
 
-                // Knockback
                 if (!enemy.isDead) {
                     const angle = Math.atan2(dy, dx);
                     enemy.x += Math.cos(angle) * 30;
@@ -78,6 +80,34 @@ export class GrumpyPorcupine extends Pet {
             }
         }
     }
+    
+    private performSpikeAttack(targetX: number, targetY: number): void {
+        if (this.attackCooldown > 0) return;
+        
+        const baseAngle = Math.atan2(targetY - this.y, targetX - this.x);
+        const spreadAngles = [-Math.PI / 6, 0, Math.PI / 6];
+        
+        for (const angleOffset of spreadAngles) {
+            const angle = baseAngle + angleOffset;
+            const targetXOffset = this.x + Math.cos(angle) * this.attackRange;
+            const targetYOffset = this.y + Math.sin(angle) * this.attackRange;
+            
+            const projectile = new PetProjectile(
+                this.x, this.y, targetXOffset, targetYOffset,
+                this.attackDamage * this.damageMultiplier,
+                this.constructor.name, this.game, this.projectileColor, 'normal'
+            );
+            projectile.radius = 4;
+            
+            this.game.addPetProjectile(projectile);
+        }
+        
+        for (let i = 0; i < 3; i++) {
+            this.game.particles.push(new Particle(this.x, this.y, '#8B4513'));
+        }
+        
+        this.attackCooldown = this.attackInterval;
+    }
 
     public render(ctx: CanvasRenderingContext2D): void {
         ctx.save();
@@ -87,13 +117,11 @@ export class GrumpyPorcupine extends Pet {
         ctx.strokeStyle = '#000';
         ctx.lineWidth = 3;
 
-        // Boy/Body
         ctx.beginPath();
         ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
 
-        // Spikes
         ctx.fillStyle = '#8B4513';
         const numSpikes = 8;
         for (let i = 0; i < numSpikes; i++) {
@@ -101,25 +129,19 @@ export class GrumpyPorcupine extends Pet {
 
             ctx.beginPath();
             ctx.moveTo(Math.cos(angle) * this.radius, Math.sin(angle) * this.radius);
-
-            // Spike tip
             ctx.lineTo(
                 Math.cos(angle) * (this.radius + 8),
                 Math.sin(angle) * (this.radius + 8)
             );
-
             ctx.lineTo(
                 Math.cos(angle + 0.3) * this.radius,
                 Math.sin(angle + 0.3) * this.radius
             );
-
             ctx.closePath();
             ctx.fill();
-            ctx.stroke(); // stroke spikes for cartoon look
+            ctx.stroke();
         }
 
-        // Grumpy Face
-        // Eyes
         ctx.fillStyle = 'white';
         ctx.beginPath();
         ctx.arc(-3, -2, 2, 0, Math.PI * 2);
@@ -132,7 +154,6 @@ export class GrumpyPorcupine extends Pet {
         ctx.arc(3, -2, 1, 0, Math.PI * 2);
         ctx.fill();
 
-        // Eyebrows
         ctx.strokeStyle = 'black';
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -143,5 +164,6 @@ export class GrumpyPorcupine extends Pet {
         ctx.stroke();
 
         ctx.restore();
+        this.renderLevelInfo(ctx);
     }
 }
