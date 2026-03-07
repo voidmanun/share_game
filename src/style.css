@@ -580,8 +580,12 @@ button:disabled {
 #encyclopedia-modal:not(.hidden),
 #skilltree-modal:not(.hidden),
 #leaderboard-modal:not(.hidden),
-#pet-panel:not(.hidden) {
+#pet-panel:not(.hidden),
+#character-select:not(.hidden),
+#shop:not(.hidden),
+#game-over:not(.hidden) {
   touch-action: pan-y;
+  pointer-events: auto;
   display: flex !important;
   flex-direction: column !important;
   max-height: 85vh !important;
