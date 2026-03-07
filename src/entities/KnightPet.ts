@@ -38,8 +38,10 @@ export class KnightPet extends Pet {
         }
 
         if (this.skillTimer <= 0) {
-            this.useSkill();
-            this.skillTimer = 5;
+            if (this.useSkill()) {
+                this.triggerSkill();
+                this.skillTimer = 5;
+            }
         }
     }
 
@@ -56,14 +58,13 @@ export class KnightPet extends Pet {
             const vx = (dx / distance) * speed;
             const vy = (dy / distance) * speed;
 
-            // Create a sword slash or projectile
             const proj = new Projectile(this.x, this.y, vx, vy, this.damage * this.damageMultiplier);
             proj.color = '#C0C0C0';
             this.game.addProjectile(proj);
         }
     }
 
-    private useSkill(): void {
+    private triggerSkill(): void {
         // 50% shield, 50% heal
         if (Math.random() < 0.5) {
             // Skill 1: Shield

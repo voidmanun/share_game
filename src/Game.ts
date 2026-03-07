@@ -17,6 +17,7 @@ import { TitanEnemy } from './entities/TitanEnemy';
 import { TwinElite } from './entities/TwinElite';
 import { DevourerElite } from './entities/DevourerElite';
 import { Projectile } from './weapons/Projectile';
+import { PetProjectile } from './entities/PetProjectile';
 import { MagicWand } from './weapons/MagicWand';
 import { Laser } from './weapons/Laser';
 import { Pickup } from './entities/Pickup';
@@ -448,12 +449,14 @@ export class Game {
 
         this.enemies.forEach(enemy => enemy.update(deltaTime));
         this.projectiles.forEach(p => p.update(deltaTime));
+        this.petProjectiles.forEach(p => p.update(deltaTime));
 
         this.checkCollisions();
         this.checkCollections();
 
         this.enemies = this.enemies.filter(e => !e.isDead);
         this.projectiles = this.projectiles.filter(p => !p.isDead);
+        this.petProjectiles = this.petProjectiles.filter(p => !p.isDead);
         this.pickups = this.pickups.filter(p => !p.isDead);
 
         this.particles.forEach(p => p.update(deltaTime));
@@ -659,6 +662,26 @@ export class Game {
                         }
                     }
                     if (projectile.isDead) break;
+                }
+            }
+        }
+
+        // Pet projectile collision
+        for (const proj of this.petProjectiles) {
+            for (const enemy of this.enemies) {
+                const dx = proj.x - enemy.x;
+                const dy = proj.y - enemy.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < proj.radius + enemy.radius) {
+                    enemy.takeDamage(proj.getDamage());
+                    proj.isDead = true;
+                    this.createExplosion(proj.x, proj.y, proj.color);
+
+                    if (enemy.isDead) {
+                        this.handleEnemyDeath(enemy);
+                    }
+                    break;
                 }
             }
         }
@@ -893,6 +916,10 @@ export class Game {
         this.projectiles.push(projectile);
     }
 
+    public addPetProjectile(projectile: PetProjectile): void {
+        this.petProjectiles.push(projectile);
+    }
+
     public addPickup(pickup: any): void {
         this.pickups.push(pickup);
     }
@@ -1108,6 +1135,7 @@ export class Game {
         this.obstacles.forEach(o => o.render(this.ctx));
         this.enemies.forEach(enemy => enemy.render(this.ctx));
         this.projectiles.forEach(p => p.render(this.ctx));
+        this.petProjectiles.forEach(p => p.render(this.ctx));
         this.particles.forEach(p => p.render(this.ctx));
         this.pets.forEach(p => p.render(this.ctx));
         this.player.render(this.ctx);

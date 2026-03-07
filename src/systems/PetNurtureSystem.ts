@@ -2,6 +2,7 @@
 // 宠物养成核心系统：等级、经验、进化、亲密度
 
 import type { Pet } from '../entities/Pet';
+import { getPetChineseName } from './PetConstants';
 
 // 为 Pet 类添加唯一 ID 属性
 declare module '../entities/Pet' {
@@ -176,7 +177,6 @@ export class PetNurtureSystem {
             pet.level = data.level;
             pet.experience = data.experience;
             pet.maxExperience = data.maxExperience;
-            console.log(`[PetNurture] Registered pet: ${pet.constructor.name} with ID: ${petId}`);
         }
     }
 
@@ -206,7 +206,6 @@ export class PetNurtureSystem {
         const petId = this.getPetId(pet);
         let data = this.petDataMap.get(petId);
         if (!data) {
-            console.warn(`[PetNurture] Pet data not found for ${pet.constructor.name}, registering...`);
             this.registerPet(pet);
             data = this.petDataMap.get(petId);
             if (!data) return;
@@ -416,17 +415,7 @@ export class PetNurtureSystem {
 
     // 获取中文宠物名
     private getPetChineseName(englishName: string): string {
-        const nameMap: Record<string, string> = {
-            'GreedyDog': '贪财狗',
-            'MagicFairy': '魔法精灵',
-            'SpeedyTurtle': '极速龟',
-            'GrumpyPorcupine': '暴躁豪猪',
-            'BouncySlime': '弹跳史莱姆',
-            'LuckyCat': '幸运猫',
-            'HolyLightTurtle': '圣光龟',
-            'KnightPet': '骑士宠物',
-        };
-        return nameMap[englishName] || englishName;
+        return getPetChineseName(englishName);
     }
 
     // 获取进化后的宠物类名

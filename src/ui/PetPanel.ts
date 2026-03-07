@@ -4,6 +4,7 @@
 import { Game } from '../Game';
 import type { PetEquipment } from '../systems/PetNurtureSystem';
 import { FloatingText } from '../entities/FloatingText';
+import { getPetChineseName } from '../systems/PetConstants';
 
 export class PetPanel {
     private game: Game;
@@ -20,8 +21,6 @@ export class PetPanel {
     }
 
     private bindEvents(): void {
-        console.log('Binding pet panel events...');
-        
         document.getElementById('close-pet-panel')?.addEventListener('click', () => this.toggle());
         document.getElementById('prev-pet-btn')?.addEventListener('click', () => this.selectPrevPet());
         document.getElementById('next-pet-btn')?.addEventListener('click', () => this.selectNextPet());
@@ -46,7 +45,6 @@ export class PetPanel {
             document.getElementById('settings-modal')?.classList.add('hidden');
         });
 
-        console.log('Pet panel events bound successfully');
     }
 
     public toggle(): void {
@@ -64,11 +62,8 @@ export class PetPanel {
     public updateUI(): void {
         const pets = this.game.pets;
         if (pets.length === 0) {
-            console.log('No pets to display');
             return;
         }
-
-        console.log('Updating UI for pet', this.selectedPetIndex, 'of', pets.length);
 
         // 确保选中的索引有效
         if (this.selectedPetIndex >= pets.length) {
@@ -77,11 +72,9 @@ export class PetPanel {
 
         const pet = pets[this.selectedPetIndex];
         const petData = this.game.petNurtureSystem?.getPetData(pet);
-        
-        console.log('Pet data:', petData ? 'found' : 'null', 'pet level:', pet.level);
 
         // 更新宠物信息
-        this.updateElement('pet-name', petData?.nameZh || this.getPetChineseName(pet.constructor.name));
+        this.updateElement('pet-name', petData?.nameZh || getPetChineseName(pet.constructor.name));
         this.updateElement('pet-level', `Lv.${pet.level}`);
         this.updateElement('pet-exp', `${pet.experience}/${pet.maxExperience}`);
         this.updateElement('pet-intimacy', `${pet.intimacy}/100 ♥`);
@@ -132,20 +125,6 @@ export class PetPanel {
         if (el) el.textContent = text;
     }
 
-    private getPetChineseName(englishName: string): string {
-        const nameMap: Record<string, string> = {
-            'GreedyDog': '贪财狗',
-            'MagicFairy': '魔法精灵',
-            'SpeedyTurtle': '极速龟',
-            'GrumpyPorcupine': '暴躁豪猪',
-            'BouncySlime': '弹跳史莱姆',
-            'LuckyCat': '幸运猫',
-            'HolyLightTurtle': '圣光龟',
-            'KnightPet': '骑士宠物',
-        };
-        return nameMap[englishName] || englishName;
-    }
-
     private updateEquipmentSlot(slot: string, equipment: PetEquipment | null): void {
         const slotEl = document.getElementById(`equip-${slot}`);
         if (slotEl) {
@@ -182,21 +161,17 @@ export class PetPanel {
 
     private selectPrevPet(): void {
         const pets = this.game.pets;
-        console.log('selectPrevPet called, pets length:', pets.length, 'current index:', this.selectedPetIndex);
         if (pets.length === 0) return;
         
         this.selectedPetIndex = (this.selectedPetIndex - 1 + pets.length) % pets.length;
-        console.log('new index:', this.selectedPetIndex);
         this.updateUI();
     }
 
     private selectNextPet(): void {
         const pets = this.game.pets;
-        console.log('selectNextPet called, pets length:', pets.length, 'current index:', this.selectedPetIndex);
         if (pets.length === 0) return;
         
         this.selectedPetIndex = (this.selectedPetIndex + 1) % pets.length;
-        console.log('new index:', this.selectedPetIndex);
         this.updateUI();
     }
 
@@ -213,8 +188,7 @@ export class PetPanel {
         }
     }
 
-    private openEquipmentSelector(slot: 'collar' | 'accessory' | 'badge'): void {
+    private openEquipmentSelector(_slot: 'collar' | 'accessory' | 'badge'): void {
         // TODO: 打开装备选择器
-        console.log('Opening equipment selector for slot:', slot);
     }
 }
