@@ -73,7 +73,7 @@ export class Player extends Entity {
         return {
           name: 'Invincibility',
           nameZh: '无敌',
-          cooldown: 30,
+          cooldown: 20,
           currentCooldown: 0,
           duration: 2,
           isActive: false,
@@ -83,7 +83,7 @@ export class Player extends Entity {
         return {
           name: 'Rage',
           nameZh: '狂暴',
-          cooldown: 30,
+          cooldown: 20,
           currentCooldown: 0,
           duration: 5,
           isActive: false,
@@ -93,7 +93,7 @@ export class Player extends Entity {
         return {
           name: 'Haste',
           nameZh: '急速',
-          cooldown: 15,
+          cooldown: 12,
           currentCooldown: 0,
           duration: 5,
           isActive: false,
@@ -103,7 +103,7 @@ export class Player extends Entity {
         return {
           name: 'Call of the Wild',
           nameZh: '野性呼唤',
-          cooldown: 10,
+          cooldown: 8,
           currentCooldown: 0,
           duration: 20,
           isActive: false,

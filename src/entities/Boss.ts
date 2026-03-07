@@ -4,11 +4,11 @@ import { Player } from './Player';
 export class Boss extends Enemy {
     constructor(x: number, y: number, player: Player) {
         super(x, y, player);
-        this.color = '#FF0000'; // Red
-        this.speed = 100;       // 2x speed
-        this.damage = 2;        // 2x damage
-        this.hp = 40;           // Doubled HP for boss feel
-        this.radius = 20;       // Slightly larger
+        this.color = '#FF0000';
+        this.speed = 100;
+        this.damage = 3;
+        this.hp = 150;
+        this.radius = 25;
     }
 
     public render(ctx: CanvasRenderingContext2D): void {

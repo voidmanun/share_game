@@ -313,11 +313,11 @@ export class Game {
         this.weaponStatsEl.innerHTML = weaponHTML;
 
         // 2. Update Enemy Stats
-        const hpMultiplier = 1 + (Math.floor(this.gameTime / 30) * 0.5);
-        const damageBonus = Math.floor(this.gameTime / 60);
+        const hpMultiplier = 1 + (Math.floor(this.gameTime / 30) * 0.3);
+        const damageBonus = Math.floor(this.gameTime / 45);
 
         const enemyData = [
-            { name: "Basic", hp: 6, dmg: 1 },
+            { name: "Basic", hp: 10, dmg: 1 },
             { name: "Scout", hp: 4, dmg: 1 },
             { name: "Swarm", hp: 2, dmg: 1 },
             { name: "Tank", hp: 30, dmg: 2 },
@@ -326,11 +326,11 @@ export class Game {
             { name: "Teleporter", hp: 4, dmg: 1 },
             { name: "Star", hp: 4, dmg: 1 },
             { name: "Slime", hp: 30, dmg: 2 },
-            { name: "Boss", hp: 20, dmg: 3 },
-            { name: "FusionBoss", hp: 100, dmg: 3 },
-            { name: "TwinElite", hp: 200, dmg: 4 },
-            { name: "DevourerElite", hp: 150, dmg: 3 },
-            { name: "Titan", hp: 500, dmg: 5 },
+            { name: "Boss", hp: 150, dmg: 3 },
+            { name: "FusionBoss", hp: 200, dmg: 4 },
+            { name: "TwinElite", hp: 300, dmg: 5 },
+            { name: "DevourerElite", hp: 250, dmg: 4 },
+            { name: "Titan", hp: 600, dmg: 6 },
             { name: "Necromancer", hp: 1500, dmg: 5 },
             { name: "Spirit", hp: 10, dmg: 1 }
         ];
@@ -1045,7 +1045,7 @@ export class Game {
         const x = this.player.x + Math.cos(angle) * radius;
         const y = this.player.y + Math.sin(angle) * radius;
         const rand = Math.random();
-        const hpMultiplier = 1 + (Math.floor(this.gameTime / 30) * 0.5);
+        const hpMultiplier = 1 + (Math.floor(this.gameTime / 30) * 0.3);
         let newEnemy: Enemy;
 
         if (this.gameTime > 60) {
@@ -1083,7 +1083,7 @@ export class Game {
         const radius = Math.max(this.canvas.width, this.canvas.height) / 2 + 50;
         const x = this.player.x + Math.cos(angle) * radius;
         const y = this.player.y + Math.sin(angle) * radius;
-        const hpMultiplier = 1 + (Math.floor(this.gameTime / 30) * 0.5);
+        const hpMultiplier = 1 + (Math.floor(this.gameTime / 30) * 0.3);
         const boss = new Boss(x, y, this.player);
         boss.hp *= hpMultiplier;
         this.enemies.push(boss);

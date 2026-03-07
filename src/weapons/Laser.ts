@@ -12,7 +12,7 @@ export class Laser extends Weapon {
     private readonly width: number = 20; // 20 matches player radius (half diameter)
 
     constructor(game: Game, owner: Player) {
-        super(game, owner, 20, 100); // 20s cooldown, 100 damage (high)
+        super(game, owner, 15, 35);
     }
 
     public update(deltaTime: number): void {
