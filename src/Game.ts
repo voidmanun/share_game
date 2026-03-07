@@ -17,7 +17,6 @@ import { TitanEnemy } from './entities/TitanEnemy';
 import { TwinElite } from './entities/TwinElite';
 import { DevourerElite } from './entities/DevourerElite';
 import { Projectile } from './weapons/Projectile';
-import { PetProjectile } from './entities/PetProjectile';
 import { MagicWand } from './weapons/MagicWand';
 import { Laser } from './weapons/Laser';
 import { Pickup } from './entities/Pickup';
@@ -43,6 +42,7 @@ import { PetEggPickup } from './entities/PetEggPickup';
 import { CharmPotionPickup } from './entities/CharmPotionPickup';
 import { PetEquipmentPickup } from './entities/PetEquipmentPickup';
 import { Pet } from './entities/Pet';
+import { PetProjectile } from './entities/PetProjectile';
 import { GreedyDog } from './entities/GreedyDog';
 import { MagicFairy } from './entities/MagicFairy';
 import { SpeedyTurtle } from './entities/SpeedyTurtle';
@@ -400,6 +400,9 @@ export class Game {
 
         // Update screen shake
         this.updateShake(deltaTime);
+
+        // Handle pet commands
+        this.handlePetCommands();
 
         this.player.update(deltaTime);
 
@@ -972,6 +975,33 @@ export class Game {
             this.shakeIntensity = 0;
             this.shakeX = 0;
             this.shakeY = 0;
+        }
+    }
+
+    private selectedPetIndex: number = 0;
+
+    private handlePetCommands(): void {
+        const cmd = this.input.consumeCommandKey();
+        if (!cmd) return;
+
+        if (cmd === 'Digit1' || cmd === 'Digit2' || cmd === 'Digit3') {
+            const index = parseInt(cmd.charAt(5)) - 1;
+            if (index < this.pets.length) {
+                this.pets.forEach(p => p.isSelected = false);
+                this.selectedPetIndex = index;
+                this.pets[index].isSelected = true;
+            }
+        } else if (cmd === 'KeyQ' || cmd === 'KeyW' || cmd === 'KeyE' || cmd === 'KeyR') {
+            const pet = this.pets[this.selectedPetIndex];
+            if (pet) {
+                const commandMap: Record<string, import('./entities/Pet').PetCommand> = {
+                    'KeyQ': 'attack',
+                    'KeyW': 'defend',
+                    'KeyE': 'follow',
+                    'KeyR': 'stay'
+                };
+                pet.setCommand(commandMap[cmd] || 'follow');
+            }
         }
     }
 

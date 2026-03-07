@@ -4,45 +4,59 @@ import { Game } from '../Game';
 import { HealthPickup } from './HealthPickup';
 import { Pickup } from './Pickup';
 import { Particle } from './Particle';
+import { PetEggPickup } from './PetEggPickup';
 
 export class MagicFairy extends Pet {
     private spawnTimer: number = 0;
+    private dropType: 'health' | 'coin' = 'coin';
 
     constructor(player: Player, game: Game) {
-        super(player, game, 50, 150, 6, '#FFB6C1'); // Light pink
-        this.spawnTimer = 10 + Math.random() * 5; // First spawn in 10-15s
+        super(player, game, 50, 150, 6, '#FFB6C1');
+        this.spawnTimer = 10 + Math.random() * 5;
+    }
+
+    public setDropType(type: 'health' | 'coin'): void {
+        this.dropType = type;
     }
 
     public act(deltaTime: number): void {
         this.spawnTimer -= deltaTime;
 
-        // Leave a sparkly trail
         if (Math.random() < 0.1) {
             this.game.particles.push(new Particle(this.x, this.y, '#FFD700'));
         }
 
+        const spawnInterval = this.evolutionStage >= 2 ? 8 : (this.evolutionStage >= 1 ? 12 : 15);
         if (this.spawnTimer <= 0) {
             this.spawnAbility();
-            this.spawnTimer = 15 + Math.random() * 10; // next spawn in 15-25s
+            this.spawnTimer = spawnInterval + Math.random() * 5;
         }
     }
 
     private spawnAbility(): void {
-        // 50% chance for BIG coin, 50% chance for BIG health
         const dropX = this.x;
         const dropY = this.y;
 
-        if (Math.random() < 0.5) {
-            const h = new HealthPickup(dropX, dropY, 20); // Big 20 HP heal!
-            h.radius = 16;
-            this.game.addPickup(h);
-        } else {
-            const c = new Pickup(dropX, dropY, 10); // Big 10x value coin
-            c.radius = 14;
-            this.game.addPickup(c);
+        // Stage 1+: Player can choose drop type, Stage 2: Double drops
+        const dropCount = this.evolutionStage >= 2 ? 2 : 1;
+
+        for (let i = 0; i < dropCount; i++) {
+            if (this.dropType === 'health' || (this.evolutionStage < 1 && Math.random() < 0.5)) {
+                const h = new HealthPickup(dropX + (i - 0.5) * 20, dropY, 20);
+                h.radius = 16;
+                this.game.addPickup(h);
+            } else {
+                const c = new Pickup(dropX + (i - 0.5) * 20, dropY, 10);
+                c.radius = 14;
+                this.game.addPickup(c);
+            }
         }
 
-        // Visual flair
+        // Stage 2: Rare chance for pet egg
+        if (this.evolutionStage >= 2 && Math.random() < 0.1) {
+            this.game.addPickup(new PetEggPickup(dropX, dropY));
+        }
+
         this.game.createExplosion(this.x, this.y, '#FF69B4');
     }
 

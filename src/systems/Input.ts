@@ -1,5 +1,6 @@
 export class Input {
     private keys: Set<string> = new Set();
+    private commandKey: string | null = null;
 
     // Joystick state
     private joystickAxis = { x: 0, y: 0 };
@@ -12,6 +13,11 @@ export class Input {
     constructor() {
         window.addEventListener('keydown', (e) => {
             this.keys.add(e.code);
+            
+            // Pet command keys: 1-3 select pet, Q/W/E/R for commands
+            if (['Digit1', 'Digit2', 'Digit3', 'KeyQ', 'KeyW', 'KeyE', 'KeyR'].includes(e.code)) {
+                this.commandKey = e.code;
+            }
         });
 
         window.addEventListener('keyup', (e) => {
@@ -99,6 +105,12 @@ export class Input {
 
     public isDown(code: string): boolean {
         return this.keys.has(code);
+    }
+
+    public consumeCommandKey(): string | null {
+        const cmd = this.commandKey;
+        this.commandKey = null;
+        return cmd;
     }
 
     public getAxis(): { x: number; y: number } {

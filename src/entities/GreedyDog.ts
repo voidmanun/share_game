@@ -10,43 +10,62 @@ import { PetEggPickup } from './PetEggPickup';
 
 export class GreedyDog extends Pet {
     private targetPickup: Pickup | WeaponPickup | HealthPickup | LollipopPickup | PetEggPickup | null = null;
+    private teleportCooldown: number = 0;
 
     constructor(player: Player, game: Game) {
         super(player, game, 40, 250, 8, '#8B4513'); // Fast, small, SaddleBrown
     }
 
     public act(deltaTime: number): void {
+        this.teleportCooldown -= deltaTime;
+
+        // Stage 2: Auto-teleport to player when far away
+        if (this.evolutionStage >= 2 && this.teleportCooldown <= 0) {
+            const distToPlayer = Math.sqrt(
+                (this.x - this.player.x) ** 2 + (this.y - this.player.y) ** 2
+            );
+            if (distToPlayer > 500) {
+                this.x = this.player.x;
+                this.y = this.player.y;
+                this.teleportCooldown = 30;
+                this.game.createExplosion(this.x, this.y, '#FFD700');
+            }
+        }
+
         const pickups = this.game.getPickups();
 
-        // If we don't have a target, or target is dead, find a new one
         if (!this.targetPickup || this.targetPickup.isDead) {
             this.targetPickup = null;
             let minDist = Infinity;
 
             for (const p of pickups) {
-                // Now collects ALL pickup types including pet eggs
                 const dx = p.x - this.x;
                 const dy = p.y - this.y;
                 const distSquared = dx * dx + dy * dy;
 
-                // Increased collection range from 500 to 800 pixels
-                if (distSquared < 800 * 800 && distSquared < minDist) {
+                const range = 800 + this.evolutionStage * 200;
+                if (distSquared < range * range && distSquared < minDist) {
+                    // Stage 1+: Prioritize rare pickups
+                    if (this.evolutionStage >= 1 && p instanceof PetEggPickup) {
+                        minDist = 0;
+                        this.targetPickup = p;
+                        break;
+                    }
                     minDist = distSquared;
                     this.targetPickup = p;
                 }
             }
         }
 
-        // If we have a target, override standard hover behavior and chase it
         if (this.targetPickup) {
             const dx = this.targetPickup.x - this.x;
             const dy = this.targetPickup.y - this.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
 
             if (dist > 5) {
-                // Increased sprint multiplier from 1.5 to 2.5 for faster collection
-                this.x += (dx / dist) * (this.speed * 2.5) * deltaTime;
-                this.y += (dy / dist) * (this.speed * 2.5) * deltaTime;
+                const speedMult = this.evolutionStage >= 1 ? 3.0 : 2.5;
+                this.x += (dx / dist) * (this.speed * speedMult) * deltaTime;
+                this.y += (dy / dist) * (this.speed * speedMult) * deltaTime;
             }
         }
     }

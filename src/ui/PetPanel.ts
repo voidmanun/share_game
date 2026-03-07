@@ -188,7 +188,54 @@ export class PetPanel {
         }
     }
 
-    private openEquipmentSelector(_slot: 'collar' | 'accessory' | 'badge'): void {
-        // TODO: 打开装备选择器
+    private openEquipmentSelector(slot: 'collar' | 'accessory' | 'badge'): void {
+        const pet = this.game.pets[this.selectedPetIndex];
+        if (!pet) return;
+
+        const equipmentDb = this.game.petNurtureSystem?.getEquipmentDatabase();
+        if (!equipmentDb) return;
+
+        const availableEquipment = Array.from(equipmentDb.values()).filter(
+            eq => eq.slot === slot
+        );
+
+        if (availableEquipment.length === 0) {
+            this.game.floatingTexts.push(
+                new FloatingText(pet.x, pet.y - 30, '没有可用装备', '#FF6666')
+            );
+            return;
+        }
+
+        const petData = this.game.petNurtureSystem?.getPetData(pet);
+        const currentEquip = petData?.equipment[slot];
+
+        const slotNames: Record<string, string> = {
+            'collar': '项圈',
+            'accessory': '饰品',
+            'badge': '徽章'
+        };
+
+        let message = `${slotNames[slot]}槽位:\n`;
+        message += currentEquip ? `当前: ${currentEquip.nameZh}\n` : '当前: 空\n';
+        message += '\n选择装备:\n';
+        availableEquipment.forEach((eq, i) => {
+            const stats = Array.from(eq.effects.entries())
+                .map(([k, v]) => `${k}+${v}%`)
+                .join(' ');
+            message += `${i + 1}. ${eq.nameZh} (${eq.rarity}) - ${stats}\n`;
+        });
+
+        const choice = prompt(message);
+        if (choice) {
+            const index = parseInt(choice) - 1;
+            if (index >= 0 && index < availableEquipment.length) {
+                const selectedEquip = availableEquipment[index];
+                this.game.petNurtureSystem?.equipItem(pet, selectedEquip.id);
+                this.game.floatingTexts.push(
+                    new FloatingText(pet.x, pet.y - 30, `装备 ${selectedEquip.nameZh}`, '#00FF00')
+                );
+                this.updateUI();
+            }
+        }
     }
 }

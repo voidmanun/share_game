@@ -4,6 +4,8 @@ import { Game } from '../Game';
 import type { PetData } from '../systems/PetNurtureSystem';
 import { PetProjectile } from './PetProjectile';
 
+export type PetCommand = 'attack' | 'defend' | 'follow' | 'stay';
+
 export abstract class Pet extends Entity {
     protected player: Player;
     protected game: Game;
@@ -14,6 +16,11 @@ export abstract class Pet extends Entity {
     public lifeTimer: number = 0;
     public damageMultiplier: number = 1.0;
     public isDead: boolean = false;
+    
+    // 命令系统
+    public currentCommand: PetCommand = 'follow';
+    public commandIcon: string = '◉';
+    public isSelected: boolean = false;
     
     // 养成系统属性
     public level: number = 1;
@@ -49,24 +56,46 @@ export abstract class Pet extends Entity {
 
     public abstract act(deltaTime: number): void;
 
+    public setCommand(cmd: PetCommand): void {
+        this.currentCommand = cmd;
+        switch (cmd) {
+            case 'attack': this.commandIcon = '⚔'; break;
+            case 'defend': this.commandIcon = '🛡'; break;
+            case 'follow': this.commandIcon = '◉'; break;
+            case 'stay': this.commandIcon = '⬤'; break;
+        }
+    }
+
     public update(deltaTime: number): void {
         super.update(deltaTime);
 
+        if (this.currentCommand === 'stay') {
+            this.act(deltaTime);
+            return;
+        }
+
         this.hoverAngle += deltaTime;
 
-        const targetX = this.player.x + Math.cos(this.hoverAngle) * this.hoverDistance;
-        const targetY = this.player.y + Math.sin(this.hoverAngle) * this.hoverDistance;
+        let targetDistance = this.hoverDistance;
+        if (this.currentCommand === 'defend') {
+            targetDistance = 30;
+        } else if (this.currentCommand === 'attack') {
+            targetDistance = this.hoverDistance * 1.5;
+        }
+
+        const targetX = this.player.x + Math.cos(this.hoverAngle) * targetDistance;
+        const targetY = this.player.y + Math.sin(this.hoverAngle) * targetDistance;
 
         const dx = targetX - this.x;
         const dy = targetY - this.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
-        // 应用速度加成
         const speedWithBonus = this.speed * (this.petData?.stats.speedMultiplier || 1.0);
+        const speedMultiplier = this.currentCommand === 'attack' ? 1.5 : 1.0;
 
         if (dist > 5) {
-            this.x += (dx / dist) * speedWithBonus * deltaTime;
-            this.y += (dy / dist) * speedWithBonus * deltaTime;
+            this.x += (dx / dist) * speedWithBonus * speedMultiplier * deltaTime;
+            this.y += (dy / dist) * speedWithBonus * speedMultiplier * deltaTime;
         }
 
         if (this.isTemporary) {
@@ -230,6 +259,23 @@ export abstract class Pet extends Entity {
             ctx.font = 'bold 12px Arial';
             ctx.strokeText('进化!', this.x, this.y - this.radius - 25);
             ctx.fillText('进化!', this.x, this.y - this.radius - 25);
+        }
+        
+        // 命令指示器
+        if (this.currentCommand !== 'follow') {
+            ctx.font = '14px Arial';
+            ctx.fillStyle = this.currentCommand === 'attack' ? '#FF4444' : 
+                           this.currentCommand === 'defend' ? '#4444FF' : '#888888';
+            ctx.fillText(this.commandIcon, this.x + this.radius + 5, this.y - this.radius);
+        }
+        
+        // 选中指示器
+        if (this.isSelected) {
+            ctx.strokeStyle = '#FFD700';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius + 8, 0, Math.PI * 2);
+            ctx.stroke();
         }
         
         ctx.restore();
