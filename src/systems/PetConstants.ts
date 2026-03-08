@@ -1,15 +1,36 @@
-// Shared Pet Constants
-// 宠物系统共享常量：中文名称映射
-
 export const PET_CHINESE_NAMES: Record<string, string> = {
     'GreedyDog': '贪财狗',
+    'TreasureHound': '寻宝猎犬',
+    'MidasWolf': '迈达斯狼',
+    'GoldenEmperor': '黄金帝王',
     'MagicFairy': '魔法精灵',
+    'ArcaneSpirit': '奥术之灵',
+    'CelestialBeing': '天界使者',
+    'DivineFairy': '神圣精灵',
     'SpeedyTurtle': '极速龟',
-    'GrumpyPorcupine': '暴躁豪猪',
-    'BouncySlime': '弹跳史莱姆',
+    'SwiftShell': '迅捷龟壳',
+    'TempestTurtle': '风暴龟',
+    'StormGuardian': '风暴守护者',
     'LuckyCat': '幸运猫',
+    'FortuneCat': '招财猫',
+    'GoldCat': '黄金猫',
+    'FortuneDeity': '财神使者',
     'HolyLightTurtle': '圣光龟',
+    'DivineShell': '神圣龟壳',
+    'SacredTurtle': '圣洁龟',
+    'HolyGuardian': '圣光守护者',
+    'GrumpyPorcupine': '暴躁豪猪',
+    'FierceQuill': '凶猛刺猬',
+    'RagingBeast': '狂暴兽',
+    'TitanQuill': '泰坦刺猬',
+    'BouncySlime': '弹跳史莱姆',
+    'AcidSlime': '酸性史莱姆',
+    'ToxicBlob': '剧毒史莱姆',
+    'CorrosiveTitan': '腐蚀泰坦',
     'KnightPet': '骑士宠物',
+    'PaladinPet': '圣骑士宠物',
+    'HolyKnight': '神圣骑士',
+    'DivineCrusader': '神圣十字军',
 };
 
 export function getPetChineseName(englishName: string): string {

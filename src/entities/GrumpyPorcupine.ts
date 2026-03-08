@@ -10,8 +10,8 @@ export class GrumpyPorcupine extends Pet {
 
     constructor(player: Player, game: Game) {
         super(player, game, 45, 120, 10, '#A0522D');
-        this.attackInterval = 1.2;
-        this.attackRange = 180;
+        this.attackInterval = 1.5;
+        this.attackRange = 200;
         this.attackDamage = 2;
         this.projectileColor = '#8B4513';
     }

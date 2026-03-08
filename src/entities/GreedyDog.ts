@@ -16,9 +16,9 @@ export class GreedyDog extends Pet {
 
     constructor(player: Player, game: Game) {
         super(player, game, 40, 250, 8, '#8B4513');
-        this.attackInterval = 0.8;
-        this.attackRange = 200;
-        this.attackDamage = 1.5;
+        this.attackInterval = 0.7;
+        this.attackRange = 220;
+        this.attackDamage = 2;
         this.projectileColor = '#FFD700';
     }
 

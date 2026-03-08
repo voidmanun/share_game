@@ -606,17 +606,16 @@ export class Game {
         } else {
             const weaponTypes = ['Magic Wand', 'Laser', 'Missile Launcher', 'Shotgun', 'Orbit Shield', 'Bubble Gun', 'Boomerang', 'Splitter Gun', 'Poison Gun', 'Freeze Gun'];
             const dropRand = Math.random();
-            // 1% 宠物装备掉落
-            if (dropRand < 0.01) {
-                this.spawnPetEquipment(enemy.x, enemy.y);
-            } else if (dropRand < 0.001) {
+            if (dropRand < 0.002) {
                 this.pickups.push(new LollipopPickup(enemy.x, enemy.y));
-            } else if (dropRand < 0.06) {
+            } else if (dropRand < 0.03) {
+                this.spawnPetEquipment(enemy.x, enemy.y);
+            } else if (dropRand < 0.08) {
                 const type = weaponTypes[Math.floor(Math.random() * weaponTypes.length)];
                 this.pickups.push(new WeaponPickup(enemy.x, enemy.y, type));
-            } else if (dropRand < 0.08) {
+            } else if (dropRand < 0.12) {
                 this.pickups.push(new HealthPickup(enemy.x, enemy.y, 5));
-            } else if (dropRand < 0.13) {
+            } else if (dropRand < 0.18) {
                 this.pickups.push(new CharmPotionPickup(enemy.x, enemy.y));
             }
         }

@@ -7,10 +7,10 @@ import { PetProjectile } from './PetProjectile';
 export class LuckyCat extends Pet {
     private attackTimer: number = 0;
 
-    constructor(player: Player, game: Game) {
+constructor(player: Player, game: Game) {
         super(player, game, 45, 160, 8, '#FFD700');
-        this.attackInterval = 1.5;
-        this.attackRange = 180;
+        this.attackInterval = 1.2;
+        this.attackRange = 200;
         this.attackDamage = 3;
         this.projectileColor = '#FFD700';
     }
