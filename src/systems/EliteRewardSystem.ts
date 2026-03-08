@@ -199,7 +199,7 @@ export class EliteRewardSystem {
             case 'health': return 25;
             case 'speed': return 0.12;
             case 'damage': return 0.15;
-            case 'attackSpeed': return 0.2;
+            case 'attackSpeed': return 0.04;
             case 'maxHp': return 15;
             case 'gold': return 30;
             case 'shield': return 3;

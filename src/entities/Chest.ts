@@ -67,15 +67,15 @@ export class Chest extends Entity {
           player.speedMultiplier += 0.15;
         }
       },
-      {
+{
         name: 'Attack Speed Up',
         nameZh: '攻速提升',
-        description: '+20% attack speed',
-        descriptionZh: '+20% 攻击速度',
+        description: '+4% attack speed',
+        descriptionZh: '+4% 攻击速度',
         icon: '⚡',
         color: '#FFD700',
         apply: () => {
-          player.attackSpeedMultiplier += 0.2;
+          player.attackSpeedMultiplier += 0.04;
         }
       },
       {
