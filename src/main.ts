@@ -458,6 +458,10 @@ window.addEventListener('DOMContentLoaded', () => {
         <span style="color: #aaa;">⚡ ${lang === 'zh' ? '伤害倍率' : 'DMG Mult'}</span>
         <span style="color: #FF6B6B; font-weight: bold;">x${player.damageMultiplier.toFixed(1)}</span>
       </div>
+      <div style="display: flex; justify-content: space-between; margin: 5px 0; padding: 5px; background: rgba(255,255,255,0.1); border-radius: 4px;">
+        <span style="color: #aaa;">⚔️ ${lang === 'zh' ? '攻速' : 'ATK Speed'}</span>
+        <span style="color: #FFD700; font-weight: bold;">${(player.attackSpeedMultiplier * 100).toFixed(0)}%${player.attackSpeedMultiplier >= 1.5 ? ' (MAX)' : ''}</span>
+      </div>
     `;
     playerStatsContent.innerHTML = playerHTML;
 

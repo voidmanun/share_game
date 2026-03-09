@@ -18,6 +18,7 @@ export class Enemy extends Entity {
     public charmTimer: number = 0;
     public charmTarget: Enemy | null = null;
     private attackCooldown: number = 0;
+    public noDrop: boolean = false;
 
     constructor(x: number, y: number, player: Player) {
         super(x, y, 15, '#39FF14'); // Neon Green

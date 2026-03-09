@@ -550,6 +550,12 @@ export class Game {
             }
         }
 
+        if (enemy.noDrop) {
+            this.createExplosion(enemy.x, enemy.y, enemy.color);
+            this.soundManager.playExplosionSound();
+            return;
+        }
+
         this.pickups.push(new Pickup(enemy.x, enemy.y, 1));
 
         if (enemy instanceof Boss || enemy instanceof TitanEnemy || enemy instanceof FusionBoss) {

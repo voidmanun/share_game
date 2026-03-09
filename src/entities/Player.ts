@@ -167,9 +167,9 @@ export class Player extends Entity {
         this.rageTimer = this.skill.duration;
         break;
       case 'mage':
-        // Mage: Haste - double attack speed
+        // Mage: Haste - double attack speed (capped at 150%)
         this.isHasting = true;
-        this.attackSpeedMultiplier = 2.0;
+        this.attackSpeedMultiplier = Math.min(1.5, 2.0);
         this.hasteTimer = this.skill.duration;
         break;
       case 'hunter':
@@ -218,9 +218,9 @@ export class Player extends Entity {
     const damageBonus = bonuses.get('damage') || 0;
     this.damageMultiplier *= (1 + damageBonus / 100);
 
-    // Attack speed
+    // Attack speed (capped at 150%)
     const attackSpeedBonus = bonuses.get('attackSpeed') || 0;
-    this.attackSpeedMultiplier *= (1 + attackSpeedBonus / 100);
+    this.attackSpeedMultiplier = Math.min(1.5, this.attackSpeedMultiplier * (1 + attackSpeedBonus / 100));
   }
 
   public getSkillBonuses() {

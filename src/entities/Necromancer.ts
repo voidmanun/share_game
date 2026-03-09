@@ -52,6 +52,7 @@ export class Necromancer extends Enemy {
             const sx = this.x + Math.cos(angle) * 40;
             const sy = this.y + Math.sin(angle) * 40;
             const spirit = new Spirit(sx, sy, this.player);
+            spirit.noDrop = true;
             
             // Can apply current HP multiplier if desired, but we keep it simple
             const hpMultiplier = 1 + (Math.floor(this.game.gameTime / 30) * 0.5);
