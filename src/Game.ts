@@ -5,14 +5,7 @@ import { Enemy } from './entities/Enemy';
 import { Necromancer } from './entities/Necromancer';
 import { Boss } from './entities/Boss';
 import { FusionBoss } from './entities/FusionBoss';
-import { Scout } from './entities/Scout';
-import { TankEnemy } from './entities/TankEnemy';
-import { SwarmEnemy } from './entities/SwarmEnemy';
-import { Charger } from './entities/Charger';
 import { Splitter } from './entities/Splitter';
-import { SlimeEnemy } from './entities/SlimeEnemy';
-import { Teleporter } from './entities/Teleporter';
-import { StarEnemy } from './entities/StarEnemy';
 import { TitanEnemy } from './entities/TitanEnemy';
 import { TwinElite } from './entities/TwinElite';
 import { DevourerElite } from './entities/DevourerElite';
@@ -57,6 +50,7 @@ import { EliteRewardSystem } from './systems/EliteRewardSystem';
 import { PetNurtureSystem } from './systems/PetNurtureSystem';
 import { getLeaderboard, saveScore } from './leaderboard';
 import type { SkillTreeManager } from './systems/SkillTree';
+import { WaveManager } from './systems/WaveManager';
 
 export class Game {
     private canvas: HTMLCanvasElement;
@@ -125,14 +119,7 @@ export class Game {
 
     public pets: Pet[] = [];
     public obstacles: Obstacle[] = [];
-    private spawnTimer: number = 0;
-    private spawnInterval: number = 1.2; // Start slightly slower
-    private petLevelUpTimer: number = 0; // 宠物升级计时器
-    private bossSpawnTimer: number = 0;
-    private fusionBossSpawnTimer: number = 0;
-    private titanSpawnTimer: number = 0;
-    private twinEliteSpawnTimer: number = 0;
-    private devourerSpawnTimer: number = 0;
+    private petLevelUpTimer: number = 0;
     private damageFlashTimer: number = 0;
     
     // Screen shake
@@ -151,6 +138,7 @@ export class Game {
     public eliteRewardSystem!: EliteRewardSystem;
     public petPanel!: PetPanel;
     public petNurtureSystem!: PetNurtureSystem;
+    public waveManager!: WaveManager;
     private skillTreeManager: SkillTreeManager | null = null;
     private isPaused: boolean = false;
 
@@ -172,13 +160,7 @@ export class Game {
         this.floatingTexts = [];
         this.pets = [];
         this.obstacles = [];
-        this.spawnTimer = 0;
-        this.spawnInterval = 1.2;
         this.petLevelUpTimer = 0;
-        this.bossSpawnTimer = 0;
-        this.titanSpawnTimer = 0;
-        this.twinEliteSpawnTimer = 0;
-        this.devourerSpawnTimer = 0;
         this.damageFlashTimer = 0;
         this.gold = 0;
         this.gameTime = 0;
@@ -202,6 +184,7 @@ export class Game {
             this.player.setSkillTreeManager(this.skillTreeManager);
         }
         this.player.addWeapon(new MagicWand(this, this.player));
+        this.waveManager = new WaveManager(this, this.player);
 
         for (let i = 0; i < 1; i++) {
             const rand = Math.random();
@@ -282,6 +265,7 @@ export class Game {
         this.eliteRewardSystem = new EliteRewardSystem(this);
         this.petNurtureSystem = new PetNurtureSystem();
         this.petPanel = new PetPanel(this);
+        this.waveManager = new WaveManager(this, this.player);
         this.initializeGame();
 
         this.resize();
@@ -380,76 +364,26 @@ export class Game {
     private update(deltaTime: number): void {
         this.gameTime += deltaTime;
 
-        // 宠物每30秒自动升级并随机获取技能
         this.petLevelUpTimer += deltaTime;
         if (this.petLevelUpTimer >= 30 && this.pets.length > 0) {
             this.petLevelUpTimer = 0;
             this.pets.forEach(pet => {
-                // 给予大量经验确保升级
                 pet.addExperience(500);
-                // 随机获取另一种宠物的技能
                 this.grantRandomPetSkill(pet);
             });
         }
-
-        // Difficulty scaling: decrease spawn interval over time (min 0.6s)
-        this.spawnInterval = Math.max(0.6, 1.2 * Math.pow(0.9, Math.floor(this.gameTime / 30)));
 
         if (this.damageFlashTimer > 0) {
             this.damageFlashTimer -= deltaTime;
         }
 
-        // Update screen shake
         this.updateShake(deltaTime);
-
-        // Handle pet commands
         this.handlePetCommands();
 
         this.player.update(deltaTime);
-
-        // Update obstacles
         this.obstacles.forEach(o => o.update(deltaTime));
-
-        // Spawn enemies
-        this.spawnTimer += deltaTime;
-        if (this.spawnTimer >= this.spawnInterval) {
-            this.spawnTimer = 0;
-            const spawnCount = Math.min(3, 1 + Math.floor(this.gameTime / 60));
-            for (let i = 0; i < spawnCount; i++) {
-                this.spawnEnemy();
-            }
-        }
-
-        // Spawn bosses - reduced frequency
-        this.bossSpawnTimer += deltaTime;
-        if (this.bossSpawnTimer >= 25) {
-            this.bossSpawnTimer = 0;
-            this.spawnBoss();
-        }
-
-        this.titanSpawnTimer += deltaTime;
-        if (this.titanSpawnTimer >= 90 && this.gameTime > 90) {
-            this.titanSpawnTimer = 0;
-            this.spawnTitan();
-        }
-
-        this.fusionBossSpawnTimer += deltaTime;
-        if (this.fusionBossSpawnTimer >= 120 && this.gameTime > 120) {
-            this.fusionBossSpawnTimer = 0;
-            this.spawnFusionBoss();
-        }
-
-        this.twinEliteSpawnTimer += deltaTime;
-        if (this.twinEliteSpawnTimer >= 120 && this.gameTime > 40) {
-            this.twinEliteSpawnTimer = 0;
-            this.spawnTwinElite();
-        }
-
-        this.devourerSpawnTimer += deltaTime;
-        if (this.devourerSpawnTimer >= 160 && this.gameTime > 50) {
-            this.devourerSpawnTimer = 0;
-            this.spawnDevourerElite();
-        }
+        
+        this.waveManager.update(deltaTime);
 
         this.enemies.forEach(enemy => enemy.update(deltaTime));
         this.projectiles.forEach(p => p.update(deltaTime));
@@ -513,7 +447,7 @@ export class Game {
         this.updateStatsPanel();
     }
 
-    private updateHUD(): void {
+private updateHUD(): void {
         const hpEl = document.getElementById('hp');
         const hpBarFill = document.getElementById('hp-bar-fill');
         const goldEl = document.getElementById('gold');
@@ -524,6 +458,26 @@ export class Game {
         if (hpBarFill) {
             const hpPercent = Math.max(0, (this.player.hp / this.player.maxHp) * 100);
             hpBarFill.style.width = `${hpPercent}%`;
+        }
+        
+        this.updateWaveUI();
+    }
+    
+    private updateWaveUI(): void {
+        const waveNumberEl = document.getElementById('wave-number');
+        const enemiesRemainingEl = document.getElementById('enemies-remaining');
+        const enemiesTotalEl = document.getElementById('enemies-total');
+        
+        if (waveNumberEl) {
+            waveNumberEl.textContent = `Wave ${this.waveManager.getCurrentWave()}`;
+        }
+        
+        if (enemiesRemainingEl) {
+            enemiesRemainingEl.textContent = this.waveManager.getRemainingEnemies().toString();
+        }
+        
+        if (enemiesTotalEl) {
+            enemiesTotalEl.textContent = this.waveManager.getTotalEnemiesInWave().toString();
         }
     }
 
@@ -1084,103 +1038,6 @@ export class Game {
 
             this.obstacles.push(new Obstacle(x, y, types[typeIndex]));
         }
-    }
-
-    private spawnEnemy(): void {
-        const angle = Math.random() * Math.PI * 2;
-        const radius = Math.max(this.canvas.width, this.canvas.height) / 2 + 50;
-        const x = this.player.x + Math.cos(angle) * radius;
-        const y = this.player.y + Math.sin(angle) * radius;
-        const rand = Math.random();
-        const hpMultiplier = 1 + (Math.floor(this.gameTime / 30) * 0.3);
-        let newEnemy: Enemy;
-
-        if (this.gameTime > 60) {
-            if (rand < 0.10) newEnemy = new TankEnemy(x, y, this.player);
-            else if (rand < 0.20) newEnemy = new Charger(x, y, this.player, this);
-            else if (rand < 0.30) newEnemy = new Teleporter(x, y, this.player, this);
-            else if (rand < 0.40) newEnemy = new Splitter(x, y, this.player);
-            else if (rand < 0.50) newEnemy = new SlimeEnemy(x, y, this.player, this, 0);
-            else if (rand < 0.60) newEnemy = new SwarmEnemy(x, y, this.player, this);
-            else if (rand < 0.70) newEnemy = new Scout(x, y, this.player);
-            else if (rand < 0.80) newEnemy = new StarEnemy(x, y, this.player);
-            else if (rand < 0.90) newEnemy = new Necromancer(x, y, this.player, this);
-            else newEnemy = new Enemy(x, y, this.player);
-        } else if (this.gameTime > 30) {
-            if (rand < 0.15) newEnemy = new Splitter(x, y, this.player);
-            else if (rand < 0.25) newEnemy = new Charger(x, y, this.player, this);
-            else if (rand < 0.35) newEnemy = new Teleporter(x, y, this.player, this);
-            else if (rand < 0.45) newEnemy = new SlimeEnemy(x, y, this.player, this, 0);
-            else if (rand < 0.65) newEnemy = new SwarmEnemy(x, y, this.player, this);
-            else if (rand < 0.85) newEnemy = new Scout(x, y, this.player);
-            else if (rand < 0.95) newEnemy = new StarEnemy(x, y, this.player);
-            else newEnemy = new Enemy(x, y, this.player);
-        } else {
-            if (rand < 0.3) newEnemy = new Scout(x, y, this.player);
-            else if (rand < 0.4) newEnemy = new StarEnemy(x, y, this.player);
-            else newEnemy = new Enemy(x, y, this.player);
-        }
-        newEnemy.hp *= hpMultiplier;
-        if ((newEnemy as any).maxHp !== undefined) (newEnemy as any).maxHp = newEnemy.hp;
-        this.enemies.push(newEnemy);
-    }
-
-    private spawnBoss(): void {
-        const angle = Math.random() * Math.PI * 2;
-        const radius = Math.max(this.canvas.width, this.canvas.height) / 2 + 50;
-        const x = this.player.x + Math.cos(angle) * radius;
-        const y = this.player.y + Math.sin(angle) * radius;
-        const hpMultiplier = 1 + (Math.floor(this.gameTime / 30) * 0.3);
-        const boss = new Boss(x, y, this.player);
-        boss.hp *= hpMultiplier;
-        this.enemies.push(boss);
-    }
-
-    private spawnTitan(): void {
-        const angle = Math.random() * Math.PI * 2;
-        const radius = Math.max(this.canvas.width, this.canvas.height) / 2 + 50;
-        const x = this.player.x + Math.cos(angle) * radius;
-        const y = this.player.y + Math.sin(angle) * radius;
-        const hpMultiplier = 1 + (Math.floor(this.gameTime / 30) * 0.5);
-        const titan = new TitanEnemy(x, y, this.player);
-        titan.hp *= hpMultiplier;
-        this.enemies.push(titan);
-    }
-
-    private spawnFusionBoss(): void {
-        const angle = Math.random() * Math.PI * 2;
-        const radius = Math.max(this.canvas.width, this.canvas.height) / 2 + 50;
-        const x = this.player.x + Math.cos(angle) * radius;
-        const y = this.player.y + Math.sin(angle) * radius;
-        const hpMultiplier = 1 + (Math.floor(this.gameTime / 30) * 0.5);
-        const boss = new FusionBoss(x, y, this.player);
-        boss.hp *= hpMultiplier;
-        boss.maxHp = boss.hp;
-        this.enemies.push(boss);
-    }
-
-    private spawnTwinElite(): void {
-        const angle = Math.random() * Math.PI * 2;
-        const radius = Math.max(this.canvas.width, this.canvas.height) / 2 + 50;
-        const x1 = this.player.x + Math.cos(angle) * radius;
-        const y1 = this.player.y + Math.sin(angle) * radius;
-        const lightTwin = new TwinElite(x1, y1, this.player, this, 'light');
-        const darkTwin = new TwinElite(x1 + 40, y1 + 40, this.player, this, 'dark');
-        const hpMultiplier = 1 + (Math.floor(this.gameTime / 30) * 0.5);
-        lightTwin.hp *= hpMultiplier; darkTwin.hp *= hpMultiplier;
-        lightTwin.sibling = darkTwin; darkTwin.sibling = lightTwin;
-        this.enemies.push(lightTwin, darkTwin);
-    }
-
-    private spawnDevourerElite(): void {
-        const angle = Math.random() * Math.PI * 2;
-        const radius = Math.max(this.canvas.width, this.canvas.height) / 2 + 50;
-        const x = this.player.x + Math.cos(angle) * radius;
-        const y = this.player.y + Math.sin(angle) * radius;
-        const hpMultiplier = 1 + (Math.floor(this.gameTime / 30) * 0.5);
-        const devourer = new DevourerElite(x, y, this.player, this);
-        devourer.hp *= hpMultiplier;
-        this.enemies.push(devourer);
     }
 
     private render(): void {
