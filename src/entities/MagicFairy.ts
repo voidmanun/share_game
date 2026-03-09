@@ -89,12 +89,30 @@ export class MagicFairy extends Pet {
     }
 
     public render(ctx: CanvasRenderingContext2D): void {
+        const time = Date.now() / 1000;
+        
         ctx.save();
         ctx.translate(this.x, this.y);
 
-        ctx.fillStyle = this.color;
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 3;
+        const auraGradient = ctx.createRadialGradient(0, 0, 5, 0, 0, 25);
+        auraGradient.addColorStop(0, 'rgba(255, 182, 193, 0.4)');
+        auraGradient.addColorStop(0.5, 'rgba(255, 105, 180, 0.2)');
+        auraGradient.addColorStop(1, 'rgba(255, 105, 180, 0)');
+        ctx.fillStyle = auraGradient;
+        ctx.beginPath();
+        ctx.arc(0, 0, 25, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = 'rgba(255, 105, 180, 0.8)';
+
+        const bodyGradient = ctx.createLinearGradient(-this.radius, -this.radius, this.radius, this.radius);
+        bodyGradient.addColorStop(0, this.lightenColor(this.color, 30));
+        bodyGradient.addColorStop(0.5, this.color);
+        bodyGradient.addColorStop(1, this.darkenColor(this.color, 20));
+        ctx.fillStyle = bodyGradient;
+        ctx.strokeStyle = this.darkenColor(this.color, 40);
+        ctx.lineWidth = 2;
 
         ctx.beginPath();
         ctx.moveTo(0, -this.radius);
@@ -105,21 +123,48 @@ export class MagicFairy extends Pet {
         ctx.fill();
         ctx.stroke();
 
-        const wingFlap = Math.sin(Date.now() / 50) * Math.PI / 8;
-        ctx.fillStyle = 'white';
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = 'rgba(255, 255, 255, 0.6)';
+        
+        const wingFlap = Math.sin(time * 12) * Math.PI / 6;
+        
+        const wingGradient = ctx.createRadialGradient(-6, -4, 0, -6, -4, 8);
+        wingGradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+        wingGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.8)');
+        wingGradient.addColorStop(1, 'rgba(200, 200, 255, 0.3)');
+        ctx.fillStyle = wingGradient;
 
+        ctx.save();
+        ctx.rotate(wingFlap);
         ctx.beginPath();
-        ctx.ellipse(-6, -4, 6, 3, -Math.PI / 6 + wingFlap, 0, Math.PI * 2);
-        ctx.fill(); ctx.stroke();
+        ctx.ellipse(-6, -4, 6, 3, -Math.PI / 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(200, 200, 255, 0.5)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.restore();
 
+        ctx.save();
+        ctx.rotate(-wingFlap);
         ctx.beginPath();
-        ctx.ellipse(6, -4, 6, 3, Math.PI / 6 - wingFlap, 0, Math.PI * 2);
-        ctx.fill(); ctx.stroke();
+        ctx.ellipse(6, -4, 6, 3, Math.PI / 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(200, 200, 255, 0.5)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.restore();
 
-        ctx.fillStyle = 'black';
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#2A1A2A';
         ctx.beginPath();
-        ctx.arc(-2, 0, 1, 0, Math.PI * 2);
-        ctx.arc(2, 0, 1, 0, Math.PI * 2);
+        ctx.arc(-2, 0, 1.5, 0, Math.PI * 2);
+        ctx.arc(2, 0, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.arc(-2.3, -0.3, 0.5, 0, Math.PI * 2);
+        ctx.arc(1.7, -0.3, 0.5, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.restore();

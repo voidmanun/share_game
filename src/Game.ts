@@ -21,6 +21,7 @@ import { MagicWand } from './weapons/MagicWand';
 import { Laser } from './weapons/Laser';
 import { Pickup } from './entities/Pickup';
 import { Particle } from './entities/Particle';
+import { EnhancedParticle, type ParticleType } from './entities/EnhancedParticle';
 import { Shop } from './ui/Shop';
 import { PetPanel } from './ui/PetPanel';
 import { SoundManager } from './systems/SoundManager';
@@ -115,7 +116,7 @@ export class Game {
     private projectiles: Projectile[] = [];
     private petProjectiles: PetProjectile[] = []; // 宠物发射的投射物
     private pickups: (Pickup | WeaponPickup | HealthPickup | LollipopPickup | PetEggPickup | CharmPotionPickup | PetEquipmentPickup)[] = [];
-    public particles: Particle[] = [];
+    public particles: (Particle | EnhancedParticle)[] = [];
     public floatingTexts: FloatingText[] = [];
 
     public addFloatingText(text: FloatingText): void {
@@ -955,9 +956,51 @@ export class Game {
         }
     }
 
-    public createExplosion(x: number, y: number, color: string): void {
+    public createExplosion(x: number, y: number, color: string, type: ParticleType = 'default'): void {
         if (this.particles.length > 300) return;
-        for (let i = 0; i < 8; i++) this.particles.push(new Particle(x, y, color));
+        
+        const particleCount = type === 'explosion' ? 12 : 8;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = new EnhancedParticle(x, y, color, type, {
+                size: 3 + Math.random() * 3,
+                life: 0.3 + Math.random() * 0.4,
+                secondaryColor: this.lightenColor(color, 20)
+            });
+            this.particles.push(particle);
+        }
+        
+        if (type === 'default') {
+            for (let i = 0; i < 3; i++) {
+                const spark = new EnhancedParticle(x, y, '#FFFFFF', 'spark', {
+                    size: 2,
+                    life: 0.2
+                });
+                this.particles.push(spark);
+            }
+        }
+    }
+
+    public createFireExplosion(x: number, y: number): void {
+        this.createExplosion(x, y, '#FF4500', 'fire');
+        this.createExplosion(x, y, '#FFD700', 'fire');
+    }
+
+    public createIceExplosion(x: number, y: number): void {
+        this.createExplosion(x, y, '#00BFFF', 'ice');
+    }
+
+    public createMagicExplosion(x: number, y: number): void {
+        this.createExplosion(x, y, '#9932CC', 'magic');
+    }
+
+    private lightenColor(color: string, percent: number): string {
+        const num = parseInt(color.replace('#', ''), 16);
+        const amt = Math.round(2.55 * percent);
+        const R = Math.min(255, (num >> 16) + amt);
+        const G = Math.min(255, ((num >> 8) & 0x00FF) + amt);
+        const B = Math.min(255, (num & 0x0000FF) + amt);
+        return `#${(0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1)}`;
     }
 
     public triggerShake(intensity: number): void {

@@ -449,36 +449,62 @@ export class Player extends Entity {
   }
 
   private renderKnight(ctx: CanvasRenderingContext2D): void {
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = '#333';
-
-    // Aura - Golden
-    ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
+    const time = Date.now() / 1000;
+    
+    ctx.save();
+    
+    const auraGradient = ctx.createRadialGradient(0, 0, 10, 0, 0, 30);
+    auraGradient.addColorStop(0, 'rgba(255, 215, 0, 0.4)');
+    auraGradient.addColorStop(0.5, 'rgba(255, 215, 0, 0.2)');
+    auraGradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
+    ctx.fillStyle = auraGradient;
     ctx.beginPath();
-    ctx.arc(0, 0, 25, 0, Math.PI * 2);
+    ctx.arc(0, 0, 30, 0, Math.PI * 2);
     ctx.fill();
+    ctx.restore();
 
-    // Body / Armor - Silver
-    ctx.fillStyle = '#C0C0C0';
+    ctx.save();
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+    ctx.shadowOffsetY = 4;
+
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#2C3E50';
+
+    const bodyGradient = ctx.createLinearGradient(-12, -12, 12, 12);
+    bodyGradient.addColorStop(0, '#E8E8E8');
+    bodyGradient.addColorStop(0.5, '#C0C0C0');
+    bodyGradient.addColorStop(1, '#A0A0A0');
+    ctx.fillStyle = bodyGradient;
     ctx.beginPath();
-    ctx.rect(-12, -12, 24, 24);
+    ctx.roundRect(-12, -12, 24, 24, 3);
     ctx.fill();
     ctx.stroke();
 
-    // Head / Helm
-    ctx.fillStyle = '#A9A9A9';
+    const helmGradient = ctx.createRadialGradient(-3, -8, 0, 0, -5, 12);
+    helmGradient.addColorStop(0, '#C8C8C8');
+    helmGradient.addColorStop(1, '#808080');
+    ctx.fillStyle = helmGradient;
     ctx.beginPath();
     ctx.arc(0, -5, 10, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
 
-    // Cross on helm (Golden)
     ctx.fillStyle = '#FFD700';
+    ctx.shadowBlur = 4;
+    ctx.shadowColor = '#FFD700';
     ctx.fillRect(-2, -12, 4, 10);
     ctx.fillRect(-5, -9, 10, 4);
+    ctx.shadowBlur = 0;
 
-    // Shield (Left side) - Blue
-    ctx.fillStyle = '#1E90FF';
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+    
+    const shieldGradient = ctx.createLinearGradient(-16, -10, -10, 10);
+    shieldGradient.addColorStop(0, '#4169E1');
+    shieldGradient.addColorStop(0.5, '#1E3A8A');
+    shieldGradient.addColorStop(1, '#0F1E4A');
+    ctx.fillStyle = shieldGradient;
     ctx.beginPath();
     ctx.moveTo(-16, -10);
     ctx.lineTo(-10, -10);
@@ -487,15 +513,18 @@ export class Player extends Entity {
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
-    // Shield Cross
+    
     ctx.fillStyle = '#FFF';
     ctx.fillRect(-14, -5, 3, 10);
     ctx.fillRect(-15, -1, 5, 3);
 
-    // Sword (Right side)
-    ctx.fillStyle = '#FFD700'; // Gold hilt
-    ctx.fillRect(10, 0, 4, 10);
-    ctx.fillStyle = '#E5E4E2'; // Platinum blade
+    const bladeGradient = ctx.createLinearGradient(11, 0, 13, -18);
+    bladeGradient.addColorStop(0, '#E5E4E2');
+    bladeGradient.addColorStop(0.5, '#FFFFFF');
+    bladeGradient.addColorStop(1, '#C0C0C0');
+    ctx.fillStyle = bladeGradient;
+    ctx.shadowBlur = 6;
+    ctx.shadowColor = 'rgba(255, 215, 0, 0.5)';
     ctx.beginPath();
     ctx.moveTo(11, 0);
     ctx.lineTo(13, 0);
@@ -506,43 +535,77 @@ export class Player extends Entity {
     ctx.fill();
     ctx.stroke();
 
-    // Walk animation
-    const { x, y } = this.input.getAxis();
-    const time = Date.now() / 150;
-    const legSwing = (x !== 0 || y !== 0) ? Math.sin(time) * 5 : 0;
+    ctx.fillStyle = '#FFD700';
+    ctx.fillRect(10, 0, 4, 10);
+    
+    ctx.shadowBlur = 0;
 
-    // Legs
-    ctx.fillStyle = '#808080';
+    const { x, y } = this.input.getAxis();
+    const legSwing = (x !== 0 || y !== 0) ? Math.sin(time * 8) * 5 : 0;
+
+    const legGradient = ctx.createLinearGradient(-8, 12, -8, 20 + legSwing);
+    legGradient.addColorStop(0, '#606060');
+    legGradient.addColorStop(1, '#404040');
+    ctx.fillStyle = legGradient;
     ctx.fillRect(-8, 12, 6, 8 + legSwing);
     ctx.fillRect(2, 12, 6, 8 - legSwing);
+    
+    ctx.strokeStyle = '#303030';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(-8, 12, 6, 8 + legSwing);
+    ctx.strokeRect(2, 12, 6, 8 - legSwing);
+
+    ctx.restore();
   }
 
   private renderWarrior(ctx: CanvasRenderingContext2D): void {
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = '#333';
-
-    // Aura - Red when raging
-    ctx.fillStyle = this.isRaging ? 'rgba(255, 0, 0, 0.4)' : 'rgba(220, 20, 60, 0.2)';
+    const time = Date.now() / 1000;
+    
+    ctx.save();
+    
+    const auraColor = this.isRaging ? 'rgba(255, 50, 0, 0.5)' : 'rgba(220, 20, 60, 0.25)';
+    const auraGradient = ctx.createRadialGradient(0, 0, 10, 0, 0, 30);
+    auraGradient.addColorStop(0, auraColor);
+    auraGradient.addColorStop(0.6, this.isRaging ? 'rgba(255, 100, 0, 0.3)' : 'rgba(139, 0, 0, 0.15)');
+    auraGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = auraGradient;
     ctx.beginPath();
-    ctx.arc(0, 0, 25, 0, Math.PI * 2);
+    ctx.arc(0, 0, 30, 0, Math.PI * 2);
     ctx.fill();
+    ctx.restore();
 
-    // Body - Dark red armor
-    ctx.fillStyle = this.isRaging ? '#FF3333' : '#8B0000';
+    ctx.save();
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+    ctx.shadowOffsetY = 4;
+
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#1A1A1A';
+
+    const bodyGradient = ctx.createLinearGradient(-14, -10, 14, 10);
+    const bodyColor = this.isRaging ? '#FF3333' : '#8B0000';
+    bodyGradient.addColorStop(0, this.lightenColor(bodyColor, 20));
+    bodyGradient.addColorStop(0.5, bodyColor);
+    bodyGradient.addColorStop(1, this.darkenColor(bodyColor, 30));
+    ctx.fillStyle = bodyGradient;
     ctx.beginPath();
-    ctx.rect(-14, -10, 28, 20);
+    ctx.roundRect(-14, -10, 28, 20, 2);
     ctx.fill();
     ctx.stroke();
 
-    // Head - Horned helm
-    ctx.fillStyle = '#696969';
+    const helmGradient = ctx.createRadialGradient(-3, -11, 0, 0, -8, 12);
+    helmGradient.addColorStop(0, '#888888');
+    helmGradient.addColorStop(1, '#505050');
+    ctx.fillStyle = helmGradient;
     ctx.beginPath();
     ctx.arc(0, -8, 10, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
 
-    // Horns
-    ctx.fillStyle = '#444';
+    const hornGradient = ctx.createLinearGradient(-12, -22, -6, -16);
+    hornGradient.addColorStop(0, '#333333');
+    hornGradient.addColorStop(1, '#555555');
+    ctx.fillStyle = hornGradient;
     ctx.beginPath();
     ctx.moveTo(-8, -14);
     ctx.lineTo(-12, -22);
@@ -559,10 +622,20 @@ export class Player extends Entity {
     ctx.fill();
     ctx.stroke();
 
-    // Big Axe (Right side)
-    ctx.fillStyle = '#8B4513'; // Brown handle
+    ctx.shadowBlur = 6;
+    ctx.shadowColor = 'rgba(139, 69, 19, 0.5)';
+    
+    const handleGradient = ctx.createLinearGradient(12, -2, 15, 12);
+    handleGradient.addColorStop(0, '#A0522D');
+    handleGradient.addColorStop(1, '#5D2E0E');
+    ctx.fillStyle = handleGradient;
     ctx.fillRect(12, -2, 3, 14);
-    ctx.fillStyle = '#888'; // Axe head
+    
+    const axeGradient = ctx.createLinearGradient(15, -8, 22, 4);
+    axeGradient.addColorStop(0, '#A0A0A0');
+    axeGradient.addColorStop(0.5, '#C0C0C0');
+    axeGradient.addColorStop(1, '#707070');
+    ctx.fillStyle = axeGradient;
     ctx.beginPath();
     ctx.moveTo(15, -8);
     ctx.lineTo(22, -4);
@@ -572,40 +645,72 @@ export class Player extends Entity {
     ctx.fill();
     ctx.stroke();
 
-    // Shield (Left side) - Round shield
-    ctx.fillStyle = '#8B0000';
+    ctx.shadowBlur = 4;
+    ctx.shadowColor = 'rgba(255, 215, 0, 0.5)';
+    
+    const shieldGradient = ctx.createRadialGradient(-14, 0, 0, -14, 0, 10);
+    shieldGradient.addColorStop(0, '#B22222');
+    shieldGradient.addColorStop(0.7, '#8B0000');
+    shieldGradient.addColorStop(1, '#4A0000');
+    ctx.fillStyle = shieldGradient;
     ctx.beginPath();
     ctx.arc(-14, 0, 8, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
+    
     ctx.fillStyle = '#FFD700';
     ctx.beginPath();
     ctx.arc(-14, 0, 4, 0, Math.PI * 2);
     ctx.fill();
 
-    // Walk animation
-    const { x, y } = this.input.getAxis();
-    const time = Date.now() / 150;
-    const legSwing = (x !== 0 || y !== 0) ? Math.sin(time) * 5 : 0;
+    ctx.shadowBlur = 0;
 
-    // Legs
-    ctx.fillStyle = '#4a0000';
+    const { x, y } = this.input.getAxis();
+    const legSwing = (x !== 0 || y !== 0) ? Math.sin(time * 8) * 5 : 0;
+
+    const legGradient = ctx.createLinearGradient(-8, 10, -8, 18 + legSwing);
+    legGradient.addColorStop(0, '#6A0000');
+    legGradient.addColorStop(1, '#3A0000');
+    ctx.fillStyle = legGradient;
     ctx.fillRect(-8, 10, 6, 8 + legSwing);
     ctx.fillRect(2, 10, 6, 8 - legSwing);
+    
+    ctx.strokeStyle = '#2A0000';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(-8, 10, 6, 8 + legSwing);
+    ctx.strokeRect(2, 10, 6, 8 - legSwing);
+
+    ctx.restore();
   }
 
   private renderMage(ctx: CanvasRenderingContext2D): void {
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = '#333';
-
-    // Aura - Magical purple
-    ctx.fillStyle = 'rgba(153, 50, 204, 0.3)';
+    const time = Date.now() / 1000;
+    
+    ctx.save();
+    
+    const auraGradient = ctx.createRadialGradient(0, 0, 10, 0, 0, 30);
+    auraGradient.addColorStop(0, 'rgba(153, 50, 204, 0.4)');
+    auraGradient.addColorStop(0.5, 'rgba(147, 112, 219, 0.2)');
+    auraGradient.addColorStop(1, 'rgba(75, 0, 130, 0)');
+    ctx.fillStyle = auraGradient;
     ctx.beginPath();
-    ctx.arc(0, 0, 25, 0, Math.PI * 2);
+    ctx.arc(0, 0, 30, 0, Math.PI * 2);
     ctx.fill();
+    ctx.restore();
 
-    // Body - Robe
-    ctx.fillStyle = '#4B0082';
+    ctx.save();
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+    ctx.shadowOffsetY = 4;
+
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#1A0A2E';
+
+    const robeGradient = ctx.createLinearGradient(-12, -8, 14, 14);
+    robeGradient.addColorStop(0, '#6B238E');
+    robeGradient.addColorStop(0.5, '#4B0082');
+    robeGradient.addColorStop(1, '#2E0854');
+    ctx.fillStyle = robeGradient;
     ctx.beginPath();
     ctx.moveTo(-12, -8);
     ctx.lineTo(12, -8);
@@ -615,15 +720,19 @@ export class Player extends Entity {
     ctx.fill();
     ctx.stroke();
 
-    // Head
-    ctx.fillStyle = '#DDA0DD'; // Light purple skin
+    const headGradient = ctx.createRadialGradient(-2, -12, 0, 0, -10, 10);
+    headGradient.addColorStop(0, '#E6B8E6');
+    headGradient.addColorStop(1, '#B88EB8');
+    ctx.fillStyle = headGradient;
     ctx.beginPath();
     ctx.arc(0, -10, 8, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
 
-    // Wizard Hat
-    ctx.fillStyle = '#4B0082';
+    const hatGradient = ctx.createLinearGradient(0, -28, 0, -12);
+    hatGradient.addColorStop(0, '#6B238E');
+    hatGradient.addColorStop(1, '#4B0082');
+    ctx.fillStyle = hatGradient;
     ctx.beginPath();
     ctx.moveTo(0, -28);
     ctx.lineTo(-10, -12);
@@ -632,113 +741,165 @@ export class Player extends Entity {
     ctx.fill();
     ctx.stroke();
 
-    // Star on hat
+    ctx.shadowBlur = 6;
+    ctx.shadowColor = 'rgba(255, 215, 0, 0.8)';
     ctx.fillStyle = '#FFD700';
     ctx.beginPath();
     ctx.arc(0, -20, 3, 0, Math.PI * 2);
     ctx.fill();
 
-    // Staff (Right side)
+    ctx.shadowBlur = 4;
+    ctx.shadowColor = 'rgba(139, 69, 19, 0.5)';
     ctx.fillStyle = '#8B4513';
     ctx.fillRect(14, -16, 3, 30);
-    ctx.fillStyle = '#9932CC';
+
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = 'rgba(153, 50, 204, 0.8)';
+    
+    const orbGradient = ctx.createRadialGradient(15, -18, 0, 15, -18, 8);
+    orbGradient.addColorStop(0, '#DA70D6');
+    orbGradient.addColorStop(0.5, '#9932CC');
+    orbGradient.addColorStop(1, '#4B0082');
+    ctx.fillStyle = orbGradient;
     ctx.beginPath();
     ctx.arc(15, -18, 6, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = '#FFD700';
     ctx.lineWidth = 1;
     ctx.stroke();
-    ctx.strokeStyle = '#333';
-    ctx.lineWidth = 2;
 
-    // Magic orb (Left hand)
-    ctx.fillStyle = 'rgba(147, 112, 219, 0.8)';
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = 'rgba(147, 112, 219, 0.8)';
+    const orbGradient2 = ctx.createRadialGradient(-12, 0, 0, -12, 0, 7);
+    orbGradient2.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+    orbGradient2.addColorStop(0.5, 'rgba(147, 112, 219, 0.7)');
+    orbGradient2.addColorStop(1, 'rgba(153, 50, 204, 0.3)');
+    ctx.fillStyle = orbGradient2;
     ctx.beginPath();
     ctx.arc(-12, 0, 5, 0, Math.PI * 2);
     ctx.fill();
 
-    // Walk animation
-    const { x, y } = this.input.getAxis();
-    const time = Date.now() / 150;
-    const legSwing = (x !== 0 || y !== 0) ? Math.sin(time) * 3 : 0;
+    ctx.shadowBlur = 0;
 
-    // Feet
-    ctx.fillStyle = '#2E0854';
+    const { x, y } = this.input.getAxis();
+    const legSwing = (x !== 0 || y !== 0) ? Math.sin(time * 8) * 3 : 0;
+
+    const footGradient = ctx.createLinearGradient(-8, 14, -8, 18 + legSwing);
+    footGradient.addColorStop(0, '#4A0070');
+    footGradient.addColorStop(1, '#2A0050');
+    ctx.fillStyle = footGradient;
     ctx.fillRect(-8, 14, 5, 4 + legSwing);
     ctx.fillRect(3, 14, 5, 4 - legSwing);
+
+    ctx.restore();
   }
 
   private renderHunter(ctx: CanvasRenderingContext2D): void {
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = '#333';
+    const time = Date.now() / 1000;
+    
+    ctx.save();
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+    ctx.shadowOffsetY = 4;
 
-    // Body - Leather Armor
-    ctx.fillStyle = '#8B4513'; // Saddle Brown
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#2F1810';
+
+    const bodyGradient = ctx.createLinearGradient(-10, -8, 10, 10);
+    bodyGradient.addColorStop(0, '#A0522D');
+    bodyGradient.addColorStop(0.5, '#8B4513');
+    bodyGradient.addColorStop(1, '#5D2E0E');
+    ctx.fillStyle = bodyGradient;
     ctx.beginPath();
-    ctx.rect(-10, -8, 20, 18);
+    ctx.roundRect(-10, -8, 20, 18, 2);
     ctx.fill();
     ctx.stroke();
 
-    // Hood / Cloak (Green)
-    ctx.fillStyle = '#2E8B57'; // Sea Green
+    const hoodGradient = ctx.createLinearGradient(0, -22, 0, -8);
+    hoodGradient.addColorStop(0, '#3A8A5E');
+    hoodGradient.addColorStop(0.5, '#2E8B57');
+    hoodGradient.addColorStop(1, '#1E6B47');
+    ctx.fillStyle = hoodGradient;
     ctx.beginPath();
     ctx.moveTo(-12, -8);
     ctx.lineTo(12, -8);
-    ctx.lineTo(0, -22); // Pointy hood top
+    ctx.lineTo(0, -22);
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
 
-    // Head
-    ctx.fillStyle = '#FFE4C4'; // Bisque skin tone
+    const headGradient = ctx.createRadialGradient(-2, -10, 0, 0, -8, 9);
+    headGradient.addColorStop(0, '#FFE8D0');
+    headGradient.addColorStop(1, '#D4A574');
+    ctx.fillStyle = headGradient;
     ctx.beginPath();
     ctx.arc(0, -8, 7, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
 
-    // Eyes (Focused)
-    ctx.fillStyle = 'black';
+    ctx.fillStyle = '#1A1A1A';
     ctx.beginPath();
-    ctx.arc(-2, -8, 1, 0, Math.PI * 2);
-    ctx.arc(2, -8, 1, 0, Math.PI * 2);
+    ctx.arc(-2, -8, 1.5, 0, Math.PI * 2);
+    ctx.arc(2, -8, 1.5, 0, Math.PI * 2);
     ctx.fill();
 
-    // Bow (Right side)
-    ctx.strokeStyle = '#DEB887'; // Wood color
+    ctx.shadowBlur = 4;
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+
+    ctx.strokeStyle = '#C4A663';
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.arc(15, 0, 12, -Math.PI / 2, Math.PI / 2);
     ctx.stroke();
-    // Bow string
-    ctx.strokeStyle = '#EEE';
+
+    ctx.strokeStyle = '#E8E8E8';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(15, -12);
     ctx.lineTo(15, 12);
     ctx.stroke();
 
-    // Quiver (Left side on back)
-    ctx.fillStyle = '#5D2E0E'; // Dark brown
+    ctx.shadowBlur = 4;
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+    
+    const quiverGradient = ctx.createLinearGradient(-15, -5, -9, 10);
+    quiverGradient.addColorStop(0, '#5D2E0E');
+    quiverGradient.addColorStop(1, '#3A1E08');
+    ctx.fillStyle = quiverGradient;
     ctx.beginPath();
-    ctx.rect(-15, -5, 6, 15);
+    ctx.roundRect(-15, -5, 6, 15, 2);
     ctx.fill();
     ctx.stroke();
-    // Arrows sticking out
-    ctx.strokeStyle = '#333';
+
+    ctx.strokeStyle = '#8B4513';
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(-12, -5); ctx.lineTo(-12, -10);
-    ctx.moveTo(-14, -5); ctx.lineTo(-14, -8);
+    ctx.moveTo(-12, -5);
+    ctx.lineTo(-12, -10);
+    ctx.moveTo(-14, -5);
+    ctx.lineTo(-14, -8);
+    ctx.moveTo(-10, -5);
+    ctx.lineTo(-10, -9);
     ctx.stroke();
 
-    // Walk animation
-    const { x, y } = this.input.getAxis();
-    const time = Date.now() / 150;
-    const legSwing = (x !== 0 || y !== 0) ? Math.sin(time) * 4 : 0;
+    ctx.shadowBlur = 0;
 
-    // Legs
-    ctx.fillStyle = '#4D3627';
+    const { x, y } = this.input.getAxis();
+    const legSwing = (x !== 0 || y !== 0) ? Math.sin(time * 8) * 4 : 0;
+
+    const legGradient = ctx.createLinearGradient(-7, 10, -7, 18 + legSwing);
+    legGradient.addColorStop(0, '#5A3627');
+    legGradient.addColorStop(1, '#3A2017');
+    ctx.fillStyle = legGradient;
     ctx.fillRect(-7, 10, 5, 8 + legSwing);
     ctx.fillRect(2, 10, 5, 8 - legSwing);
+    
+    ctx.strokeStyle = '#2A1810';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(-7, 10, 5, 8 + legSwing);
+    ctx.strokeRect(2, 10, 5, 8 - legSwing);
+
+    ctx.restore();
   }
 
   public getFacingAngle(): number {

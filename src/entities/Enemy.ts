@@ -155,44 +155,52 @@ export class Enemy extends Entity {
         const dx = this.player.x - this.x;
         const dy = this.player.y - this.y;
         let angle = Math.atan2(dy, dx);
-        if (this.trappedInBubble) angle = -Math.PI / 2; // Look up if trapped
+        if (this.trappedInBubble) angle = -Math.PI / 2;
 
         ctx.save();
         ctx.translate(this.x, this.y);
         ctx.rotate(angle);
 
-        // --- NEW MORE DETAILED ALIEN DESIGN ---
+        const bodyGradient = ctx.createRadialGradient(0, -this.radius * 0.3, 0, 0, 0, this.radius);
+        bodyGradient.addColorStop(0, this.lightenColor(this.color, 40));
+        bodyGradient.addColorStop(0.5, this.color);
+        bodyGradient.addColorStop(1, this.darkenColor(this.color, 40));
 
-        // Antennae
-        ctx.strokeStyle = '#000';
+        ctx.shadowBlur = 6;
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+        ctx.shadowOffsetY = 3;
+
+        ctx.strokeStyle = this.darkenColor(this.color, 60);
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        ctx.quadraticCurveTo(-15, -15, -10, -25); // Left antenna
+        ctx.quadraticCurveTo(-15, -15, -10, -25);
         ctx.moveTo(0, 0);
-        ctx.quadraticCurveTo(15, -15, 10, -25); // Right antenna
+        ctx.quadraticCurveTo(15, -15, 10, -25);
         ctx.stroke();
 
-        // Antenna Balls (Glowing Red)
-        ctx.fillStyle = '#FF3333';
+        const antennaGlow = ctx.createRadialGradient(-10, -25, 0, -10, -25, 6);
+        antennaGlow.addColorStop(0, '#FF6666');
+        antennaGlow.addColorStop(0.5, '#FF3333');
+        antennaGlow.addColorStop(1, '#CC0000');
+        ctx.fillStyle = antennaGlow;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = '#FF0000';
         ctx.beginPath();
         ctx.arc(-10, -25, 4, 0, Math.PI * 2);
         ctx.fill();
-        ctx.stroke();
         ctx.beginPath();
         ctx.arc(10, -25, 4, 0, Math.PI * 2);
         ctx.fill();
-        ctx.stroke();
 
-        // Main Body (Squid/Jellyfish shape)
-        ctx.fillStyle = this.color;
-        ctx.strokeStyle = '#000';
+        ctx.shadowBlur = 6;
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+        ctx.fillStyle = bodyGradient;
+        ctx.strokeStyle = this.darkenColor(this.color, 50);
         ctx.lineWidth = 3;
 
         ctx.beginPath();
-        // Top dome
-        ctx.arc(0, 0, this.radius, Math.PI, 0); 
-        // Bottom wavy edge
+        ctx.arc(0, 0, this.radius, Math.PI, 0);
         ctx.quadraticCurveTo(this.radius * 0.75, this.radius * 0.5, this.radius * 0.5, 0);
         ctx.quadraticCurveTo(0, this.radius * 0.8, -this.radius * 0.5, 0);
         ctx.quadraticCurveTo(-this.radius * 0.75, this.radius * 0.5, -this.radius, 0);
@@ -200,82 +208,91 @@ export class Enemy extends Entity {
         ctx.fill();
         ctx.stroke();
 
-        // Tentacles
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = this.darkenColor(this.color, 70);
+        ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(-this.radius * 0.6, 0);
         ctx.lineTo(-this.radius * 0.8, this.radius * 1.2);
-        
         ctx.moveTo(-this.radius * 0.2, 0);
         ctx.lineTo(-this.radius * 0.3, this.radius * 1.5);
-
         ctx.moveTo(this.radius * 0.2, 0);
         ctx.lineTo(this.radius * 0.3, this.radius * 1.5);
-
         ctx.moveTo(this.radius * 0.6, 0);
         ctx.lineTo(this.radius * 0.8, this.radius * 1.2);
         ctx.stroke();
 
-        // Giant Single Cyclops Eye
-        ctx.fillStyle = 'white';
+        const eyeGradient = ctx.createRadialGradient(-2, -this.radius * 0.35, 0, 0, -this.radius * 0.3, this.radius * 0.6);
+        eyeGradient.addColorStop(0, '#FFFFFF');
+        eyeGradient.addColorStop(0.7, '#EEEEEE');
+        eyeGradient.addColorStop(1, '#CCCCCC');
+        ctx.fillStyle = eyeGradient;
         ctx.beginPath();
         ctx.arc(0, -this.radius * 0.3, this.radius * 0.6, 0, Math.PI * 2);
         ctx.fill();
+        ctx.strokeStyle = '#888888';
+        ctx.lineWidth = 1;
         ctx.stroke();
 
-        // Pupil (Slit like a cat/reptile)
-        ctx.fillStyle = 'black';
+        ctx.fillStyle = '#000000';
         ctx.beginPath();
         ctx.ellipse(0, -this.radius * 0.3, this.radius * 0.15, this.radius * 0.4, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Iris detail (Red center glow)
-        ctx.fillStyle = '#FF0000';
+        const irisGradient = ctx.createRadialGradient(0, -this.radius * 0.3, 0, 0, -this.radius * 0.3, this.radius * 0.12);
+        irisGradient.addColorStop(0, '#FF3333');
+        irisGradient.addColorStop(1, '#CC0000');
+        ctx.fillStyle = irisGradient;
         ctx.beginPath();
         ctx.arc(0, -this.radius * 0.3, this.radius * 0.1, 0, Math.PI * 2);
         ctx.fill();
 
-        // Draw bubble if trapped
         if (this.trappedInBubble) {
+            const bubbleGradient = ctx.createRadialGradient(-this.radius * 0.3, -this.radius * 0.3, 0, 0, 0, this.radius + 15);
+            bubbleGradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
+            bubbleGradient.addColorStop(0.5, 'rgba(0, 255, 255, 0.2)');
+            bubbleGradient.addColorStop(1, 'rgba(0, 200, 255, 0.1)');
+            
             ctx.beginPath();
-            ctx.arc(0, 0, this.radius + 15, 0, Math.PI * 2); // Larger bubble for tentacles
-            ctx.fillStyle = 'rgba(0, 255, 255, 0.3)';
+            ctx.arc(0, 0, this.radius + 15, 0, Math.PI * 2);
+            ctx.fillStyle = bubbleGradient;
             ctx.fill();
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
             ctx.lineWidth = 3;
             ctx.stroke();
             
-            // Bubble shine
             ctx.beginPath();
             ctx.arc(-this.radius * 0.5, -this.radius * 0.5, this.radius * 0.3, 0, Math.PI * 2);
             ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
             ctx.fill();
         }
 
-        // Draw poison effect
         if (this.poisonTimer > 0) {
+            const poisonGlow = ctx.createRadialGradient(0, 0, this.radius, 0, 0, this.radius + 10);
+            poisonGlow.addColorStop(0, 'rgba(0, 255, 0, 0)');
+            poisonGlow.addColorStop(1, 'rgba(0, 255, 0, 0.5)');
+            
             ctx.beginPath();
             ctx.arc(0, 0, this.radius + 2, 0, Math.PI * 2);
-            ctx.strokeStyle = 'rgba(0, 255, 0, 0.8)'; // Green border indicating poison
+            ctx.strokeStyle = 'rgba(0, 255, 0, 0.8)';
             ctx.lineWidth = 3;
             ctx.stroke();
             
-            // Bubbles
             ctx.fillStyle = 'rgba(0, 255, 0, 0.6)';
             ctx.beginPath();
             ctx.arc(10, -10, 3, 0, Math.PI * 2);
             ctx.arc(-5, -15, 2, 0, Math.PI * 2);
+            ctx.arc(8, 5, 2.5, 0, Math.PI * 2);
             ctx.fill();
         }
 
-        // Draw anti-heal icon or color effect
         if (this.antiHealTimer > 0) {
             ctx.beginPath();
             ctx.arc(0, 0, this.radius + 5, 0, Math.PI * 2);
-            ctx.strokeStyle = 'rgba(128, 0, 128, 0.8)'; // Purple border indicating anti-heal
+            ctx.strokeStyle = 'rgba(128, 0, 128, 0.8)';
             ctx.lineWidth = 4;
             ctx.stroke();
             
-            // Small cross out mark
             ctx.beginPath();
             ctx.moveTo(-10, -10);
             ctx.lineTo(10, 10);
@@ -286,49 +303,55 @@ export class Enemy extends Entity {
             ctx.stroke();
         }
 
-        // Draw charm effect (hearts around enemy)
         if (this.charmed) {
+            const time = Date.now() / 500;
             ctx.beginPath();
             ctx.arc(0, 0, this.radius + 8, 0, Math.PI * 2);
-            ctx.strokeStyle = 'rgba(255, 105, 180, 0.8)'; // Hot pink border
+            ctx.strokeStyle = 'rgba(255, 105, 180, 0.8)';
             ctx.lineWidth = 3;
             ctx.stroke();
 
-            // Floating hearts
-            const time = Date.now() / 500;
             for (let i = 0; i < 3; i++) {
                 const heartAngle = time + (i * Math.PI * 2 / 3);
                 const hx = Math.cos(heartAngle) * (this.radius + 12);
                 const hy = Math.sin(heartAngle) * (this.radius + 12);
+                
                 ctx.fillStyle = '#FF69B4';
+                ctx.shadowBlur = 4;
+                ctx.shadowColor = '#FF69B4';
                 ctx.beginPath();
                 ctx.arc(hx, hy, 3, 0, Math.PI * 2);
                 ctx.fill();
             }
+            ctx.shadowBlur = 0;
         }
 
-        // Draw freeze effect
         if (this.freezeTimer > 0) {
+            const freezeGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, this.radius + 5);
+            freezeGradient.addColorStop(0, 'rgba(0, 191, 255, 0.3)');
+            freezeGradient.addColorStop(1, 'rgba(0, 191, 255, 0.1)');
+            
             ctx.beginPath();
             ctx.arc(0, 0, this.radius + 5, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(0, 191, 255, 0.4)'; // Deep Sky Blue with transparency
+            ctx.fillStyle = freezeGradient;
             ctx.fill();
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
             ctx.lineWidth = 2;
             ctx.stroke();
 
-            // Draw ice crystals
+            ctx.fillStyle = '#FFFFFF';
+            ctx.shadowBlur = 3;
+            ctx.shadowColor = '#00BFFF';
             for (let i = 0; i < 4; i++) {
                 const iceAngle = (i * Math.PI) / 2;
                 const ix = Math.cos(iceAngle) * this.radius;
                 const iy = Math.sin(iceAngle) * this.radius;
-                ctx.fillStyle = 'white';
                 ctx.beginPath();
                 ctx.arc(ix, iy, 4, 0, Math.PI * 2);
                 ctx.fill();
             }
+            ctx.shadowBlur = 0;
         } else if (this.slowTimer > 0) {
-            // Draw slow effect
             ctx.beginPath();
             ctx.arc(0, 0, this.radius + 3, 0, Math.PI * 2);
             ctx.strokeStyle = 'rgba(0, 255, 255, 0.5)';
@@ -338,6 +361,6 @@ export class Enemy extends Entity {
             ctx.setLineDash([]);
         }
 
-        ctx.restore();
+ctx.restore();
     }
 }

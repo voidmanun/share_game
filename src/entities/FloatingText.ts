@@ -133,22 +133,4 @@ export class FloatingText extends Entity {
 
         ctx.restore();
     }
-
-    private lightenColor(color: string, percent: number): string {
-        const num = parseInt(color.replace('#', ''), 16);
-        const amt = Math.round(2.55 * percent);
-        const R = Math.min(255, (num >> 16) + amt);
-        const G = Math.min(255, ((num >> 8) & 0x00FF) + amt);
-        const B = Math.min(255, (num & 0x0000FF) + amt);
-        return `#${(1 << 24 | R << 16 | G << 8 | B).toString(16).slice(1)}`;
-    }
-
-    private darkenColor(color: string, percent: number): string {
-        const num = parseInt(color.replace('#', ''), 16);
-        const amt = Math.round(2.55 * percent);
-        const R = Math.max(0, (num >> 16) - amt);
-        const G = Math.max(0, ((num >> 8) & 0x00FF) - amt);
-        const B = Math.max(0, (num & 0x0000FF) - amt);
-        return `#${(1 << 24 | R << 16 | G << 8 | B).toString(16).slice(1)}`;
-    }
 }
