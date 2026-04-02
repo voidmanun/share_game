@@ -56,6 +56,7 @@ import { WaveManager } from './systems/WaveManager';
 import { ComboSystem } from './systems/ComboSystem';
 import { WeatherSystem } from './systems/WeatherSystem';
 import { PlayerLevelSystem } from './systems/PlayerLevelSystem';
+import { AchievementSystem } from './systems/AchievementSystem';
 
 export class Game {
     private canvas: HTMLCanvasElement;
@@ -149,6 +150,7 @@ export class Game {
     public comboSystem!: ComboSystem;
     public weatherSystem!: WeatherSystem;
     public playerLevelSystem!: PlayerLevelSystem;
+    public achievementSystem!: AchievementSystem;
     private skillTreeManager: SkillTreeManager | null = null;
     private isPaused: boolean = false;
 
@@ -280,6 +282,7 @@ export class Game {
         this.comboSystem = new ComboSystem(this);
         this.weatherSystem = new WeatherSystem(this);
         this.playerLevelSystem = new PlayerLevelSystem(this);
+        this.achievementSystem = new AchievementSystem(this);
         this.petNurtureSystem = new PetNurtureSystem();
         this.petPanel = new PetPanel(this);
         this.waveManager = new WaveManager(this, this.player);
@@ -398,6 +401,7 @@ export class Game {
         this.handlePetCommands();
         this.comboSystem.update(deltaTime);
         this.weatherSystem.update(deltaTime);
+        this.achievementSystem.update(deltaTime);
 
         this.player.update(deltaTime);
         this.obstacles.forEach(o => o.update(deltaTime));
@@ -512,6 +516,12 @@ private updateHUD(): void {
         // 连击系统 - Splitter分裂的小怪不计入连击
         if (!(enemy instanceof Splitter && enemy.isSplitterling)) {
             this.comboSystem.onEnemyKill();
+            // 更新成就统计
+            this.achievementSystem.onEnemyKill(
+                enemy instanceof Boss || enemy instanceof FusionBoss || enemy instanceof TitanEnemy,
+                enemy instanceof TwinElite || enemy instanceof DevourerElite
+            );
+            this.achievementSystem.onComboAchieved(this.comboSystem.getComboCount());
         }
 
         // 宠物获取经验（击杀敌人分享经验）
@@ -1269,6 +1279,9 @@ private updateHUD(): void {
         
         // 渲染玩家等级系统UI
         this.playerLevelSystem.render(this.ctx, this.canvas.width);
+        
+        // 渲染成就系统通知
+        this.achievementSystem.render(this.ctx, this.canvas.width);
         
         // 渲染天气系统
         this.weatherSystem.render(this.ctx, camX, camY, this.canvas.width, this.canvas.height);
