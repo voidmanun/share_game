@@ -116,6 +116,10 @@ export class WaveManager {
                     const spawnFn = this.spawnQueue.shift();
                     if (spawnFn) {
                         const enemy = spawnFn();
+                        // 应用仇恨系统加成
+                        const hatredMultiplier = this.game.hatredSystem.getHatredMultiplier();
+                        enemy.hp *= hatredMultiplier;
+                        enemy.speed *= (1 + (hatredMultiplier - 1) * 0.5);
                         this.game.getEnemies().push(enemy);
                         this.spawnedCount++;
                     }

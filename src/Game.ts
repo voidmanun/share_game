@@ -58,6 +58,7 @@ import { WeatherSystem } from './systems/WeatherSystem';
 import { PlayerLevelSystem } from './systems/PlayerLevelSystem';
 import { AchievementSystem } from './systems/AchievementSystem';
 import { BossRushSystem } from './systems/BossRushSystem';
+import { HatredSystem } from './systems/HatredSystem';
 
 export class Game {
     private canvas: HTMLCanvasElement;
@@ -153,6 +154,7 @@ export class Game {
     public playerLevelSystem!: PlayerLevelSystem;
     public achievementSystem!: AchievementSystem;
     public bossRushSystem!: BossRushSystem;
+    public hatredSystem!: HatredSystem;
     private skillTreeManager: SkillTreeManager | null = null;
     private isPaused: boolean = false;
 
@@ -286,6 +288,7 @@ export class Game {
         this.playerLevelSystem = new PlayerLevelSystem(this);
         this.achievementSystem = new AchievementSystem(this);
         this.bossRushSystem = new BossRushSystem(this);
+        this.hatredSystem = new HatredSystem(this);
         this.petNurtureSystem = new PetNurtureSystem();
         this.petPanel = new PetPanel(this);
         this.waveManager = new WaveManager(this, this.player);
@@ -526,6 +529,12 @@ private updateHUD(): void {
                 enemy instanceof TwinElite || enemy instanceof DevourerElite
             );
             this.achievementSystem.onComboAchieved(this.comboSystem.getComboCount());
+            
+            // 更新仇恨系统
+            this.hatredSystem.onEnemyKill(
+                enemy instanceof Boss || enemy instanceof FusionBoss || enemy instanceof TitanEnemy
+            );
+            this.hatredSystem.onComboAchieved(this.comboSystem.getComboCount());
         }
 
         // 宠物获取经验（击杀敌人分享经验）
@@ -1293,6 +1302,9 @@ private updateHUD(): void {
         
         // 渲染Boss Rush UI
         this.bossRushSystem.render(this.ctx, this.canvas.width, this.canvas.height);
+        
+        // 渲染仇恨系统UI
+        this.hatredSystem.render(this.ctx);
         
         // 渲染天气系统
         this.weatherSystem.render(this.ctx, camX, camY, this.canvas.width, this.canvas.height);
