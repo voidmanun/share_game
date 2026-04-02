@@ -147,6 +147,10 @@ export class Enemy extends Entity {
             if (this.slowTimer > 0) {
                 currentSpeed *= 0.5;
             }
+            // 应用天气速度修正
+            if (game && game.weatherSystem) {
+                currentSpeed *= game.weatherSystem.getEnemySpeedMod();
+            }
             this.x += (dx / dist) * currentSpeed * deltaTime;
             this.y += (dy / dist) * currentSpeed * deltaTime;
         }

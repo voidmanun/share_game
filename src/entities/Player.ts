@@ -280,9 +280,15 @@ export class Player extends Entity {
     super.update(deltaTime); // Update animation
     const { x, y } = this.input.getAxis();
 
+    // 获取天气速度修正
+    let weatherSpeedMod = 1.0;
+    if (this.game && this.game.weatherSystem) {
+      weatherSpeedMod = this.game.weatherSystem.getPlayerSpeedMod();
+    }
+
     // Apply movement
-    this.x += x * (this.speed * this.speedMultiplier) * deltaTime;
-    this.y += y * (this.speed * this.speedMultiplier) * deltaTime;
+    this.x += x * (this.speed * this.speedMultiplier * weatherSpeedMod) * deltaTime;
+    this.y += y * (this.speed * this.speedMultiplier * weatherSpeedMod) * deltaTime;
 
     // Update facing angle if moving
     if (x !== 0 || y !== 0) {

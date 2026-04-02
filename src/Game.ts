@@ -52,6 +52,7 @@ import { getLeaderboard, saveScore } from './leaderboard';
 import type { SkillTreeManager } from './systems/SkillTree';
 import { WaveManager } from './systems/WaveManager';
 import { ComboSystem } from './systems/ComboSystem';
+import { WeatherSystem } from './systems/WeatherSystem';
 
 export class Game {
     private canvas: HTMLCanvasElement;
@@ -141,6 +142,7 @@ export class Game {
     public petNurtureSystem!: PetNurtureSystem;
     public waveManager!: WaveManager;
     public comboSystem!: ComboSystem;
+    public weatherSystem!: WeatherSystem;
     private skillTreeManager: SkillTreeManager | null = null;
     private isPaused: boolean = false;
 
@@ -266,6 +268,7 @@ export class Game {
         this.shop = new Shop(this);
         this.eliteRewardSystem = new EliteRewardSystem(this);
         this.comboSystem = new ComboSystem(this);
+        this.weatherSystem = new WeatherSystem(this);
         this.petNurtureSystem = new PetNurtureSystem();
         this.petPanel = new PetPanel(this);
         this.waveManager = new WaveManager(this, this.player);
@@ -383,6 +386,7 @@ export class Game {
         this.updateShake(deltaTime);
         this.handlePetCommands();
         this.comboSystem.update(deltaTime);
+        this.weatherSystem.update(deltaTime);
 
         this.player.update(deltaTime);
         this.obstacles.forEach(o => o.update(deltaTime));
@@ -1055,7 +1059,8 @@ private updateHUD(): void {
     }
 
     private render(): void {
-        this.ctx.fillStyle = '#8ced73';
+        // 使用天气背景颜色
+        this.ctx.fillStyle = this.weatherSystem.getBackgroundColor();
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         const camX = this.player.x - this.canvas.width / 2;
         const camY = this.player.y - this.canvas.height / 2;
@@ -1111,6 +1116,9 @@ private updateHUD(): void {
         
         // 渲染连击系统UI
         this.comboSystem.render(this.ctx, this.canvas.width);
+        
+        // 渲染天气系统
+        this.weatherSystem.render(this.ctx, camX, camY, this.canvas.width, this.canvas.height);
         
         this.ctx.textAlign = 'left';
     }
