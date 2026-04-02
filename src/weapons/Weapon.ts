@@ -7,7 +7,7 @@ export abstract class Weapon {
     protected game: Game;
     protected owner: Player;
     protected cooldown: number = 0;
-    protected fireRate: number; // Seconds between shots
+    public fireRate: number; // Seconds between shots
     public damage: number;
 
     constructor(game: Game, owner: Player, fireRate: number, damage: number) {

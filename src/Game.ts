@@ -59,6 +59,7 @@ import { PlayerLevelSystem } from './systems/PlayerLevelSystem';
 import { AchievementSystem } from './systems/AchievementSystem';
 import { BossRushSystem } from './systems/BossRushSystem';
 import { HatredSystem } from './systems/HatredSystem';
+import { WeaponFusionSystem } from './systems/WeaponFusionSystem';
 
 export class Game {
     private canvas: HTMLCanvasElement;
@@ -155,6 +156,7 @@ export class Game {
     public achievementSystem!: AchievementSystem;
     public bossRushSystem!: BossRushSystem;
     public hatredSystem!: HatredSystem;
+    public weaponFusionSystem!: WeaponFusionSystem;
     private skillTreeManager: SkillTreeManager | null = null;
     private isPaused: boolean = false;
 
@@ -289,6 +291,7 @@ export class Game {
         this.achievementSystem = new AchievementSystem(this);
         this.bossRushSystem = new BossRushSystem(this);
         this.hatredSystem = new HatredSystem(this);
+        this.weaponFusionSystem = new WeaponFusionSystem(this);
         this.petNurtureSystem = new PetNurtureSystem();
         this.petPanel = new PetPanel(this);
         this.waveManager = new WaveManager(this, this.player);

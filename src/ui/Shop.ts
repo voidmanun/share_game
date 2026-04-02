@@ -119,4 +119,25 @@ export class Shop {
             this.updateUI();
         }
     }
+
+    public tryFuseWeapons(): void {
+        const available = this.game.weaponFusionSystem.getAvailableFusions();
+        if (available.length === 0) return;
+
+        const { w1, w2 } = available[0];
+        const fusedWeapon = this.game.weaponFusionSystem.fuseWeapons(w1, w2);
+        
+        if (fusedWeapon) {
+            // 移除原有武器
+            const idx1 = this.game.player.weapons.indexOf(w1);
+            const idx2 = this.game.player.weapons.indexOf(w2);
+            if (idx1 > -1) this.game.player.weapons.splice(idx1, 1);
+            if (idx2 > -1) this.game.player.weapons.splice(idx2 > idx1 ? idx2 - 1 : idx2, 1);
+            
+            // 添加融合武器
+            this.game.player.weapons.push(fusedWeapon);
+            this.game.soundManager.playPickupSound();
+            this.updateUI();
+        }
+    }
 }
