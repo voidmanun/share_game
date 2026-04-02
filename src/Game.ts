@@ -135,6 +135,7 @@ export class Game {
     public hasSavedScore: boolean = false;
     public eliteDropCount: number = 0; // 精英掉落次数
     public eliteRewardUseCount: number = 0; // 强化卡使用次数
+    public reviveCount: number = 0; // 复活次数
 
     public shop!: Shop;
     public eliteRewardSystem!: EliteRewardSystem;
@@ -172,6 +173,7 @@ export class Game {
         this.isPaused = false;
         this.eliteDropCount = 0;
         this.eliteRewardUseCount = 0;
+        this.reviveCount = 0;
 
         this.backgroundLeaderboard = [];
         getLeaderboard().then(board => {
@@ -733,18 +735,94 @@ private updateHUD(): void {
         const gameOverEl = document.getElementById('game-over');
         const scoreEl = document.getElementById('final-score');
         const restartBtn = document.getElementById('restart-btn');
+        
+        // 复活费用计算: 50 -> 100 -> 200 -> 400 (每次翻倍)
+        const reviveCost = 50 * Math.pow(2, this.reviveCount);
+        const canRevive = this.gold >= reviveCost;
 
         if (gameOverEl && scoreEl && restartBtn) {
             scoreEl.textContent = Math.floor(this.gameTime).toString();
             gameOverEl.classList.remove('hidden');
             this.updateLeaderboard();
-            restartBtn.onclick = () => { this.initializeGame(); this.resume(); };
-            restartBtn.ontouchstart = (e) => { e.preventDefault(); this.initializeGame(); this.resume(); };
+            
+            // 添加复活按钮逻辑
+            let reviveBtn = document.getElementById('revive-btn');
+            if (!reviveBtn) {
+                reviveBtn = document.createElement('button');
+                reviveBtn.id = 'revive-btn';
+                reviveBtn.style.cssText = `
+                    padding: 12px 24px;
+                    font-size: 18px;
+                    font-family: 'Fredoka One', cursive;
+                    cursor: pointer;
+                    border: 3px solid #000;
+                    border-radius: 12px;
+                    background: linear-gradient(145deg, #FFD700, #FFA500);
+                    color: #000;
+                    font-weight: bold;
+                    box-shadow: 4px 4px 0 #000;
+                    margin: 10px;
+                `;
+                restartBtn.parentNode?.insertBefore(reviveBtn, restartBtn);
+            }
+            
+            reviveBtn.textContent = canRevive ? `🔄 复活 (${reviveCost}金币)` : `🔄 复活 (需要${reviveCost}金币)`;
+            reviveBtn.style.opacity = canRevive ? '1' : '0.5';
+            reviveBtn.style.cursor = canRevive ? 'pointer' : 'not-allowed';
+            
+            const doRevive = () => {
+                if (this.gold >= reviveCost) {
+                    this.revive(this.reviveCount);
+                    gameOverEl.classList.add('hidden');
+                }
+            };
+            
+            reviveBtn.onclick = canRevive ? doRevive : null;
+            
+            restartBtn.onclick = () => { 
+                this.reviveCount = 0;
+                this.initializeGame(); 
+                this.resume(); 
+            };
+            restartBtn.ontouchstart = (e) => { 
+                e.preventDefault();
+                this.reviveCount = 0;
+                this.initializeGame(); 
+                this.resume(); 
+            };
         } else {
             alert(`Game Over! Score: ${Math.floor(this.gameTime)}`);
+            this.reviveCount = 0;
             this.initializeGame();
             this.resume();
         }
+    }
+    
+    public revive(previousRevives: number): void {
+        const cost = 50 * Math.pow(2, previousRevives);
+        this.gold -= cost;
+        this.reviveCount++;
+        
+        // 恢复玩家
+        this.player.isDead = false;
+        this.player.hp = this.player.maxHp * 0.5; // 恢复50%生命
+        this.player.becomeInvincible(5); // 5秒无敌
+        
+        // 显示复活提示
+        this.floatingTexts.push(new FloatingText(
+            this.player.x,
+            this.player.y - 60,
+            `复活！剩余${this.gold}金币`,
+            '#FFD700',
+            'level'
+        ));
+        
+        // 粒子效果
+        for (let i = 0; i < 20; i++) {
+            this.particles.push(new Particle(this.player.x, this.player.y, '#FFD700'));
+        }
+        
+        this.resume();
     }
 
     private checkCollections(): void {
