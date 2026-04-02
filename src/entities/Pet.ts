@@ -3,6 +3,8 @@ import { Player } from './Player';
 import { Game } from '../Game';
 import type { PetData } from '../systems/PetNurtureSystem';
 import { PetProjectile } from './PetProjectile';
+import { FloatingText } from './FloatingText';
+import { Particle } from './Particle';
 
 export type PetCommand = 'attack' | 'defend' | 'follow' | 'stay';
 
@@ -44,6 +46,11 @@ export abstract class Pet extends Entity {
     protected skillCooldown: number = 0;
     protected skillMaxCooldown: number = 30; // 主动技能30秒冷却
     protected hasSkill: boolean = false;
+    
+    // 吞噬进化系统
+    public devouredCount: number = 0;
+    public evolutionPoints: number = 0;
+    public readonly EVOLUTION_THRESHOLD: number = 10; // 吃10个敌人进化一次
 
     constructor(player: Player, game: Game, hoverDistance: number, speed: number, radius: number, color: string) {
         super(player.x, player.y, radius, color);
@@ -229,6 +236,74 @@ export abstract class Pet extends Entity {
     public getSkillCooldownPercent(): number {
         if (!this.hasSkill) return 0;
         return Math.max(0, this.skillCooldown / this.skillMaxCooldown);
+    }
+
+    // 吞噬死亡敌人
+    public tryDevour(enemy: any): boolean {
+        if (enemy.isDead) return false;
+        
+        const dx = enemy.x - this.x;
+        const dy = enemy.y - this.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        
+        // 吞噬范围
+        if (dist < this.radius + enemy.radius + 30) {
+            this.devour(enemy);
+            return true;
+        }
+        return false;
+    }
+
+    // 执行吞噬
+    protected devour(enemy: any): void {
+        // 敌人被吞噬
+        enemy.isDead = true;
+        this.devouredCount++;
+        this.evolutionPoints++;
+        
+        // 获得经验
+        const expGain = Math.max(10, Math.floor(enemy.hp * 0.5));
+        this.addExperience(expGain);
+        
+        // 恢复少量生命给玩家
+        if (this.player) {
+            this.player.heal(1);
+        }
+        
+        // 检查是否可以进化
+        if (this.evolutionPoints >= this.EVOLUTION_THRESHOLD) {
+            this.triggerDevourEvolution();
+        }
+    }
+
+    // 触发吞噬进化
+    protected triggerDevourEvolution(): void {
+        this.evolutionPoints = 0;
+        this.evolutionStage++;
+        
+        // 进化增强
+        this.radius *= 1.15;
+        this.attackDamage *= 1.2;
+        this.speed *= 1.1;
+        this.damageMultiplier *= 1.15;
+        this.attackRange *= 1.1;
+        
+        // 显示进化提示
+        if (this.game && this.game.floatingTexts) {
+            this.game.floatingTexts.push(new FloatingText(
+                this.x,
+                this.y - 30,
+                `进化! Lv.${this.evolutionStage}`,
+                '#FFD700'
+            ));
+        }
+        
+        // 粒子效果
+        if (this.game && this.game.particles) {
+            for (let i = 0; i < 15; i++) {
+                this.game.particles.push(new Particle(this.x, this.y, '#FFD700'));
+            }
+        }
     }
 
     // 渲染等级和亲密度 UI（由子类调用）

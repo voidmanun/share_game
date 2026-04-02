@@ -697,6 +697,35 @@ private updateHUD(): void {
                 }
             }
         }
+
+        // 宠物吞噬低血量敌人
+        for (const pet of this.pets) {
+            for (const enemy of this.enemies) {
+                if (enemy.isDead) continue;
+                // 敌人血量低于20%时可以被吞噬
+                if (enemy.hp <= enemy.constructor.prototype.hp * 0.2 || enemy.hp <= 3) {
+                    const dx = pet.x - enemy.x;
+                    const dy = pet.y - enemy.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (dist < pet.radius + enemy.radius + 40) {
+                        // 宠物吞噬敌人
+                        enemy.isDead = true;
+                        pet.devouredCount++;
+                        pet.evolutionPoints++;
+                        pet.addExperience(Math.max(15, Math.floor(enemy.hp * 2)));
+                        
+                        // 粒子效果
+                        for (let i = 0; i < 8; i++) {
+                            this.particles.push(new Particle(enemy.x, enemy.y, '#FFD700'));
+                        }
+                        
+                        this.handleEnemyDeath(enemy);
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     private updateLeaderboard(): void {
