@@ -51,6 +51,7 @@ import { PetNurtureSystem } from './systems/PetNurtureSystem';
 import { getLeaderboard, saveScore } from './leaderboard';
 import type { SkillTreeManager } from './systems/SkillTree';
 import { WaveManager } from './systems/WaveManager';
+import { ComboSystem } from './systems/ComboSystem';
 
 export class Game {
     private canvas: HTMLCanvasElement;
@@ -139,6 +140,7 @@ export class Game {
     public petPanel!: PetPanel;
     public petNurtureSystem!: PetNurtureSystem;
     public waveManager!: WaveManager;
+    public comboSystem!: ComboSystem;
     private skillTreeManager: SkillTreeManager | null = null;
     private isPaused: boolean = false;
 
@@ -263,6 +265,7 @@ export class Game {
 
         this.shop = new Shop(this);
         this.eliteRewardSystem = new EliteRewardSystem(this);
+        this.comboSystem = new ComboSystem(this);
         this.petNurtureSystem = new PetNurtureSystem();
         this.petPanel = new PetPanel(this);
         this.waveManager = new WaveManager(this, this.player);
@@ -379,6 +382,7 @@ export class Game {
 
         this.updateShake(deltaTime);
         this.handlePetCommands();
+        this.comboSystem.update(deltaTime);
 
         this.player.update(deltaTime);
         this.obstacles.forEach(o => o.update(deltaTime));
@@ -483,6 +487,11 @@ private updateHUD(): void {
 
     public handleEnemyDeath(enemy: Enemy): void {
         const hpMult = 1 + (Math.floor(this.gameTime / 30) * 0.5);
+
+        // 连击系统 - Splitter分裂的小怪不计入连击
+        if (!(enemy instanceof Splitter && enemy.isSplitterling)) {
+            this.comboSystem.onEnemyKill();
+        }
 
         // 宠物获取经验（击杀敌人分享经验）
         const expGained = Math.max(1, Math.floor(enemy.hp / 5));
@@ -780,7 +789,12 @@ private updateHUD(): void {
                     this.handlePetEquipmentPickup(pickup);
                     this.soundManager.playPickupSound();
                 } else if (pickup instanceof Pickup) {
-                    this.gold += pickup.value;
+                    const goldBonus = this.comboSystem.getGoldBonus();
+                    const bonusGold = Math.floor(pickup.value * (1 + goldBonus));
+                    this.gold += bonusGold;
+                    if (goldBonus > 0) {
+                        this.floatingTexts.push(new FloatingText(pickup.x, pickup.y - 10, `+${bonusGold}`, '#FFD700'));
+                    }
                     this.soundManager.playPickupSound();
                 }
                 pickup.isDead = true;
@@ -1094,6 +1108,10 @@ private updateHUD(): void {
         this.ctx.fillText(`Pos: ${Math.round(this.player.x)}, ${Math.round(this.player.y)}`, debugX, 55);
         this.ctx.strokeText(`Enemies: ${this.enemies.length}`, debugX, 80);
         this.ctx.fillText(`Enemies: ${this.enemies.length}`, debugX, 80);
+        
+        // 渲染连击系统UI
+        this.comboSystem.render(this.ctx, this.canvas.width);
+        
         this.ctx.textAlign = 'left';
     }
 

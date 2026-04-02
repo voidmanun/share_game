@@ -18,7 +18,12 @@ export abstract class Weapon {
     }
 
     public get totalDamage(): number {
-        return this.damage * this.owner.damageMultiplier;
+        let damage = this.damage * this.owner.damageMultiplier;
+        // 添加连击伤害加成
+        if (this.game.comboSystem) {
+            damage *= (1 + this.game.comboSystem.getDamageBonus());
+        }
+        return damage;
     }
 
     public upgrade(): { damage: number, fireRate: number } {
