@@ -137,6 +137,9 @@ window.addEventListener('DOMContentLoaded', () => {
   const leaderboardModal = document.getElementById('leaderboard-modal');
   const closeLeaderboardBtn = document.getElementById('close-leaderboard-btn');
   const modalLeaderboardList = document.getElementById('modal-leaderboard-list');
+  
+  // Boss Rush button
+  const bossRushBtn = document.getElementById('boss-rush-btn');
 
 
   const settingsBtn = document.getElementById('settings-btn');
@@ -573,6 +576,12 @@ window.addEventListener('DOMContentLoaded', () => {
   closeLeaderboardBtn?.addEventListener('click', () => {
     game.resume();
     if (leaderboardModal) leaderboardModal.classList.add('hidden');
+  });
+
+  // Boss Rush functionality
+  bossRushBtn?.addEventListener('click', () => {
+    if (settingsModal) settingsModal.classList.add('hidden');
+    game.bossRushSystem.toggle();
   });
 
   // Encyclopedia functionality

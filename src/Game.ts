@@ -57,6 +57,7 @@ import { ComboSystem } from './systems/ComboSystem';
 import { WeatherSystem } from './systems/WeatherSystem';
 import { PlayerLevelSystem } from './systems/PlayerLevelSystem';
 import { AchievementSystem } from './systems/AchievementSystem';
+import { BossRushSystem } from './systems/BossRushSystem';
 
 export class Game {
     private canvas: HTMLCanvasElement;
@@ -151,6 +152,7 @@ export class Game {
     public weatherSystem!: WeatherSystem;
     public playerLevelSystem!: PlayerLevelSystem;
     public achievementSystem!: AchievementSystem;
+    public bossRushSystem!: BossRushSystem;
     private skillTreeManager: SkillTreeManager | null = null;
     private isPaused: boolean = false;
 
@@ -283,6 +285,7 @@ export class Game {
         this.weatherSystem = new WeatherSystem(this);
         this.playerLevelSystem = new PlayerLevelSystem(this);
         this.achievementSystem = new AchievementSystem(this);
+        this.bossRushSystem = new BossRushSystem(this);
         this.petNurtureSystem = new PetNurtureSystem();
         this.petPanel = new PetPanel(this);
         this.waveManager = new WaveManager(this, this.player);
@@ -402,6 +405,7 @@ export class Game {
         this.comboSystem.update(deltaTime);
         this.weatherSystem.update(deltaTime);
         this.achievementSystem.update(deltaTime);
+        this.bossRushSystem.update(deltaTime);
 
         this.player.update(deltaTime);
         this.obstacles.forEach(o => o.update(deltaTime));
@@ -1040,6 +1044,10 @@ private updateHUD(): void {
         this.pickups.push(pickup);
     }
 
+    public addEnemy(enemy: Enemy): void {
+        this.enemies.push(enemy);
+    }
+
     public getPickups(): any[] {
         return this.pickups;
     }
@@ -1282,6 +1290,9 @@ private updateHUD(): void {
         
         // 渲染成就系统通知
         this.achievementSystem.render(this.ctx, this.canvas.width);
+        
+        // 渲染Boss Rush UI
+        this.bossRushSystem.render(this.ctx, this.canvas.width, this.canvas.height);
         
         // 渲染天气系统
         this.weatherSystem.render(this.ctx, camX, camY, this.canvas.width, this.canvas.height);
