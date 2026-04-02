@@ -55,6 +55,7 @@ import type { SkillTreeManager } from './systems/SkillTree';
 import { WaveManager } from './systems/WaveManager';
 import { ComboSystem } from './systems/ComboSystem';
 import { WeatherSystem } from './systems/WeatherSystem';
+import { PlayerLevelSystem } from './systems/PlayerLevelSystem';
 
 export class Game {
     private canvas: HTMLCanvasElement;
@@ -147,6 +148,7 @@ export class Game {
     public waveManager!: WaveManager;
     public comboSystem!: ComboSystem;
     public weatherSystem!: WeatherSystem;
+    public playerLevelSystem!: PlayerLevelSystem;
     private skillTreeManager: SkillTreeManager | null = null;
     private isPaused: boolean = false;
 
@@ -277,6 +279,7 @@ export class Game {
         this.eliteRewardSystem = new EliteRewardSystem(this);
         this.comboSystem = new ComboSystem(this);
         this.weatherSystem = new WeatherSystem(this);
+        this.playerLevelSystem = new PlayerLevelSystem(this);
         this.petNurtureSystem = new PetNurtureSystem();
         this.petPanel = new PetPanel(this);
         this.waveManager = new WaveManager(this, this.player);
@@ -517,6 +520,10 @@ private updateHUD(): void {
             pet.addExperience(expGained);
             pet.addIntimacy(0.5); // 每次击杀增加少量亲密度
         });
+
+        // 玩家获取经验
+        const playerExpGained = Math.max(5, Math.floor(enemy.hp * 0.5));
+        this.playerLevelSystem.addExperience(playerExpGained);
 
         if (enemy instanceof Splitter && !enemy.isSplitterling && !(enemy as any).isEvolved) {
             const numSpawns = 5;
@@ -1259,6 +1266,9 @@ private updateHUD(): void {
         
         // 渲染连击系统UI
         this.comboSystem.render(this.ctx, this.canvas.width);
+        
+        // 渲染玩家等级系统UI
+        this.playerLevelSystem.render(this.ctx, this.canvas.width);
         
         // 渲染天气系统
         this.weatherSystem.render(this.ctx, camX, camY, this.canvas.width, this.canvas.height);
