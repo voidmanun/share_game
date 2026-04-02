@@ -51,6 +51,10 @@ export class Player extends Entity {
   private hasteTimer: number = 0;
   public petDamageMultiplier: number = 1.0;
   private petBuffTimer: number = 0;
+  
+  // Trap effects
+  public fireTrapTimer: number = 0;
+  public slowTimer: number = 0;
 
   constructor(x: number, y: number, input: Input, worldWidth: number, worldHeight: number, characterClass: CharacterClass = 'knight') {
     super(x, y, 20, '#FFFFFF'); // Paladin
@@ -360,6 +364,18 @@ export class Player extends Entity {
 
     if (this.mercyTimer > 0) {
       this.mercyTimer -= deltaTime;
+    }
+
+    // 处理火焰陷阱持续伤害
+    if (this.fireTrapTimer > 0) {
+      this.fireTrapTimer -= deltaTime;
+      // 每秒造成3点伤害
+      this.takeDamage(3 * deltaTime);
+    }
+
+    // 处理减速效果
+    if (this.slowTimer > 0) {
+      this.slowTimer -= deltaTime;
     }
 
     // Constrain to world bounds

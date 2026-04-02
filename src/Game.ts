@@ -46,6 +46,8 @@ import { LuckyCat } from './entities/LuckyCat';
 import { HolyLightTurtle } from './entities/HolyLightTurtle';
 import { Spirit } from './entities/Spirit';
 import { Obstacle, type ObstacleType } from './entities/Obstacle';
+import { Trap } from './entities/Trap';
+import type { TrapType } from './entities/Trap';
 import { EliteRewardSystem } from './systems/EliteRewardSystem';
 import { PetNurtureSystem } from './systems/PetNurtureSystem';
 import { getLeaderboard, saveScore } from './leaderboard';
@@ -121,6 +123,7 @@ export class Game {
 
     public pets: Pet[] = [];
     public obstacles: Obstacle[] = [];
+    public traps: Trap[] = [];
     private petLevelUpTimer: number = 0;
     private damageFlashTimer: number = 0;
     
@@ -165,6 +168,7 @@ export class Game {
         this.floatingTexts = [];
         this.pets = [];
         this.obstacles = [];
+        this.traps = [];
         this.petLevelUpTimer = 0;
         this.damageFlashTimer = 0;
         this.gold = 0;
@@ -185,6 +189,8 @@ export class Game {
 
         // Generate obstacles for the scene
         this.generateObstacles();
+        // Generate traps
+        this.generateTraps();
         this.player.setGame(this);
         if (this.skillTreeManager) {
             this.player.setSkillTreeManager(this.skillTreeManager);
@@ -392,6 +398,12 @@ export class Game {
 
         this.player.update(deltaTime);
         this.obstacles.forEach(o => o.update(deltaTime));
+        
+        // Update and check traps
+        this.traps.forEach(t => {
+            t.update(deltaTime);
+            t.checkTrigger();
+        });
         
         this.waveManager.update(deltaTime);
 
@@ -1136,6 +1148,29 @@ private updateHUD(): void {
         }
     }
 
+    private generateTraps(): void {
+        const trapCount = 20;
+        const trapTypes: TrapType[] = ['spike', 'swamp', 'fire'];
+
+        for (let i = 0; i < trapCount; i++) {
+            let x: number, y: number;
+            let attempts = 0;
+            const minDistanceFromPlayer = 250;
+
+            do {
+                x = Math.random() * this.WORLD_WIDTH;
+                y = Math.random() * this.WORLD_HEIGHT;
+                attempts++;
+            } while (
+                attempts < 10 &&
+                Math.hypot(x - this.WORLD_WIDTH / 2, y - this.WORLD_HEIGHT / 2) < minDistanceFromPlayer
+            );
+
+            const type = trapTypes[Math.floor(Math.random() * trapTypes.length)];
+            this.traps.push(new Trap(x, y, this, type));
+        }
+    }
+
     private render(): void {
         // 使用天气背景颜色
         this.ctx.fillStyle = this.weatherSystem.getBackgroundColor();
@@ -1164,6 +1199,7 @@ private updateHUD(): void {
 
         this.pickups.forEach(p => p.render(this.ctx));
         this.obstacles.forEach(o => o.render(this.ctx));
+        this.traps.forEach(t => t.render(this.ctx));
         this.enemies.forEach(enemy => enemy.render(this.ctx));
         this.projectiles.forEach(p => p.render(this.ctx));
         this.petProjectiles.forEach(p => p.render(this.ctx));
